@@ -1,0 +1,165 @@
+{
+  "main": {
+    "id": "f6b68c1a2dfb7bce",
+    "type": "split",
+    "children": [
+      {
+        "id": "c79abf76be9160fc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "25ade0550f865768",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "1 - Information Gathering/Passive Information Gathering.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f61d0e74929254b3",
+    "type": "split",
+    "children": [
+      {
+        "id": "e40a89ddc4ea97a5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d71e3a7099e9fb86",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "2a8c378e34fd3664",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "c23bd3ac2d6be57c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "294afe77c702e9e9",
+    "type": "split",
+    "children": [
+      {
+        "id": "efeb0fd07b4f4721",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a2a2122430e3724f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "1 - Information Gathering/Passive Information Gathering.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "932121374f1855e3",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "1 - Information Gathering/Passive Information Gathering.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "0195ca9837be0ae5",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "103ed9a3c552f18b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "1 - Information Gathering/Passive Information Gathering.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "25ade0550f865768",
+  "lastOpenFiles": [
+    "1 - Information Gathering/Passive Information Gathering.md",
+    "1 - Information Gathering/Active Information Gathering.md",
+    "1 - Information Gathering/Introduction.md",
+    "12 - Web App Pentesting",
+    "11 - Social Engineering",
+    "10 - Post Exploitation",
+    "9 - Exploitation",
+    "8 - Metasploit Framework",
+    "7 - Network Based Attacks",
+    "6 - System_Host Based Attacks",
+    "5 - Auditing",
+    "4 - Vulnerability Assessment",
+    "3 - Enumeration"
+  ]
+}
