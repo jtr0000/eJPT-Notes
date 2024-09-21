@@ -13,8 +13,8 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1 - Information Gathering/Passive Information Gathering.md",
-                "mode": "source",
+                "file": "1 - Information Gathering/b. Passive Information Gathering.md",
+                "mode": "preview",
                 "source": false
               }
             }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "1 - Information Gathering/Passive Information Gathering.md",
+                "file": "1 - Information Gathering/b. Passive Information Gathering.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1 - Information Gathering/Passive Information Gathering.md",
+                "file": "1 - Information Gathering/b. Passive Information Gathering.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1 - Information Gathering/Passive Information Gathering.md"
+                "file": "1 - Information Gathering/b. Passive Information Gathering.md"
               }
             }
           }
@@ -148,8 +148,15 @@
   },
   "active": "25ade0550f865768",
   "lastOpenFiles": [
-    "1 - Information Gathering%2FPassive Information Gathering.md",
+    "0 - Reference/Quick Reference.md",
+    "1 - Information Gathering/b. Passive Information Gathering.md",
+    "0 - Reference",
+    "1 - Information Gathering/c. Active Information Gathering.md",
+    "1 - Information Gathering/a. Introduction.md",
     "1 - Information Gathering/Passive Information Gathering.md",
+    "1 - Information Gathering/b.Passive Information Gathering.md",
+    "1 - Information Gathering/a.Introduction.md",
+    "1 - Information Gathering%2FPassive Information Gathering.md",
     "Passive Information Gathering.md",
     "Passive Information Gathering 2.md",
     "1 - Information Gathering/Active Information Gathering.md",
@@ -164,7 +171,6 @@
     "7 - Network Based Attacks",
     "6 - System_Host Based Attacks",
     "5 - Auditing",
-    "4 - Vulnerability Assessment",
-    "3 - Enumeration"
+    "4 - Vulnerability Assessment"
   ]
 }
