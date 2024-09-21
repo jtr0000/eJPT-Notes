@@ -1,6 +1,6 @@
 
 #### Table of Contents
-1. [Website Recon and Footprinting](Passive%20Information%20Gathering.md#Website%20Recon%20and%20Footprinting%20)
+1. [Website Recon and Footprinting](Passive%20Information%20Gathering.md#website-recon-and-footprinting)
 2. [WhoIs Enumeration](Passive%20Information%20Gathering.md#WhoIs%20Enumeration)
 3. Website Footprinting
 4. DNS Reconnaissance
