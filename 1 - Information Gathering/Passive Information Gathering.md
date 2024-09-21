@@ -1,7 +1,7 @@
 
 #### Table of Contents
 1. [Website Recon and Footprinting](Passive%20Information%20Gathering.md#website-recon-and-footprinting)
-2. [WhoIs Enumeration](Passive%20Information%20Gathering.md#WhoIs%20Enumeration)
+2. [WhoIs Enumeration](Passive%20Information%20Gathering.md#whois-enumeration)
 3. Website Footprinting
 4. DNS Reconnaissance
 5. WAF with wafw00f
@@ -11,7 +11,7 @@
 9. Leaked Passwords Databases
 
 ---
-### Website Recon and Footprinting
+### Website-Recon-and-Footprinting
 
 - **Lookup an IP address for a website:** Can use the 'host' DNS lookup utility in Kali. If there's multiple IPs associated the site might be using a proxy like Cloudflare.
 ```
@@ -37,7 +37,7 @@ whatweb https://www.website.com
 sudo apt-get install webhttrack
 ```   
 ---
-## WhoIs Enumeration
+## WhoIs-Enumeration
 
 WHOIS is a protocol for querying databases to find ownership details of domain names and IP addresses. You can use this information to get information on individuals like names/phone numbers/locations etc which is good for phishing or to get name servers.  Kali has a ```WhoIs``` utilty in Kali:
 ```
