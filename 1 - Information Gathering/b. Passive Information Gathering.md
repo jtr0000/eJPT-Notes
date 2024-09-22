@@ -6,8 +6,8 @@
 5. [WAF with wafw00f](b.%20Passive%20Information%20Gathering.md#WAF)
 6. [Hunting Subdomains](b.%20Passive%20Information%20Gathering.md#hunting-subdomains)
 7. [Google Dorks](b.%20Passive%20Information%20Gathering.md#google-dorks)
-8. Email Harvesting with theHarvester
-9. Leaked Passwords Databases
+8. [theHarvester](b.%20Passive%20Information%20Gathering.md#theharvester)
+9. [Leaked Passwords Databases](b.%20Passive%20Information%20Gathering.md#haveibeenpwned)                                                
 
 ---
 ## Website-Recon-and-Footprinting
@@ -72,7 +72,7 @@ You can use ```wafw00f``` which comes pre-packaged in Kali linux to check if a w
 wafwoof website.com
 ```
 
-- Github ([https://github.com/EnableSecurity/wafw00f](https://github.com/EnableSecurity/wafw00f)):
+- Link to wafw00f Github ([https://github.com/EnableSecurity/wafw00f](https://github.com/EnableSecurity/wafw00f)):
 ---
 ## Hunting-Subdomains
 
@@ -119,9 +119,53 @@ sublist3r -d domain.com -t 100
 
 Note: you can search a keyword while filtering out results from Google | eg. `site:ine.com employees`
 
-The Google Hacking Database (GHDB) also known as Google Dorks or Google Hacking , is **a collection of advanced search queries and techniques to uncover hidden, vulnerable, or sensitive information that may be inadvertently exposed on the web.** These can be helpful for coming up with creative queries where you could find things like credentials.
+##### Google Hacking Database
 
-https://www.exploit-db.com/google-hacking-database 
+The Google Hacking Database (GHDB) also known as Google Dorks or Google Hacking, is a collection of advanced search queries and techniques to uncover hidden, vulnerable, or sensitive information that may be inadvertently exposed on the web. These can be helpful for coming up with creative queries where you could find things like credentials.
+
+- Link to GHDB: https://www.exploit-db.com/google-hacking-database 
 
 ---
+## theHarvester
 
+theHarvester is a python tool which can collect emails and subdomains. This is pre-packaged in Kali linux but some of the services might need an API. <u>Double-check with the github page to see active services since the services can change</u>. 
+
+- Github: https://github.com/laramies/theHarvester 
+
+**General Syntax** - You need both the domain and specify the services you want to use for the search:
+
+```
+theHarvester -d website.com -b <services_separated by commas>
+```
+
+Example:
+
+```
+theHarvester -d company.com -b bing,anubis,crtsh
+```
+
+
+**Current Free services that don't require an API key:**
+- anubis: Anubis-DB - https://github.com/jonluca/anubis
+- baidu: Baidu search engine - [www.baidu.com](http://www.baidu.com/)
+- bing: Microsoft search engine - [](https://www.bing.com/)[https://www.bing.com](https://www.bing.com)
+- brave: Brave search engine - [https://search.brave.com/](https://search.brave.com/)
+- certspotter: Cert Spotter monitors Certificate Transparency logs - [https://sslmate.com/certspotter/](https://sslmate.com/certspotter/)
+- crtsh: Comodo Certificate search - [](https://crt.sh/)[https://crt.sh](https://crt.sh)
+- dnsdumpster: DNSdumpster search engine - [](https://dnsdumpster.com/)[https://dnsdumpster.com](https://dnsdumpster.com)
+- duckduckgo: DuckDuckGo search engine - [](https://duckduckgo.com/)[https://duckduckgo.com](https://duckduckgo.com)
+- hackertarget: Online vulnerability scanners and network intelligence to help organizations - [](https://hackertarget.com/)[https://hackertarget.com](https://hackertarget.com)
+- otx: AlienVault open threat exchange - [](https://otx.alienvault.com/)[https://otx.alienvault.com](https://otx.alienvault.com)
+- rapiddns: DNS query tool which make querying subdomains or sites of a same IP easy! [](https://rapiddns.io/)[https://rapiddns.io](https://rapiddns.io)
+- sitedossier: Find available information on a site - [](http://www.sitedossier.com/)[http://www.sitedossier.com](http://www.sitedossier.com)
+- subdomaincenter: A subdomain finder tool used to find subdomains of a given domain - [https://www.subdomain.center/](https://www.subdomain.center/)
+- subdomainfinderc99: A subdomain finder is a tool used to find the subdomains of a given domain - [](https://subdomainfinder.c99.nl/)[https://subdomainfinder.c99.nl](https://subdomainfinder.c99.nl)
+- threatminer: Data mining for threat intelligence - [https://www.threatminer.org/](https://www.threatminer.org/)
+- urlscan: A sandbox for the web that is a URL and website scanner - [](https://urlscan.io/)[https://urlscan.io](https://urlscan.io)
+- vhost: Bing virtual hosts search
+- yahoo: Yahoo search engine
+
+---
+## HaveIBeenPwned
+
+If you have some email addresses you can use a tool like HaveIbeenpwned ([https://haveibeenpwned.com/](https://haveibeenpwned.com/)) to see if the email address has been involved in a data breach. You can probably see if there a paste available (?) which means that there is a publicly available file that contained the info. You should be able to directly check the paste.
