@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "4 - Vulnerability Assessment/Vulnerability Assessment.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "4 - Vulnerability Assessment/Vulnerability Assessment.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +114,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "4 - Vulnerability Assessment/Vulnerability Assessment.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md"
+                "file": "4 - Vulnerability Assessment/Vulnerability Assessment.md"
               }
             }
           }
@@ -160,9 +160,9 @@
   },
   "active": "25ade0550f865768",
   "lastOpenFiles": [
-    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "1 - Information Gathering/c. Active Information Gathering.md",
+    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "Untitled.md",
     "2 - Footprinting_Scanning/Untitled.md",
     "1 - Information Gathering/b. Passive Information Gathering.md",
