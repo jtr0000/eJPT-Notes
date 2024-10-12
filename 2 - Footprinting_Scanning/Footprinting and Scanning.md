@@ -3,7 +3,6 @@ Table of Contents
 - 
 
 ---
-
 ## Host Discovery with Nmap
 
 By default, Nmap uses multiple techniques to identify live hosts, including:
@@ -77,7 +76,25 @@ nmap -sn 10.14.18.0/24 --send-ip
 
 ---
 
-# Network Protocols and Packet Structure
+
+
+---
+
+ [Networking Fundamentals ](Footprinting%20and%20Scanning.md#networking)
+
+ [Network Mapping ](Footprinting%20and%20Scanning.md#networking-mapping)
+
+ [Host Discovery ](Footprinting%20and%20Scanning.md#host-discovery)
+
+ [Ping Sweeps](Footprinting%20and%20Scanning.md#ping-sweeps)
+
+ [Host Discovery with Nmap ](Footprinting%20and%20Scanning.md#host-discovery-with-nmap)
+
+ [Port Scanning with Nmap ](Footprinting%20and%20Scanning.md#port-scanning-with-nmap)
+
+ [Evasion, Scan Performance and Output](Footprinting%20and%20Scanning.md#evasion-performance-output)
+
+### Networking
 
 In computer networks, hosts communicate by using network protocols, which are crucial for ensuring compatibility between different hardware and software systems. When hosts communicate, they do so through <u>packets</u>—streams of bits representing the data being exchanged. Packets are transmitted over physical media and contain two main components: headers and payloads. The <u>header</u> includes protocol-specific structures, while the <u>payload</u> carries the actual information being sent, such as an email or file.
 
@@ -129,6 +146,145 @@ The transport layer is the fourth layer in the OSI model and is responsible for 
 
 **User Datagram Protocol (UDP):** Unlike TCP, UDP is connectionless and does not guarantee reliable delivery. It is ideal for real-time applications that prioritize speed over reliability, such as streaming and gaming. UDP has a smaller header size, which results in lower overhead compared to TCP.
 
-TCP vs. UDP
+**TCP vs. UDP**
 
 TCP is preferred for applications that require reliable, ordered data transmission, such as web browsing or file transfers. In contrast, UDP is better suited for applications where speed is more important than reliability, such as live video or online gaming. While TCP ensures that data reaches its destination in order and without loss, UDP offers lower latency by foregoing these guarantees.
+### Networking-Mapping
+
+Network mapping is a critical phase in penetration testing following the passive information gathering phase, where the tester actively gathers information about the target network including:
+1. Which hosts in a network are online
+2. Their IP addresses
+3. Open ports/the services they are running
+4. The operating systems they use
+The key objectives of network mapping include:
+- **Discovery of Live Hosts:** Identifying active devices and hosts by detecting IP addresses in use.
+- **Identification of Open Ports and Services:** Understanding the services running on discovered hosts and the attack surface they present.
+- **Network Topology Mapping:** Creating a map of the network’s layout, including routers, switches, and other infrastructure elements.
+- **Operating System Fingerprinting:** Identifying the OS running on hosts to tailor attacks to potential vulnerabilities.
+- **Service Version Detection:** Pinpointing the versions of services to discover vulnerabilities associated with specific versions.
+- **Identifying Security Measures:** Detecting firewalls, intrusion prevention systems, and other defenses to strategize testing.
+
+#### Nmap
+
+Nmap (Network Mapper) is a widely-used open-source tool for scanning networks to discover hosts, open ports, and potential vulnerabilities. It is a standard tool for security professionals and penetration testers due to its versatility and range of features:
+
+- **Host Discovery:** Identifies live hosts using techniques like ICMP, ARP, or TCP/UDP probes.
+- **Port Scanning:** Discovers open ports on target hosts to assess network exposure.
+- **Service Version Detection:** Determines the versions of services running on open ports to identify vulnerabilities.
+- **Operating System Fingerprinting:** Attempts to identify the operating system of target hosts based on scan data.
+### Host-Discovery
+
+Host discovery is identifying live hosts on a network before moving on to vulnerability assessments. Different techniques are used depending on the network's characteristics, stealth requirements, and the test's objectives.
+
+**Host Discovery Techniques:**
+
+- **Ping Sweeps (ICMP Echo Requests):** Sends ICMP Echo Requests (pings) to a range of IP addresses to detect live hosts. While this method is quick and widely supported, it can be easily blocked by firewalls or host configurations and is often detectable by network defenses.
+- **ARP Scanning:** Uses Address Resolution Protocol (ARP) to discover hosts on local networks within the same broadcast domain. This method is highly effective for local networks but is limited to local subnets and cannot be used across different networks.
+- **TCP SYN Ping (Half-Open Scan):** Sends TCP SYN packets (often to port 80) to check if a host responds with a SYN-ACK, indicating it is alive. This technique is stealthier than ICMP ping and can bypass some firewalls that allow outbound connections. However, some hosts may not respond due to security measures like firewalls.
+- **UDP Ping:** Sends UDP packets to specific ports to check for a response, useful for detecting hosts that do not respond to ICMP or TCP probes. The effectiveness of this method can be limited by firewalls, which may block or filter UDP traffic.
+- **TCP ACK Ping:** Sends TCP ACK packets to a host, and if a TCP RST (reset) is received, the host is confirmed to be alive. This method is useful when ICMP is blocked, but its success can depend on the network's security configuration.
+- **SYN-ACK Ping:** Similar to TCP ACK Ping but sends SYN-ACK packets. A TCP RST response indicates the host is active. This method can be useful when other discovery methods are blocked, but it may be less reliable if security configurations are strict.
+
+The choice of technique depends on the network's defenses and the specific goals of the penetration test. Factors like firewall configurations, security devices, and network characteristics will influence the effectiveness of each method.
+
+### Ping-Sweeps
+
+A ping sweep is a network scanning technique used to identify live hosts (such as computers or servers) within a specific IP address range by sending ICMP Echo Request (ping) messages. The goal is to observe which IP addresses respond to determine which devices are active on the network.
+
+Ping sweeps work by sending ICMP Echo Requests (Type 8) to the target addresses. If a host is online, it responds with an ICMP Echo Reply (Type 0), confirming its presence. The "Type" field in the ICMP header defines the purpose of the message (e.g., Type 8 for Echo Request, Type 0 for Echo Reply), while the "Code" field adds additional context, with Code 0 used in both request and reply messages.
+
+If no reply is received, it could indicate the host is offline or unreachable. However, this lack of response could also result from firewalls blocking ICMP traffic, network congestion, or temporary unavailability. While ping sweeps are a simple way to check host reachability, results should be interpreted in the context of the network's conditions and security settings.
+
+### Host-Discovery-with-Nmap
+
+Nmap usually begins with a ping scan for host discovery followed by a port scan. To disable the port scan and only perform host discovery, you can use the `-sn` option. By default, Nmap's host discovery sends TCP SYN to port 443, TCP ACK to port 80, and an ICMP timestamp request. Some scans require admin privileges depending on the type of packets used. The main limitation of Nmap's ping scan is that it still relies on ICMP, which may be blocked or limited by some networks.
+
+```
+nmap -sn target
+```
+
+#### TCP SYN Ping - Host Discovery Scan  | `-PS` 
+
+For the `-sn` host discovery scan, you can override what kind of packets you send with the `-P...` option. The `-PS` option allows will send SYN packets. By default, it will send the SYN packets to port 80 to determine if the target is online unless a different port is  specified. 
+	- <u>If the port is open</u>, the target will respond with a SYN-ACK packet. 
+	- <u>If the port is closed</u>, the target will respond with an RST packet, indicating the system is alive.
+	- <u>If no response is received</u>, this could indicate the host is offline or that a firewall is blocking the packets. Some firewalls drop outgoing/incoming SYN-ACK or RST packets, affecting the accuracy of this method.
+
+```
+nmap -sn -PS target_ip
+```
+
+#### TCP ACK Ping - Host Discovery Scan |  `-PA` 
+            
+The `-PA` option will send ACK packets. The normal TCP process is ‘`SYN > SYN ACK > ACK`’ if you send just the ACK packet this the target should respond with a RST reset packet. Not recommended since ACK packets are typically blocked and RST packets are generally blocked by firewalls so the results of the scan isn’t entirely reliable. _However, this scan can be used to tell if a firewall is present_
+```
+nmap -sn -PA target_ip
+```
+
+#### ICMP Echo - Host Discovery Scan  | `-PE` | 
+
+The `-PE` option will send will send ICMP echo requests, also not really recommended.
+```
+nmap -sn -PE target_ip
+```
+
+
+### Customizing Host Discovery Scans
+
+- **Specify certain number of IPs and not a range**: Just have a space between each IP
+```
+nmap target1 target2
+```
+
+- **Scan IPs using a list** | Use `-iL` to pull the targets from a file.This can be a txt file and the target IPs need to be listed line-by-line:
+```
+nmap -sn iL file.txt
+```
+    
+- **SYN Discovery using a custom port** | Instead of using port 80, you can use another port
+```
+ nmap -sn -PS[port_num] target
+```
+		
+- **Specify a range of ports to try SYN packets on** | Recommended since this can work with ports from windows and linux can be found in a range of 1-1000
+```
+nmap -sn -PS[port_start] - [port_end] target
+```
+		
+- **Specify specific ports**
+```
+nmap -sn -PS<port1>, <port2>, <port3>… <target>
+```
+
+- **Disable ARP** : Even if you use `-PS` (which sends TCP SYN packets to probe hosts), NMap can also perform an **ARP ping scan** automatically for host discovery. This happens when scanning a local subnet, because ARP is the most effective way to detect active hosts on local networks. So you can include `--disable-arp-ping` to prevent that if you want but `--send-ip` should also accomplish this.
+
+```
+nmap -sn target --disable-arp-ping
+```
+
+---
+#### Host Discovery Methodology:
+
+1. First run an initial host discovery scan for a general sweep of the network:
+```
+nmap -sn -v -T4 <target>
+```
+- `-v` = Increases verbosity and includes a rationale
+- `-T4` = Increases scanning speed/number of packets
+
+2. If you find a set of IPs, you can reiterate through the process and perform as TCP SYN ping scan again on some common Windows/Linux ports to try to identify any systems that might be blocked icmp packets/Echo requests like Windows
+
+```
+nmap -sn -PS21,22,25,80,445,3389,8080 -PU137,138 -T4 <target>
+```
+- `21` = FTP
+- `22` = SSH
+- `25` = SMTP
+- `445` = SMB
+- `3389` = RDP
+- `8080` = Webserver stuff but not 100% where on windows, maybe file explorer
+- `UDP137 & 138` = Windows Netbios
+
+### Port-Scanning-with-Nmap
+
+### Evasion-Performance-Output
