@@ -145,16 +145,16 @@ nmap -sn target
  
 #### TCP SYN Ping - Host Discovery Scan  | `-PS` 
 
-For the `-sn` host discovery scan, you can override what kind of packets you send with the `-P...` option. The `-PS` option allows will send SYN packets. By default, it will send the SYN packets to port 80 to determine if the target is online unless a different port is  specified. 
-	- <u>If the port is open</u>, the target will respond with a SYN-ACK packet. 
-	- <u>If the port is closed</u>, the target will respond with an RST packet, indicating the system is alive.
-	- <u>If no response is received</u>, this could indicate the host is offline or that a firewall is blocking the packets. Some firewalls drop outgoing/incoming SYN-ACK or RST packets, affecting the accuracy of this method.
+For the `-sn` host discovery scan, you can override what kind of packets you send with the `-P...` option. The `-PS` option will send SYN packets to the target. By default, it will send the SYN packets to port 80 to determine if the target is online, unless a different port is  specified. 
+- <u>If the port is open</u>, the target will respond with a SYN-ACK packet. 
+- <u>If the port is closed</u>, the target will respond with an RST packet, indicating the system is alive.
+- <u>If no response is received</u>, this could indicate the host is offline or that a firewall is blocking the packets. Some firewalls drop outgoing/incoming SYN-ACK or RST packets, affecting the accuracy of this method.
 
 ```
 nmap -sn -PS target_ip
 ```
 
-#### TCP ACK Ping - Host Discovery Scan |  `-PA` 
+#### TCP ACK Ping - Host Discovery Scan  |  `-PA` 
             
 The `-PA` option will send ACK packets. The normal TCP process is ‘`SYN > SYN ACK > ACK`’ if you send just the ACK packet this the target should respond with a RST reset packet. Not recommended since ACK packets are typically blocked and RST packets are generally blocked by firewalls so the results of the scan isn’t entirely reliable. _However, this scan can be used to tell if a firewall is present_
 ```
