@@ -232,7 +232,7 @@ By default, before performing the port scan, Nmap will first perform host discov
 
 #### Port Scan without Ping Probes | `-Pn`
 
-To skip the host discovery, use the `-Pn` option so that Nmap goes straight into the port scan doesn't send any ping probes.
+To skip the host discovery, use the `-Pn` option so that Nmap goes straight into the port scan and doesn't send any ping probes.
 
 ```
 nmap -Pn <target_ip>
@@ -240,12 +240,11 @@ nmap -Pn <target_ip>
 
 ### Port Scan Types
 
-
 Port scanning helps identify active services and their states on target systems. Nmap has a range of port scan types designed for different needs and situations. Each type interacts with the target's ports in its own way, and the choice of scan can impact how accurate the results are and how likely they are to be detected by intrusion detection systems (IDS) or firewalls:
 
-###### TCP SYN Scan (Stealth/Half Open) | `-sS` 
+##### TCP SYN Scan (Stealth/Half Open) | `-sS` 
 
-The TCP SYN scan is a technique that exploits the TCP three-way handshake to determine the status of ports on a target. When initiated, Nmap sends a SYN packet to a specified port and awaits a response. If the target port is open, it replies with a SYN-ACK packet, indicating readiness to establish a connection. However, instead of completing the handshake by sending an ACK packet, Nmap responds with a RST (reset) packet terminating the connection attempt. 
+The TCP SYN scan is a port scanning technique that exploits the TCP three-way handshake to determine the status of ports on a target. Nmap will first send a SYN packet to a specified port and awaits a response. If the target port is open, the target will reply with a SYN-ACK packet, indicating readiness to establish a connection. However, instead of completing the handshake by sending an ACK packet, Nmap responds with a RST (reset) packet terminating the connection attempt. 
 
 User accounts with elevated privileges can run the TCP SYN Scan with the `-sS` option, but is also ran by default if Nmap is running under root/admin account. Elevated privileges are necessary to execute the scan since since sending SYN packets and receiving responses for TCP connections typically requires raw socket access, which is restricted to privileged users.
 
@@ -255,7 +254,7 @@ The SYN scan is recommended since SYN packets are common to see on the network s
 nmap -Pn -sS 10.4.24.205
 ```
 
-###### TCP CONNECT Port Scan (_Not Recommended_) | `-sT` |
+##### TCP CONNECT Port Scan (_Not Recommended_) | `-sT` 
 
 This works about the same as the TCP SYN scan but Nmap would complete the three-way handshake by responding with an ACK on open ports to which would initiate a TCP connection. This scan is the default option for non-privileged users. This is not recommended because most OS/IDS systems log established tcp connections and is likely will create connection log entries. This can be slightly more reliable but only used when there’s no concern for the noise on the network.
 ```
@@ -327,11 +326,11 @@ Extracting more information on the operating system and services available on op
 nmap -sS -sV -p- -T4 192.239.101.3
 ```
 
-- **More Aggressive Service Versions Scan**: Include `--version-intensity <num>` | This performs more enumeration on the services to be more conclusive if necessary. This option controls how many probes Nmap sends during service version detection, with `<num>` ranging from 0 to 9. Lower numbers (like 0 or 1) make Nmap send fewer probes for quicker, less intrusive scans with potentially less accurate results, while higher numbers (closer to 9) send more probes for slower, more thorough scans that are more likely to accurately detect the service version. Nmap is generally accurate with the services/version so it might not be any different from the normal `-sV` scan. The Operating systems and their version are not very conclusive.
+- **More Aggressive Service Versions Scan**: Include `--version-intensity <num>` | This performs more enumeration on the services to be more conclusive if necessary. This option controls how many probes Nmap sends during service version detection, with `<num>` ranging from 0 to 9. Lower numbers (like 0 or 1) make Nmap send fewer probes for quicker, less intrusive scans with potentially less accurate results, while higher numbers (closer to 9) send more probes for slower, more thorough scans that are more likely to accurately detect the service version. Nmap is generally accurate with the services/version so it might not be any different from the normal `-sV` scan. 
 
 ##### Operating Systems Detection 
 
-- **Check Operating Systems:** Include `-O` flag to try to find the operating system. This is not always conclusive/accurate
+- **Check Operating Systems:** Include `-O` flag to try to find the operating system. This is not always conclusive/accurate:
 ```
 nmap -sS -sV -O -p- -T4 192.168.101.3
 ```
@@ -353,13 +352,13 @@ ls -al /usr/share/nmap/scripts | grep -e “http”
 ```
 - The `ls` command is used to list the scripts directory and the `grep` command is filtering out for script related to 'http' (in this case)
 
-**Lookup a particular NSE script:** Use `--script-help=<script_name>` to lookup nmap scripts to get a description and tell if a script is safe for using without affecting the system. Multiple scripts can be ran by using commas to separate them
+**Lookup a particular NSE script:** Use `--script-help=<script_name>` to lookup nmap scripts to get a description and tell if a script is safe for using without affecting the system. 
 
 ```
 nmap --script-help=mongodb-databases
 ```
 
-**Run specific Nmap script** | Use `--script=<script_name>` to run a specific script. You don’t need to provide the nse extension, include the equal sign or scan all the TCP port. You can bring it down to just the port that the service was observed on.
+**Run specific Nmap script** | Use `--script=<script_name>` to run a specific script. You don’t need to provide the nse extension, include the equal sign or scan all the TCP ports. You can bring it down to just the port that the service was observed on. Multiple scripts can be ran by using commas to separate them.
 
 ```
 nmap --script=mongodb-databases 10.10.50.49
@@ -376,10 +375,10 @@ These NSE scripts are categorized to serve a particular purpose, from authentica
 - **Broadcast**: Used to facilitate broadcast/multicast to help discover host on the network
 - **Brute**: Brute Force attempts
 
-**Default**: Nmap has a library of default NSE scripts that it can safely be run against targets without negatively impacting the target system. You can run these scripts using the `-sC` option and will run the relevant scripts against the target given open ports/services which provide useful information on the target without engaging the target in the dangerous way.
+**Default**: Nmap has a library of default NSE scripts that it can safely be run against targets without negatively impacting the target system. You can run these scripts using the `-sC` option which  will run the relevant scripts against the target given open ports/services. This way, you can gather useful information on the target without engaging the target in the dangerous way.
 
 ```
-nmap -sS -sV -sC -p- -T4 192.168.101.3
+nmap -sS -sV -sC -p- 192.168.101.3
 ```
 
 #### Aggressive Scan 

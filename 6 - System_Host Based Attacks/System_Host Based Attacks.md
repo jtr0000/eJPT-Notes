@@ -713,8 +713,7 @@ nmap -sV -p5985,5986 target
 ```
 
 
-
-Crackmapexec
+#### Crackmapexec
 
 The _crackmapexec_ tool can be used for cracking various protocols including winrm.
 - Available protocols: `ssh | winrm | smb | rdp | mssql | ldap | ftp`
@@ -776,9 +775,39 @@ set PASSWORD wifpoeij
 exploit
 ```
 
-
-
 # Windows-Privilege-Escalation
+
+### Privilege Escalation
+
+Privilege escalation involves taking advantage of system vulnerabilities or misconfigurations to increase a user's access level, typically elevating from a standard user to one with administrative or root privileges. It is a crucial part of the attack lifecycle and directly impacts the success of penetration testing. Once an initial foothold is gained on a system, escalating privileges is necessary to perform tasks requiring administrative access such as data exfiltration or pivoting. 
+
+#### Windows Kernel
+
+A kernel is a program that's the core of an operating system, responsible for controlling hardware and system resources. It acts as a translation layer between hardware and software, facilitating communication between the two layers. Windows NT is the kernel pre-packaged with Windows and operates in two main modes that determine access to system resources:
+- **User Mode** – Programs and services running in user mode have limited access to system resources and functionality. Third-party applications/program 
+- **Kernel Mode** – Kernel mode allows unrestricted access to system resources, including the ability to manage hardware, devices, and system memory. The kernel is often targeted as code executed in the kernel space will be executed with the highest privileges available.
+
+#### Windows Kernel Exploitation
+
+Kernel exploits on Windows usually target vulnerabilities in the Windows kernel to execute arbitrary code, allowing attackers to run privileged system commands or gain access to a system shell. The approach varies depending on the Windows version and the specific kernel exploit used. Kernel exploit is not recommended in most environments since it can lead to crashing the system. The typical process for privilege escalation on Windows involves:
+
+1. Identifying kernel vulnerabilities.
+2. Downloading, compiling, and transferring kernel exploits to the target system.
+
+
+
+Tools & Environment
+
+**Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins.
+
++ GitHub: https://github.com/AonCyberLabs/Windows-Exploit-Suggester
+
+**Windows-Kernel-Exploits** - Collection of Windows Kernel exploits sorted by CVE.  
++ GitHub: https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-
+
+
+
+
 
 # Windows-File-System-Vulnerabilities
 
