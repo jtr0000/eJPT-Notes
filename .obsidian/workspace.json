@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
+                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
                 "mode": "source",
                 "source": false
               }
@@ -162,10 +162,10 @@
   },
   "active": "89849b5c58aaa131",
   "lastOpenFiles": [
-    "1 - Information Gathering/c. Active Information Gathering.md",
-    "3 - Enumeration/Enumeration.md",
     "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "6 - System_Host Based Attacks/System_Host Based Attacks.md",
+    "1 - Information Gathering/c. Active Information Gathering.md",
+    "3 - Enumeration/Enumeration.md",
     "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "5 - Auditing/Auditing.md",
     "1 - Information Gathering/b. Passive Information Gathering.md",

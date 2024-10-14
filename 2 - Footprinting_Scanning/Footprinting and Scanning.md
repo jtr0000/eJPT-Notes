@@ -1,84 +1,4 @@
-Table of Contents
-- Host Discovery with Nmap
-- 
-
----
-## Host Discovery with Nmap
-
-By default, Nmap uses multiple techniques to identify live hosts, including:
-
-- **ICMP Echo Request:** This is the traditional "ping" message used to check if a host is online.
-- **TCP SYN to Port 443:** Sends a TCP SYN packet to port 443 (commonly used for HTTPS) to check for a response.
-- **TCP ACK to Port 80:** Sends a TCP ACK packet to port 80 (used for HTTP) to detect whether the host is online, even if ICMP is blocked.
-- **ICMP Timestamp Request:** Sends a timestamp request as another ICMP-based method for identifying live hosts.
-##### A. Default Nmap Host Discovery Scan (`-sn`)
-
-Nmap by default would initially run a ping scan for host discovery before performing a port scan. The `-sn` option in Nmap is used to perform host discovery without a port scan,  referred to as a "ping scan." This means Nmap will identify which hosts are online without scanning ports on those hosts. Nmap's ping scan is that it still relies on ICMP by default, which many firewalls block or filter so this can lead to incomplete results.  
-
-```
-nmap -sn <target> 
-```
-
-Example: 
-```
-nmap -sn 10.14.18.0/24
-```
-
-Certain scans, including those that involve sending SYN or ACK packets, require administrative privileges (i.e., using `sudo` on Linux or running as an administrator on Windows) because they rely on raw packet manipulation, which interacts directly with the network stack. 
-##### B. TCP SYN Ping Scan (`-PS` )
-
-Like the default host discovery, the `-sn` option is included to tell Nmap to skip the port scan and focus only on host discovery. The `-PS` option  overrides the packets that would be sent in the host discovery with TCP SYN packets flag is set.  I think of this as  “**P**ackets with the **S**YN flag”.
-
-```
-nmap -sn -PS <target>
-```
-
-By default, the option sends SYN packets to port 80 to determine if the target is online unless otherwise specified. 
-- <u>If the port is open</u>, the target will respond with a *SYN-ACK* packet.
-- <u>If the port is closed</u>, the target will respond with an *RST* packet, indicating the system is alive.
-- <u>If no response is received</u>, this could indicate the host is offline or that a firewall is blocking the packets. Some firewalls drop outgoing/incoming SYN-ACK or RST packets, affecting the accuracy of this method.
-##### C. TCP ACK Ping Scan (`-PA` )
-
-This is a ping scan that send ACK packets. The normal TCP process is ‘`SYN > SYN ACK > ACK`’ if you send just the ACK packet this the target should respond with a RST reset packet. Not recommended since ACK packets are typically blocked and RST packets are generally blocked by firewalls so the results of the scan isn’t entirely reliable. <u>However, this scan can be used to tell if a firewall is present</u>.
-
-```
-nmap -sn -PA <target>
-```
-
-##### D. ICMP Echo Ping Scan (`-PE` )
-
-The `-PE`  will send ICMP echo requests for the ping scan,  not really recommended.
-
-```
-nmap -sn -PE <target>
-```
-
-
-#### ARP Requests
-Even if you use `-PS` (which sends TCP SYN packets to probe hosts), NMap can also perform an **ARP ping scan** automatically. This happens when scanning a local subnet, because ARP is the most effective way to detect active hosts on local networks. So you can include `--disable-arp-ping` to prevent that if you want but `--send-ip` should also accomplish this.
-
-
-General Syntax:
-```
-nmap -sn <subnet> --send-ip
-```
-
-Example: 
-```
-nmap -sn 10.14.18.0/24 --send-ip
-```
-
-
-
-- `--send-ip` = When running Nmap on a local ethernet network, Nmap will use ARP to run host discovery since its efficient at discovery within a local network. The `--send-ip` will override that functionality.
-
-
-
----
-
-
-
----
+#### Table of Contents
 
  [Networking Fundamentals ](Footprinting%20and%20Scanning.md#networking)
 
@@ -94,68 +14,85 @@ nmap -sn 10.14.18.0/24 --send-ip
 
  [Evasion, Scan Performance and Output](Footprinting%20and%20Scanning.md#evasion-performance-output)
 
+----
 ### Networking
 
-In computer networks, hosts communicate by using network protocols, which are crucial for ensuring compatibility between different hardware and software systems. When hosts communicate, they do so through <u>packets</u>—streams of bits representing the data being exchanged. Packets are transmitted over physical media and contain two main components: headers and payloads. The <u>header</u> includes protocol-specific structures, while the <u>payload</u> carries the actual information being sent, such as an email or file.
+In networking, devices (or hosts) communicate using network protocols, which are essential for ensuring that different hardware and software systems can work together. Data is sent in packets—streams of bits that represent the information being exchanged. Each packet has two parts: a header, which includes protocol-specific details, and a payload, which contains the actual data being sent, like an email or file.
 
-##### OSI Model
+**OSI Model**
 
-The <u>OSI model </u>(Open Systems Interconnection) is a framework developed by the International Organization for Standardization (ISO) to standardize network functions and improve interoperability. The OSI model serves as a guideline for understanding how different network protocols and communication processes work together. It is not a strict blueprint but provides a useful reference for designing network architectures. It breaks down the process of network communication into seven distinct layers:
+The OSI model (Open Systems Interconnection) is a framework created to help standardize how network communications work. It's a helpful reference, not a strict set of rules, for understanding how different protocols and processes interact. The OSI model breaks communication down into seven layers:
 
-1. **Physical Layer (Layer 1)**: Deals with physical connections between devices.
-2. **Data Link Layer (Layer 2)**: Manages access to the physical medium and performs error checking.
-3. **Network Layer (Layer 3)**: Handles logical addressing and routing across networks.
-4. **Transport Layer (Layer 4)**: Ensures reliable, end-to-end communication.
-5. **Session Layer (Layer 5)**: Manages sessions between applications.
-6. **Presentation Layer (Layer 6)**: Translates data formats for compatibility between applications.
-7. **Application Layer (Layer 7)**: Provides network services to end-users. 
+- **Layer 1 (Physical Layer):** Deals with physical connections (e.g., cables, switches).
+- **Layer 2 (Data Link Layer):** Manages access to the physical medium and performs error checking.
+- **Layer 3 (Network Layer):** Handles logical addressing and routing across networks.
+- **Layer 4 (Transport Layer):** Ensures reliable communication between hosts.
+- **Layer 5 (Session Layer):** Manages and controls sessions between applications.
+- **Layer 6 (Presentation Layer):** Ensures data is in the correct format for different applications.
+- **Layer 7 (Application Layer):** Provides network services to the user (e.g., web browsers, email).
 
-##### Internet Protocol
+**Internet Protocol (IP)**
 
-The Internet Protocol operates at the network layer and is foundational to the functioning of the Internet. Its primary roles include logical addressing, routing, and packet reassembly. There are two versions of IP in use:
+IP, which operates at the network layer (Layer 3), is the backbone of how the internet works. It handles logical addressing, routing, and packet reassembly. There are two main versions of IP:
 
-- **IPv4**: Uses 32-bit addresses and is the most commonly used protocol on the Internet today.
-- **IPv6**: Expands the address space with 128-bit addresses, designed to overcome the limitations of IPv4.
+- **IPv4:** Uses 32-bit addresses and is the most common version of IP.
+- **IPv6:** Uses 128-bit addresses and was created to provide more address space.
 
-IP addresses are structured hierarchically to uniquely identify devices across networks. Each IP packet contains a header, which holds the source and destination IP addresses, and a payload, which contains the actual data being transmitted. IP also supports fragmentation, which allows large packets to be divided into smaller units for transmission.
+IP addresses are hierarchical and help uniquely identify devices on a network. An IP packet’s header includes the source and destination addresses, and the payload carries the actual data. IP also allows large packets to be fragmented into smaller pieces for transmission.
 
-**Two additional protocols play a key role in IP-based networks:**
+Two important protocols work with IP:
 
-- **ICMP** (Internet Control Message Protocol): Used for error reporting and network diagnostics.
-- **DHCP** (Dynamic Host Configuration Protocol): Automatically assigns IP addresses to devices, simplifying network configuration.
+- **ICMP:** Used for error reporting and network diagnostics (e.g., ping).
+- **DHCP:** Automatically assigns IP addresses to devices, making configuration easier.
 
 **IPv4 Packet Structure and Addressing**
 
-An IPv4 address consists of four bytes (32 bits) separated by dots, and it is used to identify devices on a network. IPv4 packets include several important header fields:
-- **Source/Destination IP Address**: Identifies the sender and receiver.
-- **Time-to-Live (TTL)**: Limits how long a packet can stay on the network before being discarded.
-- **Protocol**: Specifies the type of data the packet is carrying, such as TCP or UDP.
+An IPv4 address is 32 bits (four bytes) and is usually written as four numbers separated by dots. IPv4 packets have key fields in their headers, such as:
 
-Special ranges of IPv4 addresses are reserved for specific purposes. For instance, addresses like 0.0.0.0 and 127.0.0.0 are reserved for special uses, as outlined in RFC5735.
+- **Source/Destination IP:** Identifies the sender and receiver.
+- **Time-to-Live (TTL):** Limits how long a packet can stay on the network.
+- **Protocol:** Specifies what type of data is being transmitted (e.g., TCP or UDP).
 
-##### Transport Layer and Protocols
+Certain IP address ranges are reserved for specific uses, such as 0.0.0.0 and 127.0.0.0, as defined in RFC5735.
 
-The transport layer is the fourth layer in the OSI model and is responsible for managing end-to-end communication between devices. It ensures reliability, error detection, flow control, and segmentation. Two key protocols operate at this layer:
+**Transport Layer and Protocols**
 
-**Transmission Control Protocol (TCP)** is connection-oriented, meaning a connection is established before any data is exchanged. It guarantees reliable data delivery through acknowledgments and ensures that data is delivered in the correct order. TCP's process for establishing a connection is known as the three-way handshake, involving a sequence of SYN, SYN-ACK, and ACK messages.
-- **TCP Header Structure**: Includes source and destination ports, which help identify the sending and receiving applications.
-- **TCP Ports**: TCP ports are categorized into three ranges:
-	- Well-Known Ports (0-1023): Reserved for standard services like HTTP (port 80) and FTP (port 21).
-	- Registered Ports (1024-49151): Assigned to specific applications.
-	- Dynamic/Private Ports (49152-65535): Used for temporary or private connections.
+The transport layer (Layer 4) is responsible for ensuring that data is reliably sent between devices. It manages error detection, flow control, and segmentation. Two key protocols operate here:
 
-**User Datagram Protocol (UDP):** Unlike TCP, UDP is connectionless and does not guarantee reliable delivery. It is ideal for real-time applications that prioritize speed over reliability, such as streaming and gaming. UDP has a smaller header size, which results in lower overhead compared to TCP.
+- **Transmission Control Protocol (TCP):** This is connection-oriented, meaning it establishes a connection before sending data. It guarantees reliable delivery and makes sure that data arrives in the correct order. TCP uses a three-way handshake (SYN, SYN-ACK, ACK) to establish connections.
+    
+    - **TCP Header:** Includes source and destination ports to identify which applications are communicating.
+    - **TCP Ports:** Ports are divided into:
+        - Well-Known Ports (0-1023): Used for standard services (e.g., HTTP on port 80).
+        - Registered Ports (1024-49151): Assigned to specific applications.
+        - Dynamic/Private Ports (49152-65535): Temporary or private connections.
 
-**TCP vs. UDP**
+- **User Datagram Protocol (UDP):** UDP is connectionless and doesn’t guarantee reliable delivery. It’s faster but less reliable, often used for streaming or gaming. Its header is smaller than TCP’s, meaning less overhead.
+- 
+#### TCP vs. UDP
 
-TCP is preferred for applications that require reliable, ordered data transmission, such as web browsing or file transfers. In contrast, UDP is better suited for applications where speed is more important than reliability, such as live video or online gaming. While TCP ensures that data reaches its destination in order and without loss, UDP offers lower latency by foregoing these guarantees.
+TCP is best for applications where reliable, ordered data transmission is critical, like web browsing or file transfers. UDP is faster and better for applications like live video or gaming, where speed matters more than reliability. While TCP ensures that data arrives correctly, UDP trades reliability for lower latency.
+
+##### TCP Three-way Handshake
+
+The three-way handshake is a process used by TCP to establish a connection between devices, involving the exchange of SYN, SYN-ACK, and ACK packets:
+
+1. **SYN** (Synchronize | “Hello”) => The initiating device (often referred to as the client) sends a TCP packet with the SYN flag set to the destination device (often referred to as the server). This initial packet indicates the desire to establish a connection and includes an initial sequence number.
+
+2.  **SYN ACK** packet (Synchronize-Acknowledge | “Hello Back”) => After receiving the SYN packet, the destination device responds with a TCP packet that has both the SYN and **ACK** (acknowledge) flags set. This packet acknowledges the connection request and also includes its own initial sequence number.
+
+3. **ACK** (Acknowledge) => Finally, the initiating device acknowledges the SYN-ACK packet by sending an ACK packet back to the destination. This packet establishes the connection and typically contains an incremented sequence number.
+
+Once the three-way handshake is complete, the connection is established, and both devices are ready to exchange data. The sequence numbers exchanged during the handshake are used to ensure that data is transmitted and received in the correct order.
+
 ### Networking-Mapping
 
 Network mapping is a critical phase in penetration testing following the passive information gathering phase, where the tester actively gathers information about the target network including:
 1. Which hosts in a network are online
 2. Their IP addresses
-3. Open ports/the services they are running
+3. Open ports/services they are running
 4. The operating systems they use
+
 The key objectives of network mapping include:
 - **Discovery of Live Hosts:** Identifying active devices and hosts by detecting IP addresses in use.
 - **Identification of Open Ports and Services:** Understanding the services running on discovered hosts and the attack surface they present.
@@ -166,7 +103,7 @@ The key objectives of network mapping include:
 
 #### Nmap
 
-Nmap (Network Mapper) is a widely-used open-source tool for scanning networks to discover hosts, open ports, and potential vulnerabilities. It is a standard tool for security professionals and penetration testers due to its versatility and range of features:
+Nmap (Network Mapper) is an open-source tool for scanning networks to discover hosts, open ports, and potential vulnerabilities. It is a standard tool for security professionals and penetration testers due to its versatility and range of features:
 
 - **Host Discovery:** Identifies live hosts using techniques like ICMP, ARP, or TCP/UDP probes.
 - **Port Scanning:** Discovers open ports on target hosts to assess network exposure.
@@ -191,18 +128,21 @@ The choice of technique depends on the network's defenses and the specific goals
 
 A ping sweep is a network scanning technique used to identify live hosts (such as computers or servers) within a specific IP address range by sending ICMP Echo Request (ping) messages. The goal is to observe which IP addresses respond to determine which devices are active on the network.
 
-Ping sweeps work by sending ICMP Echo Requests (Type 8) to the target addresses. If a host is online, it responds with an ICMP Echo Reply (Type 0), confirming its presence. The "Type" field in the ICMP header defines the purpose of the message (e.g., Type 8 for Echo Request, Type 0 for Echo Reply), while the "Code" field adds additional context, with Code 0 used in both request and reply messages.
+Ping sweeps work by sending ICMP Echo Requests (Type 8) to the target addresses. 
+- If a host is online, it responds with an ICMP Echo Reply (Type 0), confirming its presence. 
+- If no reply is received, it could indicate the host is offline or unreachable. However, this lack of response could also result from firewalls blocking ICMP traffic, network congestion, or temporary unavailability.
 
-If no reply is received, it could indicate the host is offline or unreachable. However, this lack of response could also result from firewalls blocking ICMP traffic, network congestion, or temporary unavailability. While ping sweeps are a simple way to check host reachability, results should be interpreted in the context of the network's conditions and security settings.
-
+While ping sweeps are a simple way to check host reachability, results should be interpreted in the context of the network's conditions and security settings.
 ### Host-Discovery-with-Nmap
 
-Nmap usually begins with a ping scan for host discovery followed by a port scan. To disable the port scan and only perform host discovery, you can use the `-sn` option. By default, Nmap's host discovery sends TCP SYN to port 443, TCP ACK to port 80, and an ICMP timestamp request. Some scans require admin privileges depending on the type of packets used. The main limitation of Nmap's ping scan is that it still relies on ICMP, which may be blocked or limited by some networks.
+Nmap usually begins with a ping scan for host discovery followed by a port scan. To disable the port scan and only perform host discovery, you can use the `-sn` option.
 
 ```
 nmap -sn target
 ```
 
+ By default, Nmap's host discovery sends TCP SYN to port 443, TCP ACK to port 80, and an ICMP timestamp request. Some scans require admin privileges depending on the type of packets used. The main limitation of Nmap's ping scan is that it still relies on ICMP, which may be blocked or limited by some networks.
+ 
 #### TCP SYN Ping - Host Discovery Scan  | `-PS` 
 
 For the `-sn` host discovery scan, you can override what kind of packets you send with the `-P...` option. The `-PS` option allows will send SYN packets. By default, it will send the SYN packets to port 80 to determine if the target is online unless a different port is  specified. 
@@ -285,6 +225,175 @@ nmap -sn -PS21,22,25,80,445,3389,8080 -PU137,138 -T4 <target>
 - `8080` = Webserver stuff but not 100% where on windows, maybe file explorer
 - `UDP137 & 138` = Windows Netbios
 
+---
 ### Port-Scanning-with-Nmap
+
+By default, before performing the port scan, Nmap will first perform host discovery by sending ping probes to check if hosts are online. These probes use ICMP traffic, but Windows firewalls often block ICMP by default. Preventing the ping probes will effectively just be the port scan.
+
+#### Port Scan without Ping Probes | `-Pn`
+
+To skip the host discovery, use the `-Pn` option so that Nmap goes straight into the port scan doesn't send any ping probes.
+
+```
+nmap -Pn <target_ip>
+```
+
+### Port Scan Types
+
+
+Port scanning helps identify active services and their states on target systems. Nmap has a range of port scan types designed for different needs and situations. Each type interacts with the target's ports in its own way, and the choice of scan can impact how accurate the results are and how likely they are to be detected by intrusion detection systems (IDS) or firewalls:
+
+###### TCP SYN Scan (Stealth/Half Open) | `-sS` 
+
+The TCP SYN scan is a technique that exploits the TCP three-way handshake to determine the status of ports on a target. When initiated, Nmap sends a SYN packet to a specified port and awaits a response. If the target port is open, it replies with a SYN-ACK packet, indicating readiness to establish a connection. However, instead of completing the handshake by sending an ACK packet, Nmap responds with a RST (reset) packet terminating the connection attempt. 
+
+User accounts with elevated privileges can run the TCP SYN Scan with the `-sS` option, but is also ran by default if Nmap is running under root/admin account. Elevated privileges are necessary to execute the scan since since sending SYN packets and receiving responses for TCP connections typically requires raw socket access, which is restricted to privileged users.
+
+The SYN scan is recommended since SYN packets are common to see on the network so it doesn’t raise any alarms. Also, since the SYN scan doesn’t complete the three-way handshake, it prevents creation of connection logs entries on the target system.
+
+```
+nmap -Pn -sS 10.4.24.205
+```
+
+###### TCP CONNECT Port Scan (_Not Recommended_) | `-sT` |
+
+This works about the same as the TCP SYN scan but Nmap would complete the three-way handshake by responding with an ACK on open ports to which would initiate a TCP connection. This scan is the default option for non-privileged users. This is not recommended because most OS/IDS systems log established tcp connections and is likely will create connection log entries. This can be slightly more reliable but only used when there’s no concern for the noise on the network.
+```
+nmap -Pn -sT 10.4.24.205
+```
+
+**UDP Scan:** Specify `-sU` to do UDP ports | Nmap uses TCP by default, you can do all of the same options as far the the number of ports you want to scan here as well.
+
+```
+nmap -Pn -sU 10.4.26.17
+```
+
+##### Port States
+
+The port states are either `Open`, `Closed`, or `Filtered`:
+
+- `Open` would mean that a SYN-ACK response was returned from the target on that port. Nmap would return an RST packet to terminate the TCP connection.
+- `Closed` state would mean the target responded with an RST packet which would let nmap know that either 1.) there isn’t any rules configured on that port or 2.)  a stateful firewall ( like windows firewall) isn’t active.
+- `Filtered` state means that the target didn’t respond with either a SYN-ACK or RST packet, so nmap couldn’t conclusively determine if its open or not. _This would likely mean target has a stateful host-based firewall like windows firewall configured_.
+
+#### Scan for all (certain) TCP ports
+
+By default, when Nmap performs a port scan without any extra options, it scans the top 1,000 most commonly used ports, based on Nmap's internal database. You can use the `-p...`  option to adjust the ports you can scan, you can choose to include spaces but its optional:
+
+- Scan a Port ⇒ `-p`
+```
+nmap -Pn -p 80 10.4.26.17
+```
+- Scan more than one port ⇒ `-p <Port1>, <Port2> …`
+```
+nmap -Pn -p 80, 445, 3389 10.4.26.17
+```
+- Scan a port range ⇒ `-<Port1> - <Port2>` 
+```
+nmap -Pn -p1-65635 10.4.26.17
+```
+
+- All TCP Ports ⇒ `-p-`  =  This scans all 65,535 TCP ports
+```
+nmap -Pn -p- 10.4.26.17
+```
+
+- Scan top 100 tcp ports ⇒ `-F` (Fast Scan)
+```
+nmap -Pn -F 10.4.26.17
+```
+
+
+**Port Scanning Methodology:**
+
+1. Whenever doing a pentest, you can start with a fast scan (`-F` | top 100 tcp ports) to see what you’re dealing with like services, the operating system.
+- `nmap -Pn -F <target>`
+2. After that you can perform a scan of the entire TCP port range using `-p-`. This can take a while you can you can adjust the scanning speed with the timing template with T4 or T5.
+
+- `nmap -Pn -p- -T4 <target>`
+
+Tip: Never assumed each windows or linux system is configured the same.
+
+---
+
+### Nmap Service Version and Operating System Detection
+
+Extracting more information on the operating system and services available on open ports. This is helpful with vulnerability assessments and threat modeling. Can find misconfigured services, look for ways in, services affected by vulnerability, unpatched systems etc:
+##### Service Version Detection
+
+- **Check Service Versions:** Include `-sV` flag to get the name & version of services. This can take slightly longer since there needs to be enumeration on each service and port. This information needs to be taken down so it can later be used in the exploitation phase to search vulnerabilities check if any of these services is misconfigured or susceptible to any known vulnerability.
+
+```
+nmap -sS -sV -p- -T4 192.239.101.3
+```
+
+- **More Aggressive Service Versions Scan**: Include `--version-intensity <num>` | This performs more enumeration on the services to be more conclusive if necessary. This option controls how many probes Nmap sends during service version detection, with `<num>` ranging from 0 to 9. Lower numbers (like 0 or 1) make Nmap send fewer probes for quicker, less intrusive scans with potentially less accurate results, while higher numbers (closer to 9) send more probes for slower, more thorough scans that are more likely to accurately detect the service version. Nmap is generally accurate with the services/version so it might not be any different from the normal `-sV` scan. The Operating systems and their version are not very conclusive.
+
+##### Operating Systems Detection 
+
+- **Check Operating Systems:** Include `-O` flag to try to find the operating system. This is not always conclusive/accurate
+```
+nmap -sS -sV -O -p- -T4 192.168.101.3
+```
+
+- **More aggressive Operations Scan**: The  `--osscan-guess` option performs a more aggressive scan to try to guess the operating system if the basic operation system scan `-O` doesn’t return conclusive results. For linux systems, this will return the linux kernel being used and not a specific distribution. For windows, it should return the Windows version and its build number.
+
+---
+
+### Nmap Scripting Engine (NSE)
+
+Nmap Scripting Engine allows users to write scripts and automate certain tasks like port scanning, vulnerability scanning etc. The script engine has been around for a while and there has been a lot of NSE written in the LUA language that has been created and shared in the community. 
+
+##### Where to find/search NSE Scripts: 
+
+The  pre-packaged NSE scripts are found in the `/usr/share/nmap/scripts` directory. The pre-packaged NSE scripts generally have the service mentioned in the scripts name, so you could search for it using something like piping the `ls` command to the `grep`  command:
+
+```
+ls -al /usr/share/nmap/scripts | grep -e “http”
+```
+- The `ls` command is used to list the scripts directory and the `grep` command is filtering out for script related to 'http' (in this case)
+
+**Lookup a particular NSE script:** Use `--script-help=<script_name>` to lookup nmap scripts to get a description and tell if a script is safe for using without affecting the system. Multiple scripts can be ran by using commas to separate them
+
+```
+nmap --script-help=mongodb-databases
+```
+
+**Run specific Nmap script** | Use `--script=<script_name>` to run a specific script. You don’t need to provide the nse extension, include the equal sign or scan all the TCP port. You can bring it down to just the port that the service was observed on.
+
+```
+nmap --script=mongodb-databases 10.10.50.49
+```
+- **Perform multiple scans off a keyword** | Wildcard `*` character | You can use the wildcard character after a keyword to run all of the scripts under that keyword
+
+---
+
+**Nmap Script Scan Categories:**
+
+These NSE scripts are categorized to serve a particular purpose, from authentication mechanisms and brute-force attacks to providing basic but useful information about open services on the network: 
+
+- **Auth**: Scripts for authentication mechanisms/credential specific scripts
+- **Broadcast**: Used to facilitate broadcast/multicast to help discover host on the network
+- **Brute**: Brute Force attempts
+
+**Default**: Nmap has a library of default NSE scripts that it can safely be run against targets without negatively impacting the target system. You can run these scripts using the `-sC` option and will run the relevant scripts against the target given open ports/services which provide useful information on the target without engaging the target in the dangerous way.
+
+```
+nmap -sS -sV -sC -p- -T4 192.168.101.3
+```
+
+#### Aggressive Scan 
+
+The Agressive scan `-A`  is the  operating system (`-O`), service version (`-sV`) and default script scan (`-sC`) combined into one option.
+
+```
+nmap -Pn -F -A 10.4.26.17
+```
+
+---
+**Pentesting Tips**
+
+- You can get a lot of information from services which can help you learn about the underlying system involved.
+- **Tip on Misconfiguration**: In some cases where we perform these scans, we could find potential attack vectors like a service that doesn't require authentication.
 
 ### Evasion-Performance-Output
