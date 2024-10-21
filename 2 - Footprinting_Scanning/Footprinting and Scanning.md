@@ -228,7 +228,7 @@ nmap -sn -PS21,22,25,80,445,3389,8080 -PU137,138 -T4 <target>
 ---
 ### Port-Scanning-with-Nmap
 
-By default, before performing the port scan, Nmap will first perform host discovery by sending ping probes to check if hosts are online. These probes use ICMP traffic, but Windows firewalls often block ICMP by default. Preventing the ping probes will effectively just be the port scan.
+Port scanning helps identify active services and their states on target systems. By default, before performing the port scan, Nmap will first perform host discovery by sending ping probes to check if hosts are online. These probes use ICMP traffic, but Windows firewalls often block ICMP by default. Preventing the ping probes will effectively just be the port scan.
 
 #### Port Scan without Ping Probes | `-Pn`
 
@@ -240,13 +240,13 @@ nmap -Pn <target_ip>
 
 ### Port Scan Types
 
-Port scanning helps identify active services and their states on target systems. Nmap has a range of port scan types designed for different needs and situations. Each type interacts with the target's ports in its own way, and the choice of scan can impact how accurate the results are and how likely they are to be detected by intrusion detection systems (IDS) or firewalls:
+ Nmap has a range of port scan types designed for different needs and situations. Each type interacts with the target's ports in its own way.
 
 ##### TCP SYN Scan (Stealth/Half Open) | `-sS` 
 
 The TCP SYN scan is a port scanning technique that exploits the TCP three-way handshake to determine the status of ports on a target. Nmap will first send a SYN packet to a specified port and awaits a response. If the target port is open, the target will reply with a SYN-ACK packet, indicating readiness to establish a connection. However, instead of completing the handshake by sending an ACK packet, Nmap responds with a RST (reset) packet terminating the connection attempt. 
 
-User accounts with elevated privileges can run the TCP SYN Scan with the `-sS` option, but is also ran by default if Nmap is running under root/admin account. Elevated privileges are necessary to execute the scan since since sending SYN packets and receiving responses for TCP connections typically requires raw socket access, which is restricted to privileged users.
+User accounts with elevated privileges can run the TCP SYN Scan with the `-sS` option, but it's also ran by default if Nmap is running under root/admin account. Elevated privileges are necessary to execute the scan since since sending SYN packets and receiving responses for TCP connections typically requires raw socket access, which is restricted to privileged users.
 
 The SYN scan is recommended since SYN packets are common to see on the network so it doesn’t raise any alarms. Also, since the SYN scan doesn’t complete the three-way handshake, it prevents creation of connection logs entries on the target system.
 
@@ -396,3 +396,116 @@ nmap -Pn -F -A 10.4.26.17
 - **Tip on Misconfiguration**: In some cases where we perform these scans, we could find potential attack vectors like a service that doesn't require authentication.
 
 ### Evasion-Performance-Output
+
+
+**Firewall and IDS Detection**
+
+**Check for stateful firewalls (especially for Windows systems)**: Can use the ACK port scan with nmap (`-sA`) , if the ports return ‘filtered’ then this is likely due to a host based firewall especially on windows systems. Results with ‘unfiltered’ would mean its likely that there isn’t any stateful firewall (or Windows FW isn’t active). Don’t need to scan every port, you can scan a few here.
+
+```
+nmap -Pn -p445 -sA target
+```
+
+**Evade IDS | Use fragmented packets** | `-f` | Fragmentation would take the packets that nmap sends and make them smaller packets and make them smaller so that IDS systems cant tell from analyzing each fragment what exactly is going on. IE TCP SYN/ACK packets. Most recommend. the returned packets from the target are not fragmented.
+
+```
+nmap -Pn -sS -f target
+```
+	
+    
+**Fragment with custom MTU** | `-f <opt_mtu_val>` | Minimum Transmission Unit (MTU) refers to the maximum size of the **payload** (or data) that can be transmitted in a single packet at the network without needing to be fragmented. The total size of the packet will include:
+- **IP header**: Typically 20 bytes for IPv4.
+- **TCP/UDP header**: Typically 20 bytes for TCP or 8 bytes for UDP.
+- **Payload**: Based on the custom MTU. In IPv4, the standard MTU is 1500 bytes for Ethernet.
+
+Using a custom MTU in Nmap allows you to send packets with a specified size. This can help bypass security measures that inspect packets based on standard sizes, or don’t properly reassemble/ inspect fragmented traffic.
+
+---
+
+**Spoofing/Decoys**
+
+Spoofing is disguising/obscuring the true origin of the scan. This can involve manipulating IP addresses, headers, or packet attributes to mimic legitimate traffic or to introduce noise that makes analysis more difficult. Spoofing typically requires being on the same network as the spoofed address to ensure packets can flow correctly.
+
+- **Using Decoy IPs for Scans** |  `-D <IP_Address>`  = This option adds multiple decoy IP addresses as the src of the scan. While the decoys send packets, the actual responses from the target are returned to your real IP, exposing the actual scanning system if monitored closely.
+- **Changing TTL for Packets** | `--ttl <value>`  = Modifying the TTL value helps mimic the behavior of other systems by altering how long a packet stays in transit before it expires. This can create more plausible decoys by making the packets resemble those from a different type of network environment.
+- **Changing Packet Data Lengths** | `--data-length <value>`  = This option assigns random or specified data lengths to packets, which can confuse intrusion detection systems by making your scan traffic seem irregular or less predictable.
+- **Preventing DNS Resolution** | `-n`  = By default, Nmap tries to resolve hostnames to IPs and vice versa, which could reveal scanning activity through DNS lookups. The `-n` flag prevents DNS resolution, helping you stay stealthier.
+- **Using a Different Source Port** | `-g <port>`  = This option allows you to specify the source port from which the scan appears to originate. For example, setting it to `53` could make the scan look like legitimate DNS traffic, as DNS typically uses port 53. This method can bypass firewalls or intrusion detection systems configured to allow traffic on certain ports.
+
+---
+
+**Optimizing Nmap Scans**
+
+- **Host timeout** = `--host-timeout <time>` = Amount of time before nmap gives up on the target, can be useful for scans on a large number of IPs (Can use around 30s for large networks). Should be used carefully as you can miss systems if you give too little time here.
+- **Space out the scan probes** = `--scan-delay` = Spaces out the sent scanning probes in seconds/milliseconds. Try setting the scan delay to 15 secs if stealth is the goal but remember that this will increase the time to complete scan.
+- **Speed up/Slow down scans (Timing Templates)**: Use timing template ranges from `-T0 → -T5` to adjust the scanning speed . Higher is faster, lower is slower. Slow is good to evade IDS detection, slowing down scans can make network activity less suspicious. The faster timing templates is good for getting scan results faster.
+	- `-T0` = (paranoid)
+	- `-T1` = (sneaky)
+	- `-T2` = (polite)
+	- `-T3` = (normal)
+	- `-T4` = (aggressive) = Assumed to be on faster/reliable network
+	- `-T5` = (insane) = Not recommended in production environment as it can lead to stressing a network and possibly causing a DoS.
+
+---
+
+**NMAP SCANNING METHODOLOGY**
+
+1. If the goal is to make the scans appear as covert as possible, common options to use in conjunction:
+	- Scan delays `--scan-delay` or Slow Timing Templates `-T0 → -T1`
+	- Decoy IPs > `-D <IP_Address>`
+	- Fragmentation | `-f <opt_mtu_val>`
+2. If you’re not considering the stealth of the scan you can use `-T3 or -T4` timing templates to increase the speed and accuracy of scans.
+
+---
+#### Nmap Output Formats
+
+You can specify different types of outputs of nmap scan results to save. Regardless of the output, the terminal will still display the nmap scan output:
+
+- **Normal Output** | `-oN` > `-oN file_name.txt` | Same format in the terminal screen, this normally saved in txt format.
+	
+- **XML Output** | `-oX` > `-oX file_name.xml` | This format can be imported to a framework like Metasploit which would include host,ports,etc that can be added to a Metasploit database. This allows you to keep a centralized location for all of the hosts, you can refer back to individual hosts, so even if you lose your scan they’re saved in the metasploit database that you can refer back to. You can make workspaces within Metasploit for pentests and create new workspaces for each pentest. This can be helpful for looking at previous pentes
+			
+- Greppable | `-oG` > `.txt , .grep , or other similar format` = Allows the information to be used with Grep and potentially used for automation purposes
+- `-oS` | Script Kiddle = Not used often
+- `-oA` | All in one output of `-oN` ,`-oX`, and `-oG` outputs.
+- `-v` | Increases verbosity
+- `--reason` | Displays the reason a port is in a particular state
+
+
+
+- **Importing Nmap xml Scan to Metasploit:**
+	
+	1. Make sure postgresql is started, this is what metasploit uses
+		
+		1. `service postgresql start`
+			
+			
+	2. Start Metasploit = `msfconsole`
+	
+		
+	3. Create a new workspace = `workspace -a <workspace_name>`
+				
+	
+	**Make sure that metasploit is connected to postgresql = `db_status`
+			
+	1. Import the Nmap XML File: `db_import filename.xml`
+		
+		
+	
+	**Done!** You can view the hosts using hosts in the metasploit console
+	
+	- View the hosts using `hosts` , if you had an nmap scan that returns Operating system information it will all so populated into metasploit
+		
+	- View the open services using `services`
+					
+	- Or perform nmap scans from metasploit using db_nmap. The nmap scans from here will automatically be updated in metasploit
+			
+
+
+
+
+---
+
+**NMAP SCAN OUTPUT METHODOLOGY**
+
+In normal circumstances, the Normal Output (`-oN file_name.txt` ) is what you’re generally going to use.

