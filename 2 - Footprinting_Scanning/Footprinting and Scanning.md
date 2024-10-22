@@ -398,20 +398,17 @@ nmap -Pn -F -A 10.4.26.17
 ### Evasion-Performance-Output
 
 
-**Firewall and IDS Detection**
+#### Firewall and IDS Detection
 
 **Check for stateful firewalls (especially for Windows systems)**: Can use the ACK port scan with nmap (`-sA`) , if the ports return ‘filtered’ then this is likely due to a host based firewall especially on windows systems. Results with ‘unfiltered’ would mean its likely that there isn’t any stateful firewall (or Windows FW isn’t active). Don’t need to scan every port, you can scan a few here.
-
 ```
 nmap -Pn -p445 -sA target
 ```
 
 **Evade IDS | Use fragmented packets** | `-f` | Fragmentation would take the packets that nmap sends and make them smaller packets and make them smaller so that IDS systems cant tell from analyzing each fragment what exactly is going on. IE TCP SYN/ACK packets. Most recommend. the returned packets from the target are not fragmented.
-
 ```
 nmap -Pn -sS -f target
 ```
-	
     
 **Fragment with custom MTU** | `-f <opt_mtu_val>` | Minimum Transmission Unit (MTU) refers to the maximum size of the **payload** (or data) that can be transmitted in a single packet at the network without needing to be fragmented. The total size of the packet will include:
 - **IP header**: Typically 20 bytes for IPv4.
@@ -424,13 +421,32 @@ Using a custom MTU in Nmap allows you to send packets with a specified size. Thi
 
 **Spoofing/Decoys**
 
-Spoofing is disguising/obscuring the true origin of the scan. This can involve manipulating IP addresses, headers, or packet attributes to mimic legitimate traffic or to introduce noise that makes analysis more difficult. Spoofing typically requires being on the same network as the spoofed address to ensure packets can flow correctly.
+Spoofing is disguising/obscuring the true origin of the scan which can involve manipulating IP addresses, headers, or packet attributes to mimic legitimate traffic or to introduce noise that makes analysis more difficult. Spoofing typically requires being on the same network as the spoofed address to ensure packets can flow correctly.
 
-- **Using Decoy IPs for Scans** |  `-D <IP_Address>`  = This option adds multiple decoy IP addresses as the src of the scan. While the decoys send packets, the actual responses from the target are returned to your real IP, exposing the actual scanning system if monitored closely.
+- **Using Decoy IPs for Scans** |  `-D <IP_Address>`  = Nmap’s decoy feature works by sending packets that appear to originate from multiple IP addresses, achieved by spoofing the source address in the packet headers. It transmits identical packets using both the real IP and the decoy IPs. These decoy IPs don’t have to be part of the local network or even valid addresses. Since the decoy IPs are fake, they won't receive responses from the target. However, because the real source IP is included among the decoys, any replies from the target will be sent back to the scanning machine. Even with decoys in place, a target system with logging or IDS mechanisms might still identify the real IP by observing which address receives and processes the responses.
+```
+nmap -D 192.168.1.100,192.168.1.101,192.168.1.102 target
+```
+
 - **Changing TTL for Packets** | `--ttl <value>`  = Modifying the TTL value helps mimic the behavior of other systems by altering how long a packet stays in transit before it expires. This can create more plausible decoys by making the packets resemble those from a different type of network environment.
-- **Changing Packet Data Lengths** | `--data-length <value>`  = This option assigns random or specified data lengths to packets, which can confuse intrusion detection systems by making your scan traffic seem irregular or less predictable.
+```
+nmap --ttl 64 target
+```
+
+- **Changing Packet Data Lengths** | `--data-length <value>`  = This option assigns random or specified data lengths of bytes to packets, which can confuse intrusion detection systems by making your scan traffic seem irregular or less predictable.
+```
+nmap --data-length 20 target
+```
+
 - **Preventing DNS Resolution** | `-n`  = By default, Nmap tries to resolve hostnames to IPs and vice versa, which could reveal scanning activity through DNS lookups. The `-n` flag prevents DNS resolution, helping you stay stealthier.
+```
+nmap -n target
+```
+
 - **Using a Different Source Port** | `-g <port>`  = This option allows you to specify the source port from which the scan appears to originate. For example, setting it to `53` could make the scan look like legitimate DNS traffic, as DNS typically uses port 53. This method can bypass firewalls or intrusion detection systems configured to allow traffic on certain ports.
+```
+nmap -g 53 target.com
+```
 
 ---
 
@@ -447,6 +463,42 @@ Spoofing is disguising/obscuring the true origin of the scan. This can involve m
 	- `-T5` = (insane) = Not recommended in production environment as it can lead to stressing a network and possibly causing a DoS.
 
 ---
+#### Nmap Output Formats
+
+You can specify different types of outputs of nmap scan results to save. Regardless of the output, the terminal will still display the nmap scan output:
+
+- **Normal Output** | `-oN` > `-oN file_name.txt` | Same format in the terminal screen, this normally saved in txt format.
+	
+- **XML Output** | `-oX` > `-oX file_name.xml` | This format can be imported to a framework like Metasploit which would include host,ports,etc that can be added to a Metasploit database. This allows you to keep a centralized location for all of the hosts, you can refer back to individual hosts, so even if you lose your scan they’re saved in the metasploit database that you can refer back to. You can make workspaces within Metasploit for pentests and create new workspaces for each pentest. This can be helpful for looking at previous pentests
+			
+- Greppable | `-oG` > `.txt , .grep , or other similar format` = Allows the information to be used with Grep and potentially used for automation purposes
+- `-oS` | Script Kiddle = Not used often
+- `-oA` | All in one output of `-oN` ,`-oX`, and `-oG` outputs.
+- `-v` | Increases verbosity
+- `--reason` | Displays the reason a port is in a particular state
+
+#### Importing Nmap xml Scan to Metasploit:
+	
+1. Start Postgresql and the Metasploit console: You can check if  metasploit is connected to postgresql using the  `db_status` command.
+```
+service postgresql start && msfconsole
+```
+
+2. Create a new workspace = 
+```
+workspace -a <workspace_name>
+```
+		
+3. Import the Nmap XML File: 
+
+```
+db_import filename.xml
+```
+
+**Done!** You can view the found system (And OS information) using `hosts` in the metasploit console, open services using `services` etc.  You can perform nmap scans from metasploit using `db_nmap`. The nmap scans from here will automatically be updated in metasploit.
+		
+
+---
 
 **NMAP SCANNING METHODOLOGY**
 
@@ -456,55 +508,6 @@ Spoofing is disguising/obscuring the true origin of the scan. This can involve m
 	- Fragmentation | `-f <opt_mtu_val>`
 2. If you’re not considering the stealth of the scan you can use `-T3 or -T4` timing templates to increase the speed and accuracy of scans.
 
----
-#### Nmap Output Formats
-
-You can specify different types of outputs of nmap scan results to save. Regardless of the output, the terminal will still display the nmap scan output:
-
-- **Normal Output** | `-oN` > `-oN file_name.txt` | Same format in the terminal screen, this normally saved in txt format.
-	
-- **XML Output** | `-oX` > `-oX file_name.xml` | This format can be imported to a framework like Metasploit which would include host,ports,etc that can be added to a Metasploit database. This allows you to keep a centralized location for all of the hosts, you can refer back to individual hosts, so even if you lose your scan they’re saved in the metasploit database that you can refer back to. You can make workspaces within Metasploit for pentests and create new workspaces for each pentest. This can be helpful for looking at previous pentes
-			
-- Greppable | `-oG` > `.txt , .grep , or other similar format` = Allows the information to be used with Grep and potentially used for automation purposes
-- `-oS` | Script Kiddle = Not used often
-- `-oA` | All in one output of `-oN` ,`-oX`, and `-oG` outputs.
-- `-v` | Increases verbosity
-- `--reason` | Displays the reason a port is in a particular state
-
-
-
-- **Importing Nmap xml Scan to Metasploit:**
-	
-	1. Make sure postgresql is started, this is what metasploit uses
-		
-		1. `service postgresql start`
-			
-			
-	2. Start Metasploit = `msfconsole`
-	
-		
-	3. Create a new workspace = `workspace -a <workspace_name>`
-				
-	
-	**Make sure that metasploit is connected to postgresql = `db_status`
-			
-	1. Import the Nmap XML File: `db_import filename.xml`
-		
-		
-	
-	**Done!** You can view the hosts using hosts in the metasploit console
-	
-	- View the hosts using `hosts` , if you had an nmap scan that returns Operating system information it will all so populated into metasploit
-		
-	- View the open services using `services`
-					
-	- Or perform nmap scans from metasploit using db_nmap. The nmap scans from here will automatically be updated in metasploit
-			
-
-
-
-
----
 
 **NMAP SCAN OUTPUT METHODOLOGY**
 
