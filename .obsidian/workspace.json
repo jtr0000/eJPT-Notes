@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "3 - Enumeration/Enumeration.md",
                 "mode": "source",
                 "source": false
               }
@@ -81,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "294afe77c702e9e9",
@@ -97,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "3 - Enumeration/Enumeration.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+                "file": "3 - Enumeration/Enumeration.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "2 - Footprinting_Scanning/Footprinting and Scanning.md"
+                "file": "3 - Enumeration/Enumeration.md"
               }
             }
           }
@@ -161,10 +162,10 @@
   "active": "25ade0550f865768",
   "lastOpenFiles": [
     "6 - System_Host Based Attacks/System_Host Based Attacks.md",
-    "3 - Enumeration/Enumeration.md",
-    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
-    "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "5 - Auditing/Auditing.md",
+    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
+    "3 - Enumeration/Enumeration.md",
+    "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "1 - Information Gathering/c. Active Information Gathering.md",
     "1 - Information Gathering/b. Passive Information Gathering.md",
     "3 - Enumeration/Untitled.md",

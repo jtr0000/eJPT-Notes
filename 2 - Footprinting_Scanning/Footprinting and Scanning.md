@@ -1,25 +1,18 @@
 #### Table of Contents
 
- [Networking Fundamentals ](Footprinting%20and%20Scanning.md#networking)
-
- [Network Mapping ](Footprinting%20and%20Scanning.md#networking-mapping)
-
- [Host Discovery ](Footprinting%20and%20Scanning.md#host-discovery)
-
- [Ping Sweeps](Footprinting%20and%20Scanning.md#ping-sweeps)
-
- [Host Discovery with Nmap ](Footprinting%20and%20Scanning.md#host-discovery-with-nmap)
-
- [Port Scanning with Nmap ](Footprinting%20and%20Scanning.md#port-scanning-with-nmap)
-
- [Evasion, Scan Performance and Output](Footprinting%20and%20Scanning.md#evasion-performance-output)
-
+1. [Networking Fundamentals ](Footprinting%20and%20Scanning.md#networking)
+2. [Network Mapping (What is Nmap) ](Footprinting%20and%20Scanning.md#networking-mapping)
+3. [Host Discovery ](Footprinting%20and%20Scanning.md#host-discovery)
+4. [Ping Sweeps](Footprinting%20and%20Scanning.md#ping-sweeps)
+5. [Host Discovery with Nmap ](Footprinting%20and%20Scanning.md#host-discovery-with-nmap)
+6. [Port Scanning with Nmap ](Footprinting%20and%20Scanning.md#port-scanning-with-nmap)
+7. [Evasion, Scan Performance and Output](Footprinting%20and%20Scanning.md#evasion-performance-output)
 ----
 ### Networking
 
 In networking, devices (or hosts) communicate using network protocols, which are essential for ensuring that different hardware and software systems can work together. Data is sent in packets—streams of bits that represent the information being exchanged. Each packet has two parts: a header, which includes protocol-specific details, and a payload, which contains the actual data being sent, like an email or file.
 
-**OSI Model**
+#### OSI
 
 The OSI model (Open Systems Interconnection) is a framework created to help standardize how network communications work. It's a helpful reference, not a strict set of rules, for understanding how different protocols and processes interact. The OSI model breaks communication down into seven layers:
 
@@ -31,7 +24,7 @@ The OSI model (Open Systems Interconnection) is a framework created to help stan
 - **Layer 6 (Presentation Layer):** Ensures data is in the correct format for different applications.
 - **Layer 7 (Application Layer):** Provides network services to the user (e.g., web browsers, email).
 
-**Internet Protocol (IP)**
+#### Internet-Protocol
 
 IP, which operates at the network layer (Layer 3), is the backbone of how the internet works. It handles logical addressing, routing, and packet reassembly. There are two main versions of IP:
 
@@ -55,7 +48,7 @@ An IPv4 address is 32 bits (four bytes) and is usually written as four numbers s
 
 Certain IP address ranges are reserved for specific uses, such as 0.0.0.0 and 127.0.0.0, as defined in RFC5735.
 
-**Transport Layer and Protocols**
+#### Transport-Layer
 
 The transport layer (Layer 4) is responsible for ensuring that data is reliably sent between devices. It manages error detection, flow control, and segmentation. Two key protocols operate here:
 
@@ -68,12 +61,11 @@ The transport layer (Layer 4) is responsible for ensuring that data is reliably 
         - Dynamic/Private Ports (49152-65535): Temporary or private connections.
 
 - **User Datagram Protocol (UDP):** UDP is connectionless and doesn’t guarantee reliable delivery. It’s faster but less reliable, often used for streaming or gaming. Its header is smaller than TCP’s, meaning less overhead.
-- 
-#### TCP vs. UDP
+#### TCP-vs-UDP
 
 TCP is best for applications where reliable, ordered data transmission is critical, like web browsing or file transfers. UDP is faster and better for applications like live video or gaming, where speed matters more than reliability. While TCP ensures that data arrives correctly, UDP trades reliability for lower latency.
 
-##### TCP Three-way Handshake
+#### Three-Way-Handshake
 
 The three-way handshake is a process used by TCP to establish a connection between devices, involving the exchange of SYN, SYN-ACK, and ACK packets:
 
@@ -314,7 +306,6 @@ nmap -Pn -F 10.4.26.17
 Tip: Never assumed each windows or linux system is configured the same.
 
 ---
-
 ### Nmap Service Version and Operating System Detection
 
 Extracting more information on the operating system and services available on open ports. This is helpful with vulnerability assessments and threat modeling. Can find misconfigured services, look for ways in, services affected by vulnerability, unpatched systems etc:
@@ -405,7 +396,7 @@ nmap -Pn -F -A 10.4.26.17
 nmap -Pn -p445 -sA target
 ```
 
-**Evade IDS | Use fragmented packets** | `-f` | Fragmentation would take the packets that nmap sends and make them smaller packets and make them smaller so that IDS systems cant tell from analyzing each fragment what exactly is going on. IE TCP SYN/ACK packets. Most recommend. the returned packets from the target are not fragmented.
+**Evade IDS | Use fragmented packets** | `-f` | Fragmentation would take the packets that nmap sends make them smaller so that IDS systems cant tell from analyzing each fragment what exactly is going on (IE TCP SYN/ACK packets).  The returned packets from the target are not fragmented. This method is recommended for evading IDS systems. 
 ```
 nmap -Pn -sS -f target
 ```
@@ -419,7 +410,7 @@ Using a custom MTU in Nmap allows you to send packets with a specified size. Thi
 
 ---
 
-**Spoofing/Decoys**
+#### Spoofing/Decoys
 
 Spoofing is disguising/obscuring the true origin of the scan which can involve manipulating IP addresses, headers, or packet attributes to mimic legitimate traffic or to introduce noise that makes analysis more difficult. Spoofing typically requires being on the same network as the spoofed address to ensure packets can flow correctly.
 
@@ -450,7 +441,7 @@ nmap -g 53 target.com
 
 ---
 
-**Optimizing Nmap Scans**
+#### Optimizing Nmap Scans
 
 - **Host timeout** = `--host-timeout <time>` = Amount of time before nmap gives up on the target, can be useful for scans on a large number of IPs (Can use around 30s for large networks). Should be used carefully as you can miss systems if you give too little time here.
 - **Space out the scan probes** = `--scan-delay` = Spaces out the sent scanning probes in seconds/milliseconds. Try setting the scan delay to 15 secs if stealth is the goal but remember that this will increase the time to complete scan.
@@ -468,10 +459,8 @@ nmap -g 53 target.com
 You can specify different types of outputs of nmap scan results to save. Regardless of the output, the terminal will still display the nmap scan output:
 
 - **Normal Output** | `-oN` > `-oN file_name.txt` | Same format in the terminal screen, this normally saved in txt format.
-	
-- **XML Output** | `-oX` > `-oX file_name.xml` | This format can be imported to a framework like Metasploit which would include host,ports,etc that can be added to a Metasploit database. This allows you to keep a centralized location for all of the hosts, you can refer back to individual hosts, so even if you lose your scan they’re saved in the metasploit database that you can refer back to. You can make workspaces within Metasploit for pentests and create new workspaces for each pentest. This can be helpful for looking at previous pentests
-			
-- Greppable | `-oG` > `.txt , .grep , or other similar format` = Allows the information to be used with Grep and potentially used for automation purposes
+- **XML Output** | `-oX` > `-oX file_name.xml` | This format can be imported to a framework like Metasploit which would include host,ports,etc that can be added to a Metasploit database. This allows you to keep a centralized location for all of the hosts, you can refer back to individual hosts, so even if you lose your scan they’re saved in the metasploit database that you can refer back to. You can make workspaces within Metasploit for pentests and create new workspaces for each pentest. This can be helpful for looking at previous pentes		
+- **Greppable** | `-oG` > `.txt , .grep , or other similar format` = Allows the information to be used with Grep and potentially used for automation purposes
 - `-oS` | Script Kiddle = Not used often
 - `-oA` | All in one output of `-oN` ,`-oX`, and `-oG` outputs.
 - `-v` | Increases verbosity

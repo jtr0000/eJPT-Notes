@@ -2,11 +2,6 @@
 1. [Introduction (What is Active Information Gathering)](c.%20Active%20Information%20Gathering.md#introduction)
 2. [Intro to DNS (Records, Interrogation)](c.%20Active%20Information%20Gathering.md#dns)
 3. [DNS Zone Transfers and DNS Zone Transfers ](c.%20Active%20Information%20Gathering.md#dns-zone-transfers)
-Footprinting and Scanning
-Enumeration
-
-
-
 
 ---
 ## Introduction
@@ -93,7 +88,3 @@ DNS brute forcing is an enumeration technique used by attackers to discover subd
 ```
 fierce --domain website.com
 ```
-
----
-
-## Network Fundamentals
