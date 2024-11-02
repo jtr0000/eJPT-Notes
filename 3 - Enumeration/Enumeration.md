@@ -627,5 +627,320 @@ run
 
 
 ## MySQL Enumeration
+
+MySQL is an open-source relational database management system based on SQL (Structured Query Language).It is typically used to store records, customer data, and is most commonly deployed to store web application data. If you’re setting up a site like Wordpress it would need something like MySQL. MySQL utilizes TCP port 3306 by default, however, like any service it can be hosted on any open TCP port. We can utilize auxiliary modules to enumerate the version of MySQL, perform brute-force attacks to identify passwords, execute SQL queries and much more.
+
+### Check for MySQL Database Version
+
+To find the MySQL database version, use the `mysql_version` auxiliary module. You can search for it using `search type:auxiliary name:mysql` or just use `auxiliary/scanner/mysql/mysql_version`. Running this scan will give you the database version and potentially the underlying OS details, which are pertinent for exploitation/post-exploitation.. This scan has the RPORT set to 3306 by default,  make sure the database is active on the expected port by doing a port scan/
+
+```
+use auxiliary/scanner/mysql/mysql_version
+set RHOSTS [target]
+run
+```
+
+### Brute Force to Find Valid Database Credentials
+
+To brute force MySQL login credentials, use the `mysql_login` auxiliary module. You can find it by searching `mysql_login` or use `auxiliary/scanner/mysql/mysql_login`. 
+- Set `BRUTEFORCE_SPEED` to control how fast you want to attempt logins (it's set high by default). 
+- Make sure to set the IP, port, and point to your username/password files. You’re usually aiming to get root access for full control on the system so you can set the `USERNAME` to 'root'. You can set the password file to a Metasploit provided one like `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`. 
+- Set `VERBOSE` to off to prevent the terminal from outputting all of the failed login attempts and set enable `STOP_ON_SUCCESS` to stop once a valid login is found.
+
+```
+use auxiliary/scanner/mysql/mysql_login
+set RHOSTS [target]
+set USERNAME root OR set USER_FILE [path_to_userlist]
+set PASS_FILE [path_to_passwordlist]
+set VERBOSE false
+set STOP_ON_SUCCESS true
+run
+```
+
+
+### Basic MySQL Enumeration
+
+For basic MySQL enumeration, use the `mysql_enum` module.  The module allows for simple enumeration on the database server as long as there’s proper credentials is provided like an admin/root account. Search with `mysql_enum` or go to `auxiliary/admin/mysql/mysql_enum`. Running this scan will give you the MySQL version, user accounts with password hashes, and each account’s privileges. If you collect any password hashes, you can try to crack them later. 
+
+```
+use auxiliary/admin/mysql/mysql_enum
+set RHOSTS [target]
+set USERNAME [username]
+set PASSWORD [password]
+run
+```
+
+**Note**: If you use non-root credentials, any information specific to that user might still be helpful.
+
+
+### Interact with the MySQL Database
+
+To run SQL queries directly, use the mysql_sql module. It also needs admin credentials. Search for it with `mysql_sql` or use `auxiliary/admin/mysql/mysql_sql`.
+
+Set `USERNAME` and `PASSWORD` to your credentials, and you can start interacting with the database.
+
+
+```
+use auxiliary/admin/mysql/mysql_sql
+set RHOSTS [target]
+set USERNAME [admin_username]
+set PASSWORD [admin_password]
+run
+
+```
+
+**Example Query**:
+```
+show databases;
+```
+
+
+### Get the Database and Table Schema
+
+Use the `mysql_schemadump` module to export the database schema. Search for it using `mysql_schema` or go to `auxiliary/scanner/mysql/mysql_schemadump`.
+
+Set your `USERNAME` and `PASSWORD`. The schema will be saved in the `loot` directory in Metasploit.
+
+```
+use auxiliary/scanner/mysql/mysql_schemadump
+set RHOSTS [target]
+set USERNAME [admin_username]
+set PASSWORD [admin_password]
+run
+```
+
+**Note**: Keep everything organized using Metasploit’s built-in commands. Setting up workspaces for each project is a good idea:
+- `services` – Shows all discovered services.
+- `loot` – Lists captured data, like schema dumps.
+- `creds` – Lists any credentials you've gathered, which are key for further attacks.
+
+
+### Enumerate Files on MySQL Server
+
+To enumerate files on the MySQL server, use the mysql_file_enum auxiliary module (`auxiliary/scanner/mysql/mysql_file_enum`). This module scans for files listed in your wordlist and can help you discover sensitive information or configuration files.
+
+Configure the module by setting the `USERNAME` and `PASSWORD` of a valid account, the target `RHOSTS`, and the `FILE_LIST` pointing to your file wordlist. You can use something like `/usr/share/metasploit-framework/data/wordlists/directory.txt` for the wordlist. Enabling `VERBOSE` can provide detailed output.
+
+```
+use auxiliary/scanner/mysql/mysql_file_enum
+set USERNAME [account]
+set PASSWORD [password]
+set RHOSTS [target]
+set FILE_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
+set VERBOSE true
+run
+```
+
+###  Dump MySQL Password Hashes
+
+To dump password hashes from the MySQL database, use the `mysql_hashdump` auxiliary module. This requires admin-level credentials, such as `root`. The output will include hashes that you can attempt to crack for deeper access.
+
+```
+use auxiliary/scanner/mysql/mysql_hashdump
+set USERNAME root
+set PASSWORD [password]
+set RHOSTS [target]
+run
+```
+
+### Find Writable Directories on MySQL Server
+
+To identify writable directories on the MySQL server, use the `mysql_writable_dirs` auxiliary module. This scan can reveal directories where you have write permissions, which can be useful for uploading malicious files or further exploitation.
+
+Set the `RHOSTS` to your target, along with the `USERNAME` and `PASSWORD` of an account with the necessary privileges. Use a directory wordlist to guide the scan like '``/usr/share/metasploit-framework/data/wordlists/directory.txt'
+
+```
+use auxiliary/scanner/mysql/mysql_writable_dirs
+set RHOSTS [target]
+set USERNAME root
+set PASSWORD [password]
+set DIR_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
+run
+
+```
+
 ## SSH Enumeration
+
+SSH (Secure Shell) is a remote administration protocol that offers encryption and is the successor to Telnet. It is typically used for remote access to servers and systems. If you wanted a GUI you’d normally use RDP or VNC
+
+- SSH uses TCP port 22 by default, however, like other services, it can be configured to use any other open TCP port. This is very common with companies but can be identified with a port scan
+- We can utilize auxiliary modules to enumerate the version of SSH running on the target as well as perform brute-force attacks to identify passwords that can consequently provide us remote access to a target. The version is very important when vulnerability scanning
+
+
+### Check for SSH Version
+
+To determine the SSH version, use the `ssh_version` auxiliary module. You can search for SSH auxiliary modules using `search type:auxiliary name:ssh` or access it directly at `auxiliary/scanner/ssh/ssh_version`.
+
+Running this scan will return the SSH version as well as details about the underlying operating system. 
+
+```
+use auxiliary/scanner/ssh/ssh_version
+set RHOSTS [target]
+run
+```
+
+### Brute Force SSH Login
+
+For brute forcing SSH logins, use the `ssh_login` auxiliary module. Locate it by searching with `search ssh_login` or use `auxiliary/scanner/ssh/ssh_login`.
+
+Configure the module to adjust settings such as `BRUTEFORCE_SPEED` to avoid tripping security alarms. SSH login attempts are typically logged, so use caution. Enable `STOP_ON_SUCCESS` to stop once a valid login is found, and set `VERBOSE` to `false` to reduce output clutter. Use Metasploit's built-in wordlists for common usernames and passwords:
+
+- `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- `/usr/share/metasploit-framework/data/wordlists/common_passwords.txt`
+```
+use auxiliary/scanner/ssh/ssh_login
+set RHOSTS [target]
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+set PASS_FILE /usr/share/metasploit-framework/data/wordlists/common_passwords.txt
+set VERBOSE false
+set STOP_ON_SUCCESS true
+run
+```
+
+When a valid credential is found, an SSH session is created. Use `sessions -i <id>` to interact with the session. For a full interactive shell, run `/bin/bash -i` once connected. The -i is necessary so you can see the outputs from some of the commands executing
+```
+sessions -i [session_id]
+/bin/bash -i
+```
+
+
+#### Searching Files on the System
+
+To search for specific files throughout the entire file system, use the `find` command. This is especially useful when you're hunting for files like "flags" during a capture-the-flag exercise or other sensitive data.
+
+```
+find / -name "[filename]"
+```
+
+Once you locate the file, use the `cat` command to view its contents:
+
+```
+cat /[path_to_file]
+```
+### Enumerate Users to Narrow Down Brute Force (Might Not Work)
+
+For user enumeration, try the `ssh_enumusers` module. Note that this method may only work on certain versions of OpenSSH and could be patched. Search for it with `search ssh_enumusers` or access it directly at `auxiliary/scanner/ssh/ssh_enumusers`.
+
+Configure the scan to use a common users wordlist:
+
+- `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+
+```
+use auxiliary/scanner/ssh/ssh_enumusers
+set RHOSTS [target]
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+run
+```
+
+
+*Note: This scan didnt work for me since this it looks like the malformed packet technique with the enumerate module only works on some OpenSSH servers and looked to have been patched I currently get the below result when running the scan*
+If the scan fails, refer to issues like for more context [https://github.com/rapid7/metasploit-framework/issues/15676](https://github.com/rapid7/metasploit-framework/issues/15676)
+
+
+---
 ## SMTP Enumeration
+
+
+SMTP (Simple Mail Transfer Protocol) is a communication protocol that is used for the transmission of email. SMTP uses TCP port 25 by default. It is can also be configured to run on TCP port 465 and 587 if SSL is setup. We can utilize auxiliary modules to enumerate the version of SMTP as well as user accounts on the target system. Version is important when looking at vulnerabilities but looking at SMTP normally doesn’t provide much unless you’re exploiting the exact version of the SMTP service that’s running on the target but the information from SMTP could be used to gather other information on the target.
+
+### Getting SMTP Service Version
+
+To identify the SMTP service version, use the `smtp_version` auxiliary module. You can find this by searching for SMTP auxiliary modules with `search type:auxiliary name:smtp` or directly using `auxiliary/scanner/smtp/smtp_version`.
+
+Before running the scan, it’s a good idea to confirm that SMTP is running on the target port with a port scan. The default settings should work well, as the module retrieves the banner, to get  the SMTP version. This can provide critical information about the server, such as whether it’s running a specific software like Postfix.
+
+```
+use auxiliary/scanner/smtp/smtp_version
+set RHOSTS [target]
+run
+```
+
+### Enumerate Users with SMTP
+
+To gather valid user accounts on an SMTP server, you have two main options: using Metasploit’s `smtp_enum` module or the standalone `smtp-user-enum` tool. Both methods can help narrow down potential targets for further attacks, like SSH brute forcing, by providing a list of valid usernames.
+
+- **Option 1: smtp_enum Module** : This method uses Metasploit's built-in module for enumerating SMTP users. You can search for it with `search type:auxiliary name:smtp` or go straight to `auxiliary/scanner/smtp/smtp_enum`. The default settings will work, though the scan may take a few minutes depending on the server's response time.
+
+```
+use auxiliary/scanner/smtp/smtp_enum
+set RHOSTS [target]
+run
+```
+
+- **Option 2: Using the smtp-user-enum Tool**  : The `smtp-user-enum` tool is another  way to enumerate users on an SMTP server. It uses a specified wordlist to check for common usernames.
+
+```
+smtp-user-enum -U /usr/share/commix/src/txt/usernames.txt -t [target]
+```
+
+### Identify the SMTP Server and Banner
+
+To discover the SMTP service name and banner, use an Nmap scan to grab service details. This will reveal the server type and welcome message, providing essential information for further analysis.
+
+```
+nmap -sV --script banner [target]
+```
+
+
+### Connect to the SMTP Service Using Netcat
+
+You can use Netcat to manually connect to the SMTP service and retrieve the hostname or domain name of the server.  This get shows the service's response and configuration.
+
+```
+nc [target] 25
+```
+
+### Verify if a User Exists Manually
+
+Use the `VRFY` command to check if a specific user, like "admin," exists on the server. This can confirm the presence of accounts for later brute-force attempts. Will respond `Yes` or `No`. This can be repeated for other usernames
+```
+VRFY user@[server_domain]
+```
+
+Example:
+```
+VRFY admin@arandosite.xyz
+```
+
+### Discover Supported SMTP Commands Using Telnet
+
+Connect to the SMTP service with Telnet and use `HELO` and `EHLO` to list supported commands. This is crucial for understanding what operations the SMTP server allows.
+
+```
+telnet [target] 25
+HELO [your_domain]
+EHLO [your_domain]
+```
+
+
+### Send a Fake Email to Test SMTP
+
+There are two main ways to send a test email to the SMTP server: using Telnet for a more hands-on approach or the `sendemail` command for a streamlined, automated option.
+
+- **Option 1: Using Telnet**  - This method lets you manually connect to the SMTP server and send an email step by step. Make sure to end your message with a `.` on a new line to indicate you're done.
+```
+telnet [target] 25
+HELO [your_domain]
+mail from: admin@[your_domain]
+rcpt to: root@[server_domain]
+data
+Subject: Hi Root
+Hello,
+This is a fake email sent using the Telnet command.
+From,
+Admin
+.
+```
+
+- **Option 2: Using sendemail Command**  - For a more automated process, use the `sendemail` command. It’s quick, efficient, and useful for scripting.
+
+```
+sendemail -f admin@[your_domain] -t root@[server_domain] -s [target] -u Fakemail -m "Hi root, a fake from admin" -o tls=no
+```
+
+- `-f admin@[your_domain]`: Specifies the "from" email address.
+- `-t root@[server_domain]`: Specifies the "to" email address.
+- `-s [target]`: The SMTP server you are using to send the email.
+- `-u Fakemail`: The subject of the email.
+- `-m "Hi root, a fake from admin"`: The body of the email.
+- `-o tls=no`: Disables TLS encryption, as some servers may not support it.

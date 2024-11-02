@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "294afe77c702e9e9",
@@ -161,12 +160,12 @@
   },
   "active": "25ade0550f865768",
   "lastOpenFiles": [
-    "6 - System_Host Based Attacks/System_Host Based Attacks.md",
-    "5 - Auditing/Auditing.md",
     "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "3 - Enumeration/Enumeration.md",
+    "6 - System_Host Based Attacks/System_Host Based Attacks.md",
     "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "1 - Information Gathering/c. Active Information Gathering.md",
+    "5 - Auditing/Auditing.md",
     "1 - Information Gathering/b. Passive Information Gathering.md",
     "3 - Enumeration/Untitled.md",
     "Untitled 1.md",
