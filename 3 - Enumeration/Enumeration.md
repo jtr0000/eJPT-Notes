@@ -288,7 +288,7 @@ We can utilize Metasploit auxiliary modules and Nmap NSE scripts to enumerate th
 ```
 ls -al /usr/share/nmap/scripts | grep -e “smb”
 ```
-##### SMB Brute Force
+### SMB Brute Force
 
 The smb_login auxiliary module (`auxiliary/scanner/smb/smb_login`) that can be used to perform a brute force against the SMB service to hopefully get valid credentials. The default options for the scanner should be fine but we can set either wordlist files for both users or passwords > `USER_FILE (users) | PASS_FILE (pwds) USERPASS_FILE (Both)` or we can set individual accounts/pwds with `SMBUser`/`SMBPass`. Metasploit does provide wordlists that we can use here.
 
@@ -303,7 +303,7 @@ set PASS_FILE /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt
 run
 ```
 
-##### SMB: Credentialed vs Un-credentialed Scans
+### SMB: Credentialed vs Un-credentialed Scans
 
 When running SMB scans, the presence or absence of valid credentials can significantly affect the results. If valid credentials are available, it’s always recommended to use them for more thorough SMB enumeration. An uncredentialed scan relies on public or guest access, but if guest login is disabled, many probes will result in **access denied** errors. In contrast, a **credentialed scan** uses valid user credentials, allowing deeper access and more detailed information from the target SMB service.
 
@@ -318,7 +318,7 @@ set SMBUser <username>
 set SMBPass <password>
 ```
 
-##### SMB: Enumerate  SMB Version/ Protocols & OS
+### SMB: Enumerate  SMB Version/ Protocols & OS
 
 Several scripts from Nmap and an Metasploit module that can be used to identify the SMB versions, protocols, and OS details of a target system. This includes the Nmap NSE scripts `smb-protocols` and `smb-os-discovery`, as well as the Metasploit module `smb_version` (`auxiliary/scanner/smb/smb_version`).
 
@@ -343,7 +343,7 @@ Using these tools together provides a more complete picture: `smb-protocols` and
 
 - Note: If you see A NetBIOS name with `\x00`, this is a null terminator, a special character used to indicate the end of the string in the NetBIOS protocol. The null terminator isn't part of the name itself but is included for formatting in NetBIOS communication.
 
-##### SMB Security level
+### SMB Security level
 
 The Nmap NSE script `smb-security-mode` evaluates the security configuration of the SMB server. It determines if the server enforces security practices, such as SMB signing, and whether plaintext passwords or older authentication mechanisms are allowed.
 ```
@@ -354,13 +354,13 @@ nmap -p445 --script smb-security-mode [target]
 - **Challenge/response support**: Indicates whether the server accepts more secure password types (e.g., NTLM/LM) or only plaintext passwords, with plaintext being vulnerable to interception.
 - **Message signing**: If required, it ensures all communications between client and server are cryptographically signed to prevent man-in-the-middle (MITM) and SMB relay attacks. Servers that don’t enforce signing may be exploited through negotiation attacks where signing is disabled.
 
-##### SMB: Enumerate Logged in Users
+### SMB: Enumerate Logged in Users
 
 The NSE script `smb-enum-sessions` enumerates logged-in user sessions on the SMB server connected through an through an SMB share. It can help detect unauthorized or misconfigured access (like guest accounts).
 ```
 nmap -p445 --script smb-enum-sessions [target]
 ```
-##### SMB: Enumerate Network/File Shares
+### SMB: Enumerate Network/File Shares
 
 There’s an Nmap NSE script `smb-enum-shares`  and the Metasploit smb_enumshares auxiliary module (`auxiliary/scanner/smb/smb_enumshares`) for enumerating shared folders and drives on the target system.  The shares  may contain valuable files along with any permission misconfigurations. Using an authenticated scan allows access to shares that might not be visible otherwise.
 - **NMap**: Combine `smb-enum-shares` with the `smb-ls` script to list files within each shared folder.
@@ -378,7 +378,7 @@ set RHOSTS [IP]
 set ShowFiles true
 run
 ```
-##### SMB: Enumerate User Accounts
+### SMB: Enumerate User Accounts
 
 There's an Nmap NSE `smb-enum-users` and the Metasploit SMB_enumusers auxiliary module (`auxiliary/scanner/smb/smb_enumusers`) for enumerating users on the target. Make sure to copy down all of the users and any possible admin accounts.
 
@@ -393,34 +393,34 @@ use auxiliary/scanner/smb/smb_enumusers
 set rhosts [IP]
 run
 ```
-##### SMB Group Enumeration
+### SMB Group Enumeration
 
 The Nmap NSE script `smb-enum-groups` script retrieves a list of user groups on the SMB server and users apart of those groups. It helps identify users with elevated privileges or roles that might be exploited.
 ```
 nmap -p445 --script smb-enum-groups [target]
 ```
-##### SMB Server Statistics
+### SMB Server Statistics
 
 The Nmap NSE script `smb-server-stats` retrieves statistical information from the SMB server, including failed login attempts, file locks, and other activity-related details. This can help in analyzing security events or detecting abnormal behavior.
 ```
 nmap -p445 --script smb-server-stats [target]
 ```
 
-##### SMB Enumerate Domains
+### SMB Enumerate Domains
 
 The Nmap NSE script `smb-enum-domains` enumerates domains available on the SMB server, which is important when targeting a domain controller to discover domain structures.
 ```
 nmap -p445 --script=smb-enum-domains [target]
 ```
 
-##### SMB Enumerate Services
+### SMB Enumerate Services
 
 Nmap NSE script `smb-enum-services` can enumerate services on the target. The list which can reveal misconfigured or vulnerable services that could be exploited.
 ```
 nmap -p445 --script=smb-enum-services [target]
 ```
 
-##### SMB Access Shares  
+### SMB Access Shares  
 
 The **SMBClient** is a command-line utility that allows interaction with SMB shares on remote servers. It is particularly useful for accessing Windows file shares from a Linux environment.
 
@@ -443,41 +443,189 @@ get flag
 
 #### SMB Anonymous Connection (Null Session)  
 
-Anonymous (or null session) connections allow access to certain SMB resources without authentication. By testing with null sessions, you can determine if the target allows unauthenticated access, which could expose shares or RPC services.
-
-- **smbclient**: Use the `-N` option to bypass the password prompt, attempting an anonymous login. If shares are displayed without a password requirement, it confirms that anonymous connections are allowed.
+Anonymous (or null session) connections allow access to certain SMB resources without authentication. 
+- **smbclient**: You can use the `-N` option with the smbclient to bypass the password prompt, attempting an anonymous login. 
 ```
 smbclient -L [target] -N
 ```
 
-- **rpcclient**: This command-line tool allows interaction with Windows RPC (Remote Procedure Call) services over SMB, enabling queries of user accounts, shares, and domain controller details. Using `-U ""` specifies an empty username, indicating an anonymous login, and `-N` tells `rpcclient` to skip the password prompt to not provide credentials.
+- **rpcclient**: This cmd-line tool allows interaction with Windows RPC (Remote Procedure Call) services over SMB, enabling queries of user accounts, shares, and domain controller details. Using `-U ""` specifies an empty username, indicating an anonymous login, and `-N` tells the client to skip the password prompt.
 ```
 rpcclient -U "" -N [target]
 ```
 
+### Samba
 
-##### SAMBA
+Samba is a Linux implementation of the SMB protocol, making it possible for Linux systems to share files and printers with Windows. The `smbd` service handles the core tasks, like managing file and printer access, authenticating users, and communicating with Windows clients. Meanwhile, `nmbd` deals with NetBIOS name resolution and network browsing, enabling devices to find and communicate with each other on a local network.
 
-SAMBA is the Linux implementation of SMB, and allows Windows systems to access Linux shares and devices. The `smbd` process is for Samba. It handles file and printer sharing, user authentication, and network communication between Unix/Linux systems and SMB clients, typically in Windows environments. The `nmbd` process in Samba manages NetBIOS name resolution and network browsing, allowing systems to discover and communicate with each other on local networks using NetBIOS over IP.
+- **UDP Port 137**: Used for resolving and registering NetBIOS names so devices can recognize each other by name.
+- **UDP Port 138**: Handles broadcasting messages across the network, like for group messaging or browsing shared resources.
 
-- UPD Port 137 (netbios-ns) is used for NetBIOS Name Service, which handles name resolution and registration, allowing devices on a network to identify each other by name.
-- UPD Port 138 (netbios-dgm) is used for NetBIOS Datagram Service, supporting communication for broadcasting messages across the network, typically for tasks like group messaging or network browsing.
+Network browsing, managed by `nmbd`, lets devices see and access shared resources on the network as they come online. Using scanning tools like `-sV` can help identify Samba servers and find details such as workgroup names.
 
-Network browsing allows devices on a local network to view and access shared resources dynamically as they become available on the network.
+### nmblookup
 
+`nmblookup` is a command from the Samba toolkit that helps you find IP addresses by querying NetBIOS names. It uses UDP to send queries either to the whole network or a specific machine.
 
+The `-A` option allows you to target an IP address directly, making it easier to get details about a device to get information like its NetBIOS name.
 
-
-
-The `-sV` would return the workgroup name of the samba server
-
-
-
-
-
-
+```
+nmblookup -A [target]
+```
 
 ## Web Server Enumeration
+
+A web server is software that is used to serve website data on the web. So when you purchase a domain, setup your site with a hosting company, the directory you store your website files is hosted/served by webserver technology.
+
+Web servers utilize HTTP (Hypertext Transfer Protocol) to facilitate the communication between clients and the web server. HTTP is an application layer protocol that utilizes TCP port 80 for communication. When using a SSL cert it uses 443.
+
+We can utilize auxiliary modules to enumerate the web server version, HTTP headers, brute-force directories and much more.
+
+Examples of popular web servers are; Apache, Nginx and Microsoft IIS.
+
+
+### Web Server Version 
+
+To identify the web server version, use the `http_version` auxiliary Metasploit module. This module can also return the OS which the web server is running on. You can locate it by searching the HTTP auxiliary modules (`search type:auxiliary name:http`) or directly using `auxiliary/scanner/http/http_version`. When running the scan, if the target website uses SSL (port 443), make sure to enable SSL by setting the SSL option to `true` and adjust RPORT to 443.
+```
+use auxiliary/scanner/http/http_version
+set RHOSTS [target]
+run
+```
+
+### Analyzing HTTP Headers
+
+HTTP headers are key-value pairs of metadata that are sent between a client and a server when an HTTP request or response is made. 
+
+For examining HTTP headers, utilize the `http_header` auxiliary module. You can find this by searching for 'http_header' or by specifying `auxiliary/scanner/http/http_header`.
+
+When executing the scan, consider using the IGN_HEADER option if you need to exclude specific headers from the output.
+```
+use auxiliary/scanner/http/http_header
+set RHOSTS [target]
+run
+```
+
+### Use Robots.txt to Enumerate Hidden Directories
+
+To uncover hidden directories, start by checking the `robots.txt` file. It’s stored in the root directory of a website and tells search engines which parts of the site to avoid. Use the `robots_txt` auxiliary module for this.  Search for the module with `search robots_txt` or just use `auxiliary/scanner/http/robots_txt`.  You usually don’t have to change the scanner settings like the PATH since `robots.txt` is almost always in the root directory. 
+
+```
+use auxiliary/scanner/http/robots_txt
+set RHOSTS [target]
+run
+```
+
+The scan itself will reveal directories labeled 'Allow' or 'Disallow'. The disallowed directories is the hidden directories specified by the website operator to not be indexed, you can attempt to access them which could contain interesting info.
+
+```
+use auxiliary/scanner/http/dir_scanner
+set RHOSTS [target]
+set DICTIONARY [path_to_wordlist]
+run
+```
+
+
+### Access Hidden Directories
+
+Curl can be used to explore the directories.  If you see "Index of ...," it means directory listing is turned on, which lets you browse the files in that folder. This feature, common in Apache and similar servers, is handy for sharing public files.
+
+```
+curl http://target/directory/
+```
+- Note: If a directory is password-protected, expect a 4xx error (like 403 Forbidden) because the terminal won’t ask for login details like a web browser would.
+
+
+### Brute Force to Find Directories
+
+To discover hidden directories, use the `dir_scanner` auxiliary Metasploit module. You can find it by searching for `dir_scanner` or directly using `auxiliary/scanner/http/dir_scanner`. Additionally, the `robots_txt` auxiliary module can provide initial directory hints. The `DICTIONARY` variable should be configured to point to a text file containing common directory names: `usr/share/metasploit-framework/data/wmap/wmap_dirs.txt`. If necessary, specify a subdirectory path for targeted scanning. 
+
+```
+use auxiliary/scanner/http/dir_scanner
+set RHOSTS [target]
+run
+```
+
+****NOTE: In an actual pentest make sure to try each of these directories from an actual browser to see the contents***
+
+### Brute Force to Find Additional Files
+
+To enumerate more files, use the `files_dir` auxiliary module. Search for it using `file_dir` or access it directly with `auxiliary/scanner/http/files_dir`.  The DICTIONARY variable should be set to a default filename wordlist provided by metasploit: `/usr/share/metasploit-framework/data/wmap/wmap_files.txt`. You can get word lists from:
+        
+- `/usr/share/metaspolit-framework`
+- `/usr/share/wordlists/`
+
+If you want to filter by a specific file extension, you can adjust the EXT variable, but you generally don’t know what type of file you’re looking for so just leave this setting alone. 
+```
+use auxiliary/scanner/http/files_dir
+set RHOSTS [target]
+run
+```
+
+### Brute Force Password-Protected Directories
+
+To access password-protected directories, use the `http_login` auxiliary module. You can locate it by searching for `http_login` or by navigating directly to `auxiliary/scanner/http/http_login`.
+
+- If the target directory requires authentication, make sure to set the `AUTH_URI` variable to point to that specific directory. 
+- The `DICTIONARY` variable should be set to a text file with potential usernames or passwords. 
+- If you have a database of credentials, you can use it, or just stick with user and password files. 
+- The brute force speed can be adjusted but be careful there but careful to avoid triggering security measures or causing a DoS.
+- By default, both `USER_FILE`/`PASS_FILE` and `USERPASS_FILE` are enabled, which is redundant. To resolve this, you can clear one:
+
+```
+unset USERPASS_FILE  # This might not work
+set --clear USERPASS_FILE  # This should work
+```
+
+If the default wordlists don’t yield results, try using stronger lists:
+
+- User List: `/usr/share/metasploit-framework/data/wordlists/namelist.txt`
+- Password List: `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+To cut down on noise from failed login attempts, set `VERBOSE` to `false`.
+```
+use auxiliary/scanner/http/http_login
+set RHOSTS [target]
+set USER_FILE [path_to_userlist]
+set PASS_FILE [path_to_passwordlist]
+set --clear USERPASS_FILE
+set AUTH_URI [path_to_protected_directory]
+set VERBOSE false
+run
+```
+
+### Alternative User Enumeration for Apache Web Servers
+
+For user enumeration on Apache web servers, use the `apache_userdir_enum` module. You can find this module by searching for `apache_userdir_enum` or directly accessing `auxiliary/scanner/http/apache_userdir_enum`.
+
+Apache’s `UserDir` feature is  useful for this, as it generates different error codes when a username exists versus when it doesn’t. This behavior makes it easier to pinpoint valid usernames for further brute force attempts.
+
+To run the scan, you can use a common users wordlist like `/usr/share/metasploit-framework/data/wordlists/common_users.txt`.
+
+```
+use auxiliary/scanner/http/apache_userdir_enum
+set RHOSTS [target]
+set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
+run
+```
+
+Once you identify potential usernames from a previous brute-force attempt, you should save them in a properly formatted text file to use in further scans. To create a file that Metasploit can read effectively, copy and paste the usernames, ensuring each one is on a separate line. 
+
+```
+echo -e "username1\nusername2\nusername3..." > user.txt
+```
+
+This creates a file where each username is listed on its own line. Next, update the `USER_FILE` variable to point to this new file and rerun the scan:
+
+```
+set USER_FILE user.txt
+run
+```
+
+
+---
+
+
 ## MySQL Enumeration
 ## SSH Enumeration
 ## SMTP Enumeration
