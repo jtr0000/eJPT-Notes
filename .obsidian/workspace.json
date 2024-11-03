@@ -160,6 +160,10 @@
   },
   "active": "25ade0550f865768",
   "lastOpenFiles": [
+    "1 - Information Gathering/eJPT - Active Information Gathering.apkg",
+    "eJPT - Active Information Gathering.apkg",
+    "1 - Information Gathering/eJPT - Passive Information Gathering.apkg",
+    "eJPT - Passive Information Gathering.apkg",
     "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "3 - Enumeration/Enumeration.md",
     "6 - System_Host Based Attacks/System_Host Based Attacks.md",
@@ -189,9 +193,6 @@
     "10 - Post Exploitation",
     "9 - Exploitation",
     "8 - Metasploit Framework",
-    "7 - Network Based Attacks",
-    "6 - System_Host Based Attacks",
-    "5 - Auditing",
-    "4 - Vulnerability Assessment"
+    "7 - Network Based Attacks"
   ]
 }

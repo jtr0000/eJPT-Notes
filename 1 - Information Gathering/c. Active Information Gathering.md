@@ -20,7 +20,6 @@ Domain Name System (DNS)  is a protocol that resolves domain names or hostnames 
 - `MX` (**Mail Exchange Record**): Resolves a domain to a mail server, directing email traffic for a domain to the correct mail server.
 - `CNAME` (**Canonical Name Record**): Used for domain aliases, which map one domain to another, allowing multiple domains to point to the same IP or resource.
 - `TXT` (**Text Record**): Can be used to include arbitrary text in DNS, commonly for things like verifying domain ownership or providing SPF (Sender Policy Framework) information for email authentication.
-- `HINFO` (**Host Information Record**): Specifies general information about the host such as the CPU and OS type, although it's rarely used for security reasons.
 - `SOA` (**Start of Authority Record**): Indicates the primary authoritative nameserver for a domain and contains essential metadata such as the domain's serial number and refresh intervals for DNS zone transfers.
 - `SRV` (**Service Record**): Specifies the location of services such as VoIP or directory services within a domain by defining the service's hostname and port.
 - `PTR` (**Pointer Record**): Resolves an IP address to a hostname, typically used in reverse DNS lookups to map an IP back to a domain name.
