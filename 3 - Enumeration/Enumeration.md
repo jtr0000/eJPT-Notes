@@ -1,26 +1,17 @@
 
 Table Of Contents
-1. Intro to Enumeration
-2. Nmap Script
+
 1. [Intro to Enumeration](Enumeration.md#Enumeration)
-
-
-2. [Nmap Script Engine](Enumeration.md#nse)
-
-
-
-FTP Enumeration
-SMB Enumeration
-Web Server Enumeration
-MySQL Enumeration
-SSH Enumeration
-MTP Enumeration
-
-
+2. [FTP Enumeration](Enumeration.md#ftp-enumeration)
+3. [SMB Enumeration](Enumeration.md#smb)
+4. [Web Server Enumeration](Enumeration.md#web-server-enumeration)
+5. [MySQL Enumeration](Enumeration.md#mysql-enumeration)
+6. [SSH Enumeration](Enumeration.md#ssh-enumeration)
+7. [SMTP Enumeration](Enumeration.md#smtp-enumeration)
 
 
 ---
-#### Enumeration
+## Enumeration
 
 Enumeration is the phase that follows host discovery and port scanning in a penetration test. In this step, the goal is to dig deeper and gather detailed information about the systems and services running on a network. This could include things like…
 
@@ -158,7 +149,7 @@ run
 
 ---
 
-## FTP Enumeration
+## FTP-Enumeration
 
 FTP (File Transfer Protocol) is a TCP-based protocol using port 21 for file sharing between a server and client, commonly used for transferring files to and from web server directories. It can be enumerated or brute-forced using auxiliary tools, and while it typically requires a username and password for authentication to the FTP server, some misconfigured servers allow anonymous access. We’re generally looking for.
 
@@ -473,7 +464,8 @@ The `-A` option allows you to target an IP address directly, making it easier to
 nmblookup -A [target]
 ```
 
-## Web Server Enumeration
+---
+## Web-Server-Enumeration
 
 A web server is software that is used to serve website data on the web. So when you purchase a domain, setup your site with a hosting company, the directory you store your website files is hosted/served by webserver technology.
 
@@ -625,8 +617,7 @@ run
 
 ---
 
-
-## MySQL Enumeration
+## MySQL-Enumeration
 
 MySQL is an open-source relational database management system based on SQL (Structured Query Language).It is typically used to store records, customer data, and is most commonly deployed to store web application data. If you’re setting up a site like Wordpress it would need something like MySQL. MySQL utilizes TCP port 3306 by default, however, like any service it can be hosted on any open TCP port. We can utilize auxiliary modules to enumerate the version of MySQL, perform brute-force attacks to identify passwords, execute SQL queries and much more.
 
@@ -656,7 +647,6 @@ set VERBOSE false
 set STOP_ON_SUCCESS true
 run
 ```
-
 
 ### Basic MySQL Enumeration
 
@@ -756,16 +746,15 @@ set USERNAME root
 set PASSWORD [password]
 set DIR_LIST /usr/share/metasploit-framework/data/wordlists/directory.txt
 run
-
 ```
 
-## SSH Enumeration
+---
+## SSH-Enumeration
 
 SSH (Secure Shell) is a remote administration protocol that offers encryption and is the successor to Telnet. It is typically used for remote access to servers and systems. If you wanted a GUI you’d normally use RDP or VNC
 
 - SSH uses TCP port 22 by default, however, like other services, it can be configured to use any other open TCP port. This is very common with companies but can be identified with a port scan
 - We can utilize auxiliary modules to enumerate the version of SSH running on the target as well as perform brute-force attacks to identify passwords that can consequently provide us remote access to a target. The version is very important when vulnerability scanning
-
 
 ### Check for SSH Version
 
@@ -803,7 +792,6 @@ sessions -i [session_id]
 /bin/bash -i
 ```
 
-
 #### Searching Files on the System
 
 To search for specific files throughout the entire file system, use the `find` command. This is especially useful when you're hunting for files like "flags" during a capture-the-flag exercise or other sensitive data.
@@ -832,14 +820,12 @@ set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
 run
 ```
 
-
 *Note: This scan didnt work for me since this it looks like the malformed packet technique with the enumerate module only works on some OpenSSH servers and looked to have been patched I currently get the below result when running the scan*
 If the scan fails, refer to issues like for more context [https://github.com/rapid7/metasploit-framework/issues/15676](https://github.com/rapid7/metasploit-framework/issues/15676)
 
 
 ---
-## SMTP Enumeration
-
+## SMTP-Enumeration
 
 SMTP (Simple Mail Transfer Protocol) is a communication protocol that is used for the transmission of email. SMTP uses TCP port 25 by default. It is can also be configured to run on TCP port 465 and 587 if SSL is setup. We can utilize auxiliary modules to enumerate the version of SMTP as well as user accounts on the target system. Version is important when looking at vulnerabilities but looking at SMTP normally doesn’t provide much unless you’re exploiting the exact version of the SMTP service that’s running on the target but the information from SMTP could be used to gather other information on the target.
 
