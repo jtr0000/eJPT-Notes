@@ -9,7 +9,6 @@ Table Of Contents
 6. [SSH Enumeration](Enumeration.md#ssh-enumeration)
 7. [SMTP Enumeration](Enumeration.md#smtp-enumeration)
 
-
 ---
 ## Enumeration
 
@@ -772,7 +771,7 @@ run
 
 For brute forcing SSH logins, use the `ssh_login` auxiliary module. Locate it by searching with `search ssh_login` or use `auxiliary/scanner/ssh/ssh_login`.
 
-Configure the module to adjust settings such as `BRUTEFORCE_SPEED` to avoid tripping security alarms. SSH login attempts are typically logged, so use caution. Enable `STOP_ON_SUCCESS` to stop once a valid login is found, and set `VERBOSE` to `false` to reduce output clutter. Use Metasploit's built-in wordlists for common usernames and passwords:
+Configure the module to adjust settings such as `BRUTEFORCE_SPEED` to avoid tripping security alarms. SSH login attempts are typically logged, so use caution. Enable `STOP_ON_SUCCESS` to stop once a valid login is found, and set `VERBOSE` to `false` to reduce output clutter. Can use Metasploit's built-in wordlists for common usernames and passwords:
 
 - `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
 - `/usr/share/metasploit-framework/data/wordlists/common_passwords.txt`
@@ -820,8 +819,8 @@ set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
 run
 ```
 
-*Note: This scan didnt work for me since this it looks like the malformed packet technique with the enumerate module only works on some OpenSSH servers and looked to have been patched I currently get the below result when running the scan*
-If the scan fails, refer to issues like for more context [https://github.com/rapid7/metasploit-framework/issues/15676](https://github.com/rapid7/metasploit-framework/issues/15676)
+*Note: This scan didnt work for me since this it looks like the malformed packet technique with the enumerate module only works on some OpenSSH servers and looked to have been patched I currently get the below result when running the scan
+If the scan fails, refer to issues like for more context [https://github.com/rapid7/metasploit-framework/issues/15676](https://github.com/rapid7/metasploit-framework/issues/15676)*
 
 
 ---

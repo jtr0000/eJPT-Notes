@@ -66,7 +66,7 @@ dnsrecon -d company.com
 ---
 ## WAF
 
-You can use ```wafw00f``` which comes pre-packaged in Kali linux to check if a website or web application has a WAF solution deployed. This is still passive information gathering, but the only way to confirm if there is a WAF solution is to perform active information gathering like port scanning. The ```-a``` parameter can look for all instances of WAF solutions
+You can use ```wafwoof``` which comes pre-packaged in Kali linux to check if a website or web application has a WAF solution deployed. This is still passive information gathering, but the only way to confirm if there is a WAF solution is to perform active information gathering like port scanning. The ```-a``` parameter can look for all instances of WAF solutions
 
 ```
 wafwoof website.com

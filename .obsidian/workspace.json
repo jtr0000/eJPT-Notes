@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md",
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "mode": "source",
                 "source": false
               }
@@ -81,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "294afe77c702e9e9",
@@ -97,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md",
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md",
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -137,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md"
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md"
               }
             }
           }
@@ -160,24 +161,24 @@
   },
   "active": "25ade0550f865768",
   "lastOpenFiles": [
+    "2 - Footprinting_Scanning/Footprinting and Scanning.md",
+    "1 - Information Gathering/c. Active Information Gathering.md",
+    "6 - System_Host Based Attacks/System_Host Based Attacks.md",
+    "3 - Enumeration/Enumeration.md",
+    "1 - Information Gathering/b. Passive Information Gathering.md",
+    "1 - Information Gathering/a. Introduction.md",
+    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "1 - Information Gathering/eJPT - Active Information Gathering.apkg",
     "eJPT - Active Information Gathering.apkg",
     "1 - Information Gathering/eJPT - Passive Information Gathering.apkg",
     "eJPT - Passive Information Gathering.apkg",
-    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
-    "3 - Enumeration/Enumeration.md",
-    "6 - System_Host Based Attacks/System_Host Based Attacks.md",
-    "2 - Footprinting_Scanning/Footprinting and Scanning.md",
-    "1 - Information Gathering/c. Active Information Gathering.md",
     "5 - Auditing/Auditing.md",
-    "1 - Information Gathering/b. Passive Information Gathering.md",
     "3 - Enumeration/Untitled.md",
     "Untitled 1.md",
     "Untitled.md",
     "2 - Footprinting_Scanning/Untitled.md",
     "0 - Reference/Quick Reference.md",
     "0 - Reference",
-    "1 - Information Gathering/a. Introduction.md",
     "1 - Information Gathering/Passive Information Gathering.md",
     "1 - Information Gathering/b.Passive Information Gathering.md",
     "1 - Information Gathering/a.Introduction.md",
@@ -192,7 +193,6 @@
     "11 - Social Engineering",
     "10 - Post Exploitation",
     "9 - Exploitation",
-    "8 - Metasploit Framework",
-    "7 - Network Based Attacks"
+    "8 - Metasploit Framework"
   ]
 }

@@ -1046,7 +1046,6 @@ impersonate_token "ATTACKDEFENSE\Administrator"
 
 ###### NOTE: You'll be in a situation where there's no delegation or impersonation access tokens available. In this case, you'll need a potato attack to generate a NT AUTHORITY \ SYSTEM access token to impersonate it.
 
-# Windows-File-System-Vulnerabilities
 
 ### Alternate Data Streams (ADS)
 
@@ -1224,7 +1223,7 @@ psexec.py Administrator@10.63.45.88 cmd.exe
 ..\PowerSploit\Privesc\
 ```
 
-2. <u>Starts a new PowerShell session with the execution policy set to "bypass"</u>: Normally, PowerShell enforces an execution policy to prevent untrusted scripts from running (like "Restricted" or "RemoteSigned"). The `-ep bypass` flag tells PowerShell to ignore those restrictions just for this session, allowing any script to run freely.
+2. <u>Starts a new PowerShell session with the execution policy set to "bypass"</u>: Normally, PowerShell enforces an execution policy to prevent untrusted scripts from running (like "Restricted" or "RemoteSigned"). Setting the execution policy `-ep`  to bypass tells PowerShell to ignore those restrictions just for this session, allowing any script to run freely.
 ```
 powershell -ep bypass
 ```
@@ -1253,10 +1252,11 @@ ssword))
 echo $password
 ```
 
+1. `[System.Convert]::FromBase64String(...)`: The base64 string is a textual representation of binary data. To retrieve the original password, we first need to decode it into its binary form, as this binary data holds the raw content necessary for converting to readable text. The `System.Convert` .NET class provides methods for data type conversions, and here we use its `FromBase64String` method to convert the base64 string into a byte array, which represents the raw binary data. Since the byte array is not directly human-readable, it must be further processed.
 
-We can leverage the administrative credentials to **escalate privileges and gain an elevated Meterpreter session**.
+2. `[System.Text.Encoding]::UTF8.GetString(...)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell, ensuring that the decoded string is properly interpreted as human-readable text. 
 
-
+We can now leverage the administrative credentials to **escalate privileges and gain an elevated Meterpreter session**.
 
 This information was really helpful I would like to have the information to be reformatted and flow a bit better and not use bullets and have them in paragraph format and to not have it be "Reason: Explanation" like you did for certain topics like >
 "**Post-Exploitation Situations**: If you have already gained user-level access and need **privilege escalation**, this method can deliver the payload under elevated privileges (assuming the right user opens it)." I just want to entire explanation together. Also, I'm not really sure what embedded powershell means so can you an an explanation what that means especially when it comes to hta files when its relevant in the information:

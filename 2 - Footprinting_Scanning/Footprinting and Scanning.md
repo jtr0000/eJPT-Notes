@@ -8,66 +8,110 @@
 6. [Port Scanning with Nmap ](Footprinting%20and%20Scanning.md#port-scanning-with-nmap)
 7. [Evasion, Scan Performance and Output](Footprinting%20and%20Scanning.md#evasion-performance-output)
 ----
-### Networking
 
-In networking, devices (or hosts) communicate using network protocols, which are essential for ensuring that different hardware and software systems can work together. Data is sent in packets—streams of bits that represent the information being exchanged. Each packet has two parts: a header, which includes protocol-specific details, and a payload, which contains the actual data being sent, like an email or file.
+## Networking
 
-#### OSI
+In computer networks, hosts use network protocols to communicate with each other. These protocols make sure different systems—regardless of hardware or software—can interact effectively. Different network protocols tailored for specific services and objectives. Communication between hosts via protocols is managed through packets.
 
-The OSI model (Open Systems Interconnection) is a framework created to help standardize how network communications work. It's a helpful reference, not a strict set of rules, for understanding how different protocols and processes interact. The OSI model breaks communication down into seven layers:
+#### Packets
 
-- **Layer 1 (Physical Layer):** Deals with physical connections (e.g., cables, switches).
-- **Layer 2 (Data Link Layer):** Manages access to the physical medium and performs error checking.
-- **Layer 3 (Network Layer):** Handles logical addressing and routing across networks.
-- **Layer 4 (Transport Layer):** Ensures reliable communication between hosts.
-- **Layer 5 (Session Layer):** Manages and controls sessions between applications.
-- **Layer 6 (Presentation Layer):** Ensures data is in the correct format for different applications.
-- **Layer 7 (Application Layer):** Provides network services to the user (e.g., web browsers, email).
+At its core, networking is about moving information between computers using packets. Packets are streams of bits sent as electric signals over physical connections like Ethernet or wireless connections like Wi-Fi. These signals get translated into bits (0s and 1s) that carry the data. Each packet has two main parts: a header and a payload. The header follows a specific format to help the receiving system figure out how to handle the packet, while the payload contains the actual data, like part of an email or a chunk of a file.
 
-#### Internet-Protocol
+### OSI Model
 
-IP, which operates at the network layer (Layer 3), is the backbone of how the internet works. It handles logical addressing, routing, and packet reassembly. There are two main versions of IP:
+The OSI model, short for Open Systems Interconnection, is a framework developed by the ISO to make network communication easier to understand and manage. It breaks down the process into seven layers, each handling a specific part of the communication. This layered approach helps simplify the design, implementation, and troubleshooting of network systems.
 
-- **IPv4:** Uses 32-bit addresses and is the most common version of IP.
-- **IPv6:** Uses 128-bit addresses and was created to provide more address space.
-
-IP addresses are hierarchical and help uniquely identify devices on a network. An IP packet’s header includes the source and destination addresses, and the payload carries the actual data. IP also allows large packets to be fragmented into smaller pieces for transmission.
-
-Two important protocols work with IP:
-
-- **ICMP:** Used for error reporting and network diagnostics (e.g., ping).
-- **DHCP:** Automatically assigns IP addresses to devices, making configuration easier.
-
-**IPv4 Packet Structure and Addressing**
-
-An IPv4 address is 32 bits (four bytes) and is usually written as four numbers separated by dots. IPv4 packets have key fields in their headers, such as:
-
-- **Source/Destination IP:** Identifies the sender and receiver.
-- **Time-to-Live (TTL):** Limits how long a packet can stay on the network.
-- **Protocol:** Specifies what type of data is being transmitted (e.g., TCP or UDP).
-
-Certain IP address ranges are reserved for specific uses, such as 0.0.0.0 and 127.0.0.0, as defined in RFC5735.
-
-#### Transport-Layer
-
-The transport layer (Layer 4) is responsible for ensuring that data is reliably sent between devices. It manages error detection, flow control, and segmentation. Two key protocols operate here:
-
-- **Transmission Control Protocol (TCP):** This is connection-oriented, meaning it establishes a connection before sending data. It guarantees reliable delivery and makes sure that data arrives in the correct order. TCP uses a three-way handshake (SYN, SYN-ACK, ACK) to establish connections.
+1. **Physical Layer** (Cables/Cat6/ Anything that plugs in): Handles the actual transmission of raw data bits over a physical medium, like Ethernet cables or fiber optics, and defines hardware specifications such as electrical signals and data rates.
+2. **Data Link Layer** (MAC Addresses/Switching): Manages the transfer of data frames between connected devices, ensuring reliable communication through error detection and flow control. It also handles MAC addresses and media access, using protocols like Ethernet and Wi-Fi.
+3. **Network Layer** (IP Addresses, Routing): Manages logical addressing and routes data across networks, making sure packets take the best path to their destination. Key protocols include IP (Internet Protocol) for routing.
+4. **Transport Layer** (TCP/UDP): Ensures reliable data transfer between systems, breaking data into segments, handling flow control, and providing error recovery. This layer includes protocols like TCP and UDP.
+5. **Session Layer** (Session Management): Manages and controls communication sessions, establishing, maintaining, and terminating connections between applications.
+6. **Presentation Layer**(WMV/JPEG/MOV): Translates data formats, handling encryption, compression, and formatting so that data is presented in a way the receiving system can understand. 
+7. **Application Layer** (HTTP/SMTP/DNS/ Apps): The closest layer to the end-user, providing services like web browsing, email, and file transfer. 
     
-    - **TCP Header:** Includes source and destination ports to identify which applications are communicating.
-    - **TCP Ports:** Ports are divided into:
-        - Well-Known Ports (0-1023): Used for standard services (e.g., HTTP on port 80).
-        - Registered Ports (1024-49151): Assigned to specific applications.
-        - Dynamic/Private Ports (49152-65535): Temporary or private connections.
+### Network Layer  
+The Network Layer, or Layer 3 of the OSI model, handles logical addressing, routing, and the forwarding of data packets across different networks. Its main objective is to determine the best path for data transmission from source to destination, even if they are on separate networks. This layer abstracts the underlying physical networks to create a cohesive internetwork.
 
-- **User Datagram Protocol (UDP):** UDP is connectionless and doesn’t guarantee reliable delivery. It’s faster but less reliable, often used for streaming or gaming. Its header is smaller than TCP’s, meaning less overhead.
-#### TCP-vs-UDP
+**Network Layer Protocols**  
+The Network Layer uses several important protocols, including:
 
-TCP is best for applications where reliable, ordered data transmission is critical, like web browsing or file transfers. UDP is faster and better for applications like live video or gaming, where speed matters more than reliability. While TCP ensures that data arrives correctly, UDP trades reliability for lower latency.
+- **Internet Protocol (IP)**: Central to internet communication, IP manages logical addressing, routing, and packet fragmentation and reassembly. Two major versions are in use:
+    - **IPv4**: Uses 32-bit addresses, forming the backbone of current internet communication. However, its limited address space has necessitated the development of IPv6.
+    - **IPv6**: Uses 128-bit addresses to provide a vastly expanded address space, represented in hexadecimal notation.
+- **Internet Control Message Protocol (ICMP)**: Used for error reporting and diagnostics, ICMP supports utilities like ping and traceroute for network testing.
+
+### Internet Protocol (IP)
+The Internet Protocol (IP) is the backbone of internet communication, operating at Layer 3/Network Layer of the OSI Model. It assigns logical addresses to devices, enabling communication across different networks. IP also handles fragmentation, breaking large packets into smaller pieces to accommodate varying Maximum Transmission Unit (MTU) sizes across networks, and ensures they are reassembled correctly at the destination.
+
+####  IP Addresses
+An IP address is a unique logical identifier for network interfaces of devices on a network, typically written as four numbers separated by dots, like 192.168.1.100. In IPv4, these addresses consist of four octets (or bytes), each ranging from 0 to 255, forming a 32-bit structure. IPv4 supports around 4 billion unique addresses, which are managed by routers to direct traffic efficiently. However, due to the rapid growth of connected devices, IPv6 was introduced. IPv6 uses a 128-bit format, vastly increasing the number of available addresses to meet future demands. Both IPv4 and IPv6 are essential protocols that ensure reliable and efficient network communication worldwide. They are structured using subnets, network classes, and CIDR (Classless Inter-Domain Routing) notation. 
+
+#### Reserved IP Addresses
+Reserved IP addresses are special ranges set aside for specific purposes within networks. Unlike regular IP addresses, these addresses aren’t routable on the public internet and serve specific functions like local network communication, testing, and network management. The purposes of each reserved range are defined by standards, including RFC5735. Key reserved IPv4 address ranges include:
+- **0.0.0.0 – 0.255.255.255**: Refers to “this” network, often used in routing configurations.
+- **127.0.0.0 – 127.255.255.255 (Loopback)**: Used for local host communication; commonly for testing network software on the local machine, with 127.0.0.1 as the standard loopback address.
+- **169.254.0.0 – 169.254.255.255 (Link-Local)**: Automatically assigned to a device when it can’t obtain an IP from a DHCP server, useful for temporary or ad-hoc local connections.
+- **224.0.0.0 – 239.255.255.255 (Multicast)**: Used to send data to multiple devices simultaneously within a network, typically for streaming or routing protocols.
+- **255.255.255.255 (Broadcast)**: Sends messages to all devices on a local network, often used for network discovery or critical announcements.
+
+#### Private IP Addresses
+Private IP addresses are a subset of reserved addresses specifically used for internal networks, like home or office LANs. These addresses aren’t accessible from the internet, providing security and flexibility for internal communication. They are divided into classes that determine the number of available networks and hosts:
+- **Class A**: 10.0.0.0 to 10.255.255.255 – Suitable for large networks, common in larger organizations.
+- **Class B**: 172.16.0.0 to 172.31.255.255 – Often used in medium-sized networks.
+- **Class C**: 192.168.0.0 to 192.168.255.255 – The most common for home and small business networks, supporting up to 254 hosts.
+
+These reserved and private IP ranges play distinct roles in organizing and securing network communication across different environments.
+
+**NAT**
+
+NAT (Network Address Translation) allows multiple devices to be able to share the same public IP address. This is a workaround that allows use to not use all of the public IP addresses available.
+
+**Subnetting**  
+Subnetting divides large IP networks into smaller, more manageable sub-networks, improving network efficiency and security.
+#### IP Header
+The IP header of packets contains essential information like the source and destination IP addresses, packet size, and routing details. This metadata helps routers and devices along the network path understand how to handle the packet. Additionally, the header includes fields for error checking, fragmentation control, and protocol identification, ensuring reliable communication. The IP Header contains:
+- **Version (4 bits)**: Indicates the IP version (IPv4 or IPv6).
+- **Header Length (4 bits)**: Specifies the length of the header.
+- **Type of Service (8 bits)**: Manages packet priority and congestion control.
+- **Total Length (16 bits)**: Indicates the total size of the packet.
+- **Identification (16 bits)**: Used for reassembling fragmented packets.
+- **Flags (3 bits)**: Include fragmentation-related flags like "Don't Fragment" and "More Fragments."
+- **Time-to-Live (TTL, 8 bits)**: The maximum number of hops a packet can take before being discarded.
+- **Protocol (8 bits)**: Specifies the higher-layer protocol (e.g., TCP, UDP, ICMP).
+- **Source and Destination IP Addresses (32 bits each)**: Identifies the sender and recipient.
+
+### Transport Layer  
+
+The Transport Layer, the fourth layer of the OSI model, is essential for facilitating communication between devices across a network. It ensures reliable, end-to-end communication and manages error detection, flow control, and the segmentation of data into smaller units. This layer focuses on the ordered and reliable delivery of data between networked devices.
+
+##### Transport Layer Protocols  
+
+The two primary protocols at this layer are:
+
+- **TCP (Transmission Control Protocol)**: A connection-oriented protocol providing reliable and ordered data transfer. TCP ensures data integrity through mechanisms like acknowledgments and retransmissions.
+- **UDP (User Datagram Protocol)**: A connectionless protocol that prioritizes speed and efficiency over reliability and order, suitable for real-time applications like streaming and online gaming.
+
+### TCP (Transmission Control Protocol)  
+
+TCP is a connection-oriented transport layer protocol that provides reliable, ordered, and error-checked delivery of data packets over an IP network. It guarantees that data sent from one device is received correctly by the destination device. TCP achieves this reliability through mechanisms like acknowledgement, retransmission, and flow control. It breaks data into smaller packets, assigns sequence numbers to them, and ensures they are reassembled correctly at the receiving end. 
+
+**TCP Header Fields**  
+
+The TCP header contains essential fields that facilitate reliable data transfer:
+- **Source Port (16 bits)**: The port number of the sender.
+- **Destination Port (16 bits)**: The port number of the receiver.
+- **Sequence Number (32 bits)**: Keeps track of the order of data packets to ensure they are delivered correctly.
+- **Acknowledgment Number (32 bits)**: Indicates the next expected sequence number from the sender, used to acknowledge received data.
+- **Data Offset (4 bits)**: Specifies the length of the TCP header.
+- **Control Flags (9 bits)**: Flags like SYN, ACK, and FIN that control the setup, management, and termination of connections.
+- **Window Size (16 bits)**: Determines the amount of data the sender is willing to receive, aiding in flow control.
+- **Checksum (16 bits)**: Validates the integrity of the data by checking for errors in the header and payload.
+- **Urgent Pointer (16 bits)**: Used when the URG flag is set to indicate that certain data should be prioritized.
+- **Options (Variable)**: Optional settings to enhance TCP performance, such as specifying the maximum segment size or adding timestamps.
 
 #### Three-Way-Handshake
 
-The three-way handshake is a process used by TCP to establish a connection between devices, involving the exchange of SYN, SYN-ACK, and ACK packets:
+TCP uses control flags (SYN, ACK, FIN) to manage connections and ensure reliable communication.  The three-way handshake is a process used by TCP to establish a connection between devices, involving the exchange of SYN, SYN-ACK, and ACK packets:
 
 1. **SYN** (Synchronize | “Hello”) => The initiating device (often referred to as the client) sends a TCP packet with the SYN flag set to the destination device (often referred to as the server). This initial packet indicates the desire to establish a connection and includes an initial sequence number.
 
@@ -76,6 +120,51 @@ The three-way handshake is a process used by TCP to establish a connection betwe
 3. **ACK** (Acknowledge) => Finally, the initiating device acknowledges the SYN-ACK packet by sending an ACK packet back to the destination. This packet establishes the connection and typically contains an incremented sequence number.
 
 Once the three-way handshake is complete, the connection is established, and both devices are ready to exchange data. The sequence numbers exchanged during the handshake are used to ensure that data is transmitted and received in the correct order.
+
+
+**UDP (User Datagram Protocol)**  
+
+UDP is a connectionless transport layer protocol that does not provide the same level of reliability as TCP. It is simpler, faster and more lightweight, making it suitable for applications that can tolerate some data loss or delay. UDP does not establish a connection or guarantee delivery of packets. It simply sends data packets from one device to another without waiting for acknowledgements or retransmissions.
+
+**TCP vs. UDP**  
+
+TCP is reliable and connection-oriented, making it ideal for applications requiring data integrity, like HTTP and email. UDP, in contrast, is faster and suitable for real-time applications, despite lacking reliability. Examples include DNS, DHCP, and voice communication.
+
+### TCP/UDP Ports and Protocols
+
+The **TCP Port Range** divides ports into:
+
+- **Well-Known Ports (0-1023)**: Reserved for standard services (e.g., HTTP on port 80, HTTPS on port 443).
+- **Registered Ports (1024-49151)**: Used by specific applications (e.g., RDP on port 3389, MySQL on port 3306).
+
+Some common TCP/UDP Ports: 
+
+1. **File Transfer**
+	- FTP: Port 21 (TCP) – Transfers files between a client and server.
+	- FTPS: Port 990 (TCP) – Secure file transfer using encryption.
+	- TFTP: Port 69 (UDP) – Simplified, unsecured file transfer.
+	- SMB: Ports 139/445 (TCP) – File and printer sharing. SMB exploits are extremely important for pentesting
+2. **Remote Access**
+	- SSH: Port 22 (TCP) – Encrypted version of telnet for remote access.
+	- Telnet: Port 23 (TCP) – Unencrypted (clear text) remote login to devices.
+	- RDP: Port 3389 (TCP) – Remote desktop access to Windows machines.
+3. **Web Traffic**
+	- HTTP: Port 80 (TCP) – Non-secure web traffic.
+	- HTTPS: Port 443 (TCP) – Encrypted web traffic.
+4. **Email Services**
+	- SMTP: Port 25 (TCP) – Sends and routes email.
+	- POP3: Port 110 (TCP) – Receives email, downloads to a device.
+	- IMAP: Port 143 (TCP) – Accesses and manages email on a server.
+5. **Network Services**
+	- DNS: Port 53 (TCP/UDP) – Resolves domain names to IP addresses.
+	- DHCP: Ports 67/68 (UDP) – Assigns IP addresses dynamically.
+	- NTP: Port 123 (UDP) – Synchronizes system time.
+	- SNMP: Port 161 (UDP) – Collects and manages network data.
+	- LDAP: Port 389 (TCP/UDP) – Accesses and maintains directory information.
+6. **Database**
+	- MySQL: Port 3306 (TCP) – Connects to a MySQL database.
+
+---
 
 ### Networking-Mapping
 
