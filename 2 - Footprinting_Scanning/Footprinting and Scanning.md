@@ -19,7 +19,7 @@ At its core, networking is about moving information between computers using pack
 
 ### OSI Model
 
-The OSI model, short for Open Systems Interconnection, is a framework developed by the ISO to make network communication easier to understand and manage. It breaks down the process into seven layers, each handling a specific part of the communication. This layered approach helps simplify the design, implementation, and troubleshooting of network systems.
+The OSI model, short for Open Systems Interconnection, is a framework developed by the ISO that breaks down the network communication process into seven layers, each handling a specific part of the communication.
 
 1. **Physical Layer** (Cables/Cat6/ Anything that plugs in): Handles the actual transmission of raw data bits over a physical medium, like Ethernet cables or fiber optics, and defines hardware specifications such as electrical signals and data rates.
 2. **Data Link Layer** (MAC Addresses/Switching): Manages the transfer of data frames between connected devices, ensuring reliable communication through error detection and flow control. It also handles MAC addresses and media access, using protocols like Ethernet and Wi-Fi.
@@ -136,6 +136,7 @@ The **TCP Port Range** divides ports into:
 
 - **Well-Known Ports (0-1023)**: Reserved for standard services (e.g., HTTP on port 80, HTTPS on port 443).
 - **Registered Ports (1024-49151)**: Used by specific applications (e.g., RDP on port 3389, MySQL on port 3306).
+- **Dynamic Ports (49152-65535)**: Temporary ports that the OS assigns to client applications when they communicate with a server.
 
 Some common TCP/UDP Ports: 
 
@@ -168,24 +169,17 @@ Some common TCP/UDP Ports:
 
 ### Networking-Mapping
 
-Network mapping is a critical phase in penetration testing following the passive information gathering phase, where the tester actively gathers information about the target network including:
-1. Which hosts in a network are online
-2. Their IP addresses
-3. Open ports/services they are running
-4. The operating systems they use
-
-The key objectives of network mapping include:
-- **Discovery of Live Hosts:** Identifying active devices and hosts by detecting IP addresses in use.
-- **Identification of Open Ports and Services:** Understanding the services running on discovered hosts and the attack surface they present.
-- **Network Topology Mapping:** Creating a map of the network’s layout, including routers, switches, and other infrastructure elements.
-- **Operating System Fingerprinting:** Identifying the OS running on hosts to tailor attacks to potential vulnerabilities.
-- **Service Version Detection:** Pinpointing the versions of services to discover vulnerabilities associated with specific versions.
-- **Identifying Security Measures:** Detecting firewalls, intrusion prevention systems, and other defenses to strategize testing.
+Network mapping is a crucial phase in penetration testing, occurring after passive information gathering. This phase involves actively collecting detailed information about the target network. The main objectives of network mapping include the following:
+- **Discovery of Live Hosts**: Identifying which hosts and devices are online by detecting active IP addresses.
+- **Identification of Open Ports and Services**: Determining open ports and the services running on them to evaluate the network's attack surface.
+- **Operating System Fingerprinting**: Identifying the operating systems on hosts to exploit potential OS-specific vulnerabilities.
+- **Service Version Detection**: Detecting specific versions of running services to uncover known vulnerabilities tied to those versions.
+- **Network Topology Mapping**: Mapping the network’s layout, including routers, switches, and other infrastructure, to understand how devices connect and communicate.
+- **Identifying Security Measures**: Detecting firewalls, intrusion prevention systems, and other defenses to adapt testing strategies.
 
 #### Nmap
 
 Nmap (Network Mapper) is an open-source tool for scanning networks to discover hosts, open ports, and potential vulnerabilities. It is a standard tool for security professionals and penetration testers due to its versatility and range of features:
-
 - **Host Discovery:** Identifies live hosts using techniques like ICMP, ARP, or TCP/UDP probes.
 - **Port Scanning:** Discovers open ports on target hosts to assess network exposure.
 - **Service Version Detection:** Determines the versions of services running on open ports to identify vulnerabilities.
@@ -368,7 +362,7 @@ nmap -Pn -p 80 10.4.26.17
 ```
 nmap -Pn -p 80, 445, 3389 10.4.26.17
 ```
-- Scan a port range ⇒ `-<Port1> - <Port2>` 
+- Scan a port range ⇒ `-p<Port1> - <Port2>` 
 ```
 nmap -Pn -p1-65635 10.4.26.17
 ```

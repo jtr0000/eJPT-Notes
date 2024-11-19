@@ -147,7 +147,6 @@ run
 **Now, you can perform another portscan. We’ll need to change the receiving port of the port scan to the assumed target.**
 
 ---
-
 ## FTP-Enumeration
 
 FTP (File Transfer Protocol) is a TCP-based protocol using port 21 for file sharing between a server and client, commonly used for transferring files to and from web server directories. It can be enumerated or brute-forced using auxiliary tools, and while it typically requires a username and password for authentication to the FTP server, some misconfigured servers allow anonymous access. We’re generally looking for.

