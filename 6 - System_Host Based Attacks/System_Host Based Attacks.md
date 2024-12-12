@@ -1650,6 +1650,304 @@ Keep in mind you can search for vulnerabilities within the FTP software itself u
 ```
 searchsploit <ftp_software>
 ```
+
+
+## Exploiting SSH
+
+SSH (Secure Shell) is a protocol designed for secure remote administration and access to servers and systems. It provides encrypted communication and serves as a more secure alternative to Telnet. By default, SSH operates on TCP port 22, though it can be configured to use any other open TCP port as needed.
+
+Authentication in SSH can be configured in two primary ways: standard username/password authentication or key-based authentication. Key-based authentication involves the use of a public and private key pair, where the public key is stored on the server and the private key is provided to the user. This method eliminates the need for a username and password, requiring users to authenticate using their private key. This authentication method isn't feasible to attack unless you were able to get the private key.
+
+On the other hand, with username and password authentication, it is possible to conduct brute-force attacks against the SSH server. Such attacks attempt to systematically guess credentials to gain unauthorized access to the target system.
+
+
+### Performing SSH Brute Force
+
+Hydra can be used to perform the brute force on the SSH / server using username/password word lists. :
+- **Usernames** = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- **Passwords** =   `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+```
+hydra -L <username_wordlist> -P <password_wordlist> target -t 4 ssh
+```
+
+### Performing SSH Brute Force
+
+Hydra can be used to perform the brute force on the SSH / server using username/password word lists. :
+- **Usernames** = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- **Passwords** =   `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+```
+hydra -L <username_wordlist> -P <password_wordlist> target -t 4 ssh
+```
+
+### Login to SSH Server
+
+To login with ssh, you need to provide the username followed by @ then specify the target. You'll be promoted to enter the password after.
+
+```
+ssh username@target_system
+```
+
+**Basic Enumeration** 
+- View the username = `whoami `
+- Groups its apart of = `group <user>`
+- View Linux Distribution = `cat /etc/*issue`
+- View Kernel = `uname -r`
+- Enum users = `cat /etc/passwd`
+
+
+## Exploiting SAMBA
+
+Samba is the Linux implementation of the SMB protocol which runs on 445 (139 is for SMB running on top of netbios), enabling Windows systems to access Linux shares and devices. It uses username and password authentication to grant access to servers or network shares. Brute-force attacks can be performed on Samba servers to obtain valid credentials. 
+
+Once credentials are acquired, tools like SMBMap can be used to enumerate shared drives, list and download files, and execute remote commands. Another tool, smbclient, is apart of SAMBA and offers an FTP-like interface for downloading, uploading, and retrieving directory information. Unlike Windows systems, Linux servers rarely allow null shares, which permit access without a password.
+
+#### Performing SMB Brute Force
+
+Hydra can be used to perform the brute force on the SMB server using username/password word lists. :
+- **Usernames** = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+- **Passwords** =   `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
+
+```
+hydra -L <username_wordlist> -P <password_wordlist> target -t 4 smb
+```
+
+#### Enumerate SMB Shares
+
+The SMBMap (Samba Share Enumerator) tool can be used to enumerate the shares on the target.  Set the target (`-H`) then specify the username (`-u`) and password (`-p`) of proper credentials. 
+
+```
+smbmap -H target -u <username> -p <password>
+```
+
+#### Access SMB Shares
+
+Use the smbclient to directly access any share. After connecting, you'll have an smb console to perform whatever actions you want.
+```
+smbclient //target/share -U <username>
+```
+
+- **Random Note 1**:  Extract Tar Archive = `tar xzf <target_file>`
+- **Random Note 2**:  Download file = `get <target_file>`
+
+### Enumerate Users/Shares using Enum4Linux
+
+The enum4linux utility be a great tool as it can enumerate users, computer list, shares etc. You can try to run all tests with enum4linux with the `-a` option but if you get a message like 'Server doesn't allow session using username '', password ''.  Aborting remainder of tests. ' then null sessions is not allowed on the SAMBA server, so you need a username/password.
+
+```
+enum4linux -a -u <username> -p <password> target
+```
+
+If using the `-a` option, the results will be comprehensive as the tool will obtain password policies/groups/users (with SID.)
+
 # Linux-Privilege-Escalation
+
+### Linux Kernel Exploitation
+
+Kernel exploits on Linux focus on targeting vulnerabilities in the Linux kernel to execute code that in order to run privileged system  system commands or gain a root shell. The process varies depending on the specific kernel version, distribution, and exploit being used. 
+
+Privilege escalation on Linux systems typically involves:
+1. Identifying kernel vulnerabilities
+2. Downloading and compiling the exploit, and then 
+3. Transferring it to the target system for execution.
+
+
+**Note:** The `www-data` account is a common service account in Linux systems hosting web servers (like Apache or Nginx). It is generally unprivileged and not part of any sudo or privileged groups. The ultimate goal of privilege escalation is to gain control of the `root` account, which has the highest privileges on a Linux system.
+
+### Linux Exploit Suggester
+
+The **Linux Exploit Suggester** helps identify potential security flaws in a Linux kernel by analyzing its exposure to known Linux kernel exploits. It works heuristically to suggest possible kernel exploits.
+
++ GitHub: https://github.com/mzet-/linux-exploit-suggester
+
+1. **Download the Linux Exploit Suggester from Github**: Use `wget` to download the Linux Exploit Suggester script. If you have a Meterpreter or reverse shell session, download the script to your local machine first and upload it to the target.
+```
+wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh -O les.sh
+```
+
+2. **Upload the script**:  Navigate to the `/tmp` directory on the target system and use the `upload` command in Meterpreter to transfer the script.
+```
+cd /tmp
+meterpreter> upload ~/<Location_of_script>/les.sh
+```
+
+3. **Start Shell Session/ Make Script executable**: First start the shell session using `shell` so you can run the executable and then make it a interactive bash session by running `/bin/bash -i`. Update the permission of the script by adding executable permissions (`x`) to it with chmod.
+
+```
+meterpreter> shell
+/bin/bash -i
+chmod +x les.sh
+```
+
+4. **Run the script**:  Execute the script directly by typing its name.
+```
+les.sh
+```
+
+##### Linux Exploit Suggester Output 
+- The script will output a list of potential kernel exploits with their associated CVEs, sorted by the likelihood of success.
+- Pay attention to the kernel version, architecture, and distribution details in the output.
+- Each suggested exploit typically includes an exploit-db URL where the code can be reviewed and downloaded. Always inspect the code to ensure it doesn't contain any malicious elements.
+#### Compiling Kernel Exploits
+
+There's two options for compiling the exploit script:
+
+1. Compile it locally on your machine.
+2. Transfer the script to the target and compile it there.
+
+For local compilation, ensure you have GCC (GNU C Compiler) installed:
+
+```
+sudo apt-get install gcc
+```
+
+Refer to the exploit script's notes for compilation instructions. Successful compilation without errors indicates the exploit is ready, but if it fails, try compiling it on the target. Use GCC with the appropriate parameters:
+
+```
+gcc <parameters>
+```
+
+From here, you can execute the exploit binary on the target.
+
+### Exploiting Misconfigured Cron Jobs
+
+Linux uses a utility called **Cron** for task scheduling, allowing applications, scripts, or commands to run automatically at specified intervals. These scheduled tasks, known as **Cron jobs**, are often used for automating functions like backups or system updates. The **crontab** file is a configuration file used by Cron to store and track Cron jobs.
+
+Cron jobs can be executed by any system user,  but try to target cron jobs that have been configured to run as the root user since a root-configured Cron job will run whatever script/command  as the root user and will consequently provide us with root access without having to provide a password. In order to elevate our privileges, we will need to find and identify cron jobs scheduled by the root user or the files being processed by the cron job.
+
+There's various misconfigurations but one 
+If a script has improper permissions, ie the script can be edited by any user on the system that means we can include commands into a file 
+
+
+
+We can search for files that only allows the root account access search the system to see if the location of the file is mentioned in any shell script
+
+
+You can view files with `ls` and the permissions etc with the `-al` options included.
+```
+ls -al
+```
+
+
+If you have a file in mind, you can use grep with a recursive search using `-rnw` to check for any lines containing the exact string to the file path.
+```
+grep -rnw /usr -e "/home/person/file1"
+```
+
+If the file path was found in a shell script, it would return the script it was found it, the line of the script the string was found in, and then the exact line matching the path. 
+
+```
+file_path:line_number:matching_line_in_script
+```
+
+Since you've identified the script, you can check the permissions using `ls -al` again to see script's permission. If you see something like `-rwxrwxrwx` which is allowing any user the permission to execute this.
+
+
+
+We can add to the script to modify the `/etc/sudoers` file to allow an account to execute any command as any user (including root) without being prompted for a password. The `/etc/sudoers` file is a configuration file that controls and defines the sudo/elevated permissions for users and groups on a Linux system. Each entry of the file specifies a user or group, the commands they can execute, and whether a password is required. Adding an entry like  'user ALL=NOPASSWD:ALL' would grant a user password-less sudo privileges for all commands.
+
+
+
+```
+printf '#!/bin/bash\n "student ALL=NOPASSWD:ALL" >> /etc/sudoers' > /usr/local/share/copy.sh
+```
+
+- - `#!/bin/bash`: This shebang line specifies that the script should be executed using the Bash shell.
+    - `"student ALL=NOPASSWD:ALL"`: This is the line being appended to `/etc/sudoers`. It grants the user `student` password-less sudo privileges for all commands.
+    - `>> /etc/sudoers`: The double greater-than symbol appends the text to the `/etc/sudoers` file.
+- `> /usr/local/share/copy.sh`: Redirects the output of `printf` into the file `/usr/local/share/copy.sh`, creating the file if it does not already exist.
+
+After that, you might need to wait for the cron job to run but you can list sudo privileges with `sudo -l` to make sure the cron job modifies the sudoers file.
+
+When that's done, you should be able to switch to the root user 
+
+```
+sudo su
+```
+
+
+
+
+Can run `sudo -l` to list sudo permissions
+
+```
+sudo -l
+```
+
+Should be able to switch to the root user
+
+```
+sudo su
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+If a character is missing, it’s replaced by `-`, which means that type of permission isn't allowed. For example:
+- `rw-` means read and write are allowed, but not execute.
+- `r--` means only read is allowed.
+
+```
+-rw-r--r--
+```
+
+- Owner: `rw-` (can read and write).
+- Group: `r--` (can only read).
+- Others: `r--` (can only read).
+
+
+
+
+
+
+**Permission String**
+
+Every file or directory in Linux has a **10-character string** that describes its type and permissions. 
+
+```
+-rwxr-xr--
+```
+
+The first character of the string tells the type of file:
+- `-` means a regular file.
+- `d` means a directory.
+- `l` means a symbolic link.
+
+**The Next Nine Characters**: Represent the permissions of the file  divided into three groups of three representing the owner, group, and others (everyone else).
+
+```
+_ _ _ | _ _ _  | _ _ _ 
+
+owner | group  | others
+```
+- The **first group** is for the file's owner.
+- The **second group** is for the group assigned to the file.
+- The **third group** is for others (all users not in the group or the owner).
+
+**Permission Types**:  
+
+There's three permission types designated by a character:
+- `r` (read): Allows viewing the file or listing a directory’s contents.
+- `w` (write): Allows modifying or deleting the file. For directories, it allows creating/deleting files inside it.
+- `x` (execute): Allows running the file as a program. For directories, it allows accessing the directory.
+
+If a permission is not granted, it's replaced by `-`.
+`-rw-r--r--` means:
+
+- **Owner**: `rw-` → Can read and write.
+- **Group**: `r--` → Can only read.
+- **Others**: `r--` → Can only read.
 
 # Linux-Credential-Dumping
