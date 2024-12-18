@@ -8,30 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "25ade0550f865768",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "3 - Enumeration/Enumeration.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "07e83a0648cc542c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "3 - Enumeration/Enumeration.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "94ed24ac48b32212",
             "type": "leaf",
             "state": {
@@ -40,7 +16,23 @@
                 "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "System_Host Based Attacks"
+            }
+          },
+          {
+            "id": "0c045ab89893d816",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "System_Host Based Attacks"
             }
           }
         ],
@@ -64,7 +56,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
             }
           },
           {
@@ -79,7 +73,9 @@
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "Search"
             }
           },
           {
@@ -87,15 +83,16 @@
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
             }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "294afe77c702e9e9",
@@ -111,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md",
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +116,9 @@
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for System_Host Based Attacks"
             }
           },
           {
@@ -128,10 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md",
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
-              }
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from System_Host Based Attacks"
             }
           },
           {
@@ -142,7 +143,9 @@
               "state": {
                 "sortOrder": "frequency",
                 "useHierarchy": true
-              }
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
             }
           },
           {
@@ -151,8 +154,10 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "3 - Enumeration/Enumeration.md"
-              }
+                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md"
+              },
+              "icon": "lucide-list",
+              "title": "Outline of System_Host Based Attacks"
             }
           }
         ]
@@ -172,12 +177,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "07e83a0648cc542c",
+  "active": "0c045ab89893d816",
   "lastOpenFiles": [
+    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "6 - System_Host Based Attacks/System_Host Based Attacks.md",
     "3 - Enumeration/Enumeration.md",
     "Untitled 1.md",
-    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "2 - Footprinting_Scanning/Footprinting and Scanning.md",
     "1 - Information Gathering/c. Active Information Gathering.md",
     "Untitled.md",

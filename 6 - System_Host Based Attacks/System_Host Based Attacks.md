@@ -50,11 +50,13 @@ The various OS versions makes the threat surface fragmented since some vulnerabi
 **IIS (Internet Information Services)** is a web server developed by Microsoft for the Windows NT family. It can be used to host static and dynamic websites and web apps developed in  ASP.NET/ PHP and provides a GUI for managing websites. Typically running on ports 80 and 443, IIS handles executable file extensions like `.asp`, `.aspx`, `.config`, and `.php`.
 
 **WebDAV (Web-based Distributed Authoring and Versioning)** is an extension of HTTP that allows users to  edit/manage files on web servers, essentially turning a web server into a file server. It can run on top of IIS, Apache etc over ports 80/443 and requires authentication via a username and password to connect.
-#### WebDAV Exploitation
 
-1. Identify if WebDAV is configured on the IIS server.
-2. Check if authentication is needed for WebDAV.  When WebDAV is running on a Windows host, sometimes it doesn't have any authentication. If it does, perform a brute-force attack to find valid credentials for authentication.
-3. Use the credentials to upload a malicious .asp payload, enabling command execution or a reverse shell on the target.
+#### WebDAV Exploitation without Metasploit
+1. Check if WebDav is configured on the IIS server using a tool like nmap
+2. After confirming which directory webdav is enabled on, confirm if authentication is required. If so, perform a brute force against the directory using Hydra to get the credentials.
+3. Run DavTest to test the WebDav Server and confirm file types that can be executed (like asp) for the payload.
+4. Using the found credentials with Cadaver, upload the asp webshell payload that's provided by Kali.
+5. Using a browser, navigate to location in the WebDav directory the payload was uploaded to and execute the webshell script. You should be allowed an area for command execution on the server.
 
 #### Initial Nmap Scan
 
