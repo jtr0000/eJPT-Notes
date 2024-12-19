@@ -331,37 +331,34 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 ##### PsExec 
 
-PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote systems. It was developed to replace telnet.
+PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to replace telnet.
 
-PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely, including launching command prompts or executing scripts.
+PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. Unlike Remote Desktop Protocol (RDP), which provides a GUI over the target system, PsExec provides on command-line interactions.
 
-Unlike Remote Desktop Protocol (RDP), which provides graphical control over the target system, PsExec focuses on command-line interactions, allowing commands to be run directly without GUI access.
+PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
+
 
 ##### SMB Exploitation with PsExec
 
-To exploit SMB using PsExec, attackers typically aim to obtain legitimate credentials, such as a username and password or password hash. This can be achieved through techniques like SMB login brute-force attacks, focusing on common Windows user accounts (e.g., **Administrator**).
+To exploit SMB using PsExec, aim to obtain legitimate credentials, such as a username and password or password hash. This can be achieved through techniques like SMB login brute-force attacks, focusing on common Windows user accounts (e.g., **Administrator**).
 
-Once valid credentials are obtained, the attacker can authenticate with the remote system via PsExec and execute arbitrary commands or initiate a reverse shell. This effectively gives the attacker command-line control over the system, allowing them to perform malicious activities or further escalate their privileges within the network.
-
+Once valid credentials are obtained, we can authenticate with the remote system via PsExec and execute arbitrary commands or initiate a reverse shell. This effectively gives an attacker command-line control over the system, allowing them to perform malicious activities or further escalate their privileges within the network.
 
 1. **Initial Nmap Scan**: Use the `-sV` flag to get the service version and `-sC` to run the default nmap script scans. If you get results like `smb2..` we can authenticate the SMB service using PsExec
 ```
 nmap -sV -sC target
 ```
 
-2. **Perform SMB Brute Force**: This can be done through the smb_login metasploit auxiliary module. Start PostgreSQL and Metasploit `service postgresql && msfconsole`, then either just search for `smb_login` or just use `auxiliary/scanner/smb/smb_login`. 
+2. **Perform SMB Brute Force**: This can be done through the smb_login metasploit auxiliary module. Start PostgreSQL and Metasploit `service postgresql && msfconsole`, then either just search for `smb_login` or just use `auxiliary/scanner/smb/smb_login`.  We'll need to provide the `RHOSTS` for the target. We could provide `SMBDomain` if the target is domain-joined including the domain account and password with `SMBUser`/`SMBPass`. Since we're performing a brute-force, we'll need to set the `USER_FILE` and `PASS_FILE` file, some sample wordlists are:
+	- Users: `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
+	- Passwords: `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
 
+	We also want to just see the successful logins so we can also set the `VERBOSE` option to false.
 ```
 ### (Optional) search smb_login ###
 
 use auxiliary/scanner/smb/smb_login
-```
 
-1. Configure the Smb_login module: We'll need to provide the `RHOSTS` for the target. We could provide `SMBDomain` if the target is domain-joined including the domain account and password with `SMBUser`/`SMBPass`. Since we're performing a brute-force, we'll need to set the `USER_FILE` and `PASS_FILE` file, some sample wordlists are:
-	- Users: `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
-	- Passwords: `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
-We also want to just see the successful logins so we can also set the `VERBOSE` option to false.
-```
 set RHOSTS 10.33.60.54
 
 set USER_FILE /usr/share/metasploit-framework/data/wordlists/common_users.txt
@@ -373,9 +370,11 @@ set VERBOSE false
 
 Run the module using `run`. Keep track of any Administrator accounts.
 
-#### Psexec Python Script
+#### Psexec.py Python Script
 
-Since Microsoft's PsExec is a Windows-native executable, its not compatible with non-Windows systems. Impacket offers a suite of Python tools for network protocol interactions, including `psexec.py` which is a python script that replicates PsExec's functionality. This enables the execution of processes on remote systems while providing cross-platform compatibility.  You can  use `psexec.py` with the credentials to authenticate to the SMB service and execute commands on the target system.
+Since Microsoft's PsExec is an executable designed to only run on windows systems, it isn't compatible with non-Windows systems (eg Kali). Impacket offers a suite of Python tools for network protocol interactions, including `psexec.py` which is a python script that emulates PsExec's functionality enabling the execution of processes on remote Windows systems from different source platforms, like Linux/MacOs.
+
+The psexec.py script creates a service on the target host, uploads a randomly named executable to the `ADMIN$` share, and communicating over a named pipe to provide an interactive remote shell with SYSTEM privileges. After execution, `psexec.py` removes any components it deployed on the target system.
 
 - **Impacket Github**: https://github.com/fortra/impacket/tree/master
 
@@ -392,17 +391,10 @@ By default, `psexec.py` launches a interactive command shell (`cmd.exe`) on the 
 psexec.py Administrator:Password@10.63.45.88
 ```
 
-If its apart of a domain:
-```
-psexec.py mydomain/Administrator:MyPassword@192.168.1.100
-```
-
-To execute a specific command, append it to the command line. This wouldn't start an interactive shell but would return the output of the command back to your shell:
-
+If its apart of a domain include the domain before the user account separated with a slash (`...mydomain/Administrator...`). To execute a specific command, add it to the command line. This should return the output of the command back to your shell:
 ```
 python3 psexec.py Administrator:Password@10.63.45.88 ipconfig
 ```
-
 
 #### PsExec Metasploit Module
 
