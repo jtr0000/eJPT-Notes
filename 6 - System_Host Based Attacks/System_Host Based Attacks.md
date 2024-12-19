@@ -374,7 +374,7 @@ Run the module using `run`. Keep track of any Administrator accounts.
 
 Since Microsoft's PsExec is an executable designed to only run on windows systems, it isn't compatible with non-Windows systems (eg Kali). Impacket offers a suite of Python tools for network protocol interactions, including `psexec.py` which is a python script that emulates PsExec's functionality enabling the execution of processes on remote Windows systems from different source platforms, like Linux/MacOs.
 
-The psexec.py script creates a service on the target host, uploads a randomly named executable to the `ADMIN$` share, and communicating over a named pipe to provide an interactive remote shell with SYSTEM privileges. After execution, `psexec.py` removes any components it deployed on the target system.
+The psexec.py script works similarly to the Microsoft version by creating a service on the target host, uploading a randomly named executable to the `ADMIN$` share, and communicating over a named pipe to provide an interactive remote shell with SYSTEM privileges. After execution, `psexec.py` removes any components it deployed on the target system.
 
 - **Impacket Github**: https://github.com/fortra/impacket/tree/master
 
