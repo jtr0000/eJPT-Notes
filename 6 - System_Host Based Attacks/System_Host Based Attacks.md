@@ -160,7 +160,7 @@ Username: user
 Password: rando_pass
 ```
 
-You be given the a psuedo shell to interact with the server | `dav:/directory/>`
+You'll be given a psuedo shell to interact with the server | `dav:/directory/>`
 
 ##### Upload the Webshell using Cadaver
 
@@ -331,7 +331,9 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 ##### PsExec 
 
-PsExec is a remote command execution tool developed by Microsoft to replace telnet, allowing administrators to execute commands on remote Windows systems using valid user credentials.  PxExec operates over SMB for authentication, using the provided credentials to run processes remotely, including launching command prompts or executing scripts.
+PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote systems. It was developed to replace telnet.
+
+PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely, including launching command prompts or executing scripts.
 
 Unlike Remote Desktop Protocol (RDP), which provides graphical control over the target system, PsExec focuses on command-line interactions, allowing commands to be run directly without GUI access.
 
@@ -373,15 +375,34 @@ Run the module using `run`. Keep track of any Administrator accounts.
 
 #### Psexec Python Script
 
-Psexec is a windows executable which can't be ran on a Linux system. We can use the `psexec.py` which is a python implementation of the software. 
+Since Microsoft's PsExec is a Windows-native executable, its not compatible with non-Windows systems. Impacket offers a suite of Python tools for network protocol interactions, including `psexec.py` which is a python script that replicates PsExec's functionality. This enables the execution of processes on remote systems while providing cross-platform compatibility.  You can  use `psexec.py` with the credentials to authenticate to the SMB service and execute commands on the target system.
+
+- **Impacket Github**: https://github.com/fortra/impacket/tree/master
+
+You can clone the Impacket repository and the psexec.py script would reside in the `examples` subdirectory (...impacket/examples/psexec.py). Ensure that all dependencies are installed.
 
 ```
-psexec.py Username@Target <cmd_to_execute_on_system>
+git clone https://github.com/fortra/impacket.git
+cd impacket
+pip install .
 ```
-Example: You can run psexec.py against the target and try to execute a shell using cmd.exe:
+
+By default, `psexec.py` launches a interactive command shell (`cmd.exe`) on the target. 
 ```
-psexec.py Administrator@10.63.45.88 cmd.exe
+psexec.py Administrator:Password@10.63.45.88
 ```
+
+If its apart of a domain:
+```
+psexec.py mydomain/Administrator:MyPassword@192.168.1.100
+```
+
+To execute a specific command, append it to the command line. This wouldn't start an interactive shell but would return the output of the command back to your shell:
+
+```
+python3 psexec.py Administrator:Password@10.63.45.88 ipconfig
+```
+
 
 #### PsExec Metasploit Module
 
