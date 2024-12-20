@@ -341,7 +341,7 @@ To exploit SMB using PsExec, aim to obtain legitimate credentials, such as a use
 
 Once valid credentials are obtained, we can authenticate with the remote system via PsExec and execute arbitrary commands or initiate a reverse shell. This  would give command-line control over the system, allowing further exploitation or ability to escalate privileges within the network.
 
-1. **Initial Nmap Scan**: Use the `-sV` flag to get the service version and `-sC` to run the default nmap script scans. If you get results like `smb2..` we can authenticate the SMB service using PsExec
+1. **Initial Nmap Scan**: Use the `-sV` flag to get the service version and `-sC` to run the default nmap script scans. If you get results like `smb2..` for SMBv2 so we can authenticate the SMB service using PsExec
 ```
 nmap -sV -sC target
 ```
