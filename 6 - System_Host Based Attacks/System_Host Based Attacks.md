@@ -390,7 +390,7 @@ psexec.py Administrator:Password@10.63.45.88
 
 If its apart of a domain include the domain before the user account separated with a slash (`...mydomain/Administrator...`). To execute a specific command, add it to the command line. This should return the output of the command back to your shell:
 ```
-python3 psexec.py Administrator:Password@10.63.45.88 ipconfig
+psexec.py Administrator:Password@10.63.45.88 ipconfig
 ```
 
 #### PsExec Metasploit Module
