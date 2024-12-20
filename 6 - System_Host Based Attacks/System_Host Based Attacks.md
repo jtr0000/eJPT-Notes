@@ -333,13 +333,13 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to be a telnet replacement. PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
 
-- Link to PsExec Download: https://download.sysinternals.com/files/PSTools.zip
+- Link to PsTools Package Download: https://download.sysinternals.com/files/PSTools.zip
 
 ##### SMB Exploitation with PsExec
 
-To exploit SMB using PsExec, aim to obtain legitimate credentials, such as a username and password or password hash. This can be achieved through techniques like SMB login brute-force attacks, focusing on common Windows user accounts (e.g., **Administrator**).
+To exploit SMB using PsExec, aim to obtain legitimate credentials, such as a username/password or password hash. This can be achieved through techniques like SMB login brute-force attacks, focusing on common Windows user accounts (e.g., **Administrator**).
 
-Once valid credentials are obtained, we can authenticate with the remote system via PsExec and execute arbitrary commands or initiate a reverse shell. This effectively gives an attacker command-line control over the system, allowing them to perform malicious activities or further escalate their privileges within the network.
+Once valid credentials are obtained, we can authenticate with the remote system via PsExec and execute arbitrary commands or initiate a reverse shell. This  would give command-line control over the system, allowing further exploitation or ability to escalate privileges within the network.
 
 1. **Initial Nmap Scan**: Use the `-sV` flag to get the service version and `-sC` to run the default nmap script scans. If you get results like `smb2..` we can authenticate the SMB service using PsExec
 ```
