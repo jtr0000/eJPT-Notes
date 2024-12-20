@@ -331,12 +331,7 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 ##### PsExec 
 
-PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to replace telnet.
-
-PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. Unlike Remote Desktop Protocol (RDP), which provides a GUI over the target system, PsExec provides on command-line interactions.
-
-PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
-
+PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to be a telnet replacement. PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
 
 ##### SMB Exploitation with PsExec
 
