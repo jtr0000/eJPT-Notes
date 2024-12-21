@@ -742,7 +742,6 @@ also the administrator is typically used by system administrators here and we wo
 If there's a match the brute force will display `(Pwn3d!)` and stop the brute force. Now we can use the credentials to execute commands on the target
 ##### Execute Commands
 
-
 We can use the `-x` options which can be used to execute commands on the target like `systeminfo` to collect information:
 
 ```
@@ -751,9 +750,7 @@ crackmapexec winrm -u administrator -p pqaeoirgq -x "systeminfo"
 
 ### Get a command shell using Evil-WinRM
 
-**Evil-WinRM** is a tool designed for penetration testers to remotely connect to and execute commands on Windows systems via Windows Remote Management (WinRM). It facilitates tasks such as remote command execution, file transfers, and script execution, streamlining post-exploitation activities. Evil-WinRM requires Ruby version 2.6 or higher. Most Linux distributions come with Ruby pre-installed.
-
-**Evil-WinRM Install**
+**Evil-WinRM** is a tool designed for pentesters to remotely connect to and execute commands on Windows systems via WinRM. It facilitates tasks such as remote command execution, file transfers, and script execution, streamlining post-exploitation activities. Evil-WinRM requires Ruby version 2.6 or higher and most Linux distributions come with Ruby pre-installed.
 
 You can install Evil-WinRM as a Ruby gem, which manages dependencies automatically:
 
