@@ -878,18 +878,6 @@ Expand-Archive -Path .\original.zip -DestinationPath .\destination-folder
 .\windows-exploit-suggester.py --database 2023-06-02-msb.xls --systeminfo win7.txt
 ```
 
-### Windows Kernel Exploits
-Note: For Windows Kernel Exploits SecWiki's Github is recommended.
-https://github.com/SecWiki/windows-kernel-exploits/
-
-Can navigate to the Temp directory on the Windows system which should be on the root of the C:\  Drive
-
-```
-meterpreter> upload file.exe
-```
-
-From the session, run the exe exploit.
-
 ### UAC
 
 User Account Control (UAC) is a Windows security feature that prevents unauthorized changes to the operating system by requiring administrator approval for elevated actions. Non-privileged users will be prompted to provide administrative credentials to perform the action, while privileged users willl be prompted with a Yes/No consent before continuing. Attacks can attempt to bypass UAC to execute malicious software with elevated privileges.
