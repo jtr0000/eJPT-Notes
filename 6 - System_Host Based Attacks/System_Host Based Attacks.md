@@ -835,28 +835,18 @@ In a Meterpreter session, the `getsystem` command is used to elevate privileges 
 
 #### Metasploit Local Exploit Suggester
 
-Metasploit has a post exploitation module 'local_exploit_suggester'  that can look for vulnerabilities pertinent to a version of a windows/linux operating system. This is post exploitation as the module requires a meterpreter session of a compromised system:
+Metasploit has a post exploitation module 'local_exploit_suggester'  that can look for vulnerabilities pertinent to a version of a windows/linux operating system. This is post exploitation as the module requires a meterpreter session of a compromised system. You can either search Metasploit for `suggester` or use the module  `post/multi/recon/local_exploit_suggester`.  You need to specify the meterpreter session that you want to run the module on with the `SESSION` option. You can confirm sessions using the background sessions you have with the `sessions` command.
 
-1. **Find/Use the module**: You can either search Metasploit for `suggester` or use the module  `post/multi/recon/local_exploit_suggester`.
 ```
 search suggester
-
 use post/multi/recon/local_exploit_suggester
-```
-
-2. **Configure the module**: You need to specify the meterpreter session that you want to run the module on with the `SESSION` option. You can confirm sessions using the background sessions you have with the `sessions` command.
-```
 set SESSION 2
-```
-
-3. **Run the module**: This will enumerate the vulnerabilities and display any local metasploit modules that could be used for privilege escalation. 
-```
 run
 ```
 
+This will enumerate the vulnerabilities and display any local metasploit modules that could be used for privilege escalation. 
+
 **Note: Make sure to research the found exploits to confirm what the exploit does and if its applicable to the version of the operating system.**
-
-
 #### Manual Privilege Escalation
 
 **Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins. <u>This repo has been archived and hasn't been actively maintained since July 2023</u>.
