@@ -885,7 +885,7 @@ User Account Control (UAC) is a Windows security feature that prevents unauthori
 
 <u>To bypass UAC, access to a user account within the local administrators group of the target system is required</u>. UAC prompts users to confirm or provide credentials before granting administrative privileges.
 
-UAC has integrity levels ranging from low to high, if the UAC protection level is set below "high," some programs can run with elevated privileges without prompting the user. So, for example, if we create a meterpreter payload with msfvenom payload and have it successfully uploaded/executed on the target with administrative privileges, we would then bypass UAC without the need for the consent prompt.
+UAC has integrity levels ranging from low to high, if the UAC protection level is set below "high," some programs can run with elevated privileges without prompting the user. So, for example, if we create a meterpreter payload with msfvenom and have it successfully uploaded/executed on the target with administrative privileges, we would then bypass UAC without the need for the consent prompt.
 
 There are various tools and methods to bypass UAC, but the choice of technique depends on the version of Windows and the UAC integrity level configured on the target system.
 #### UACMe
@@ -992,7 +992,11 @@ Example:
 
 This will run the payload bypassing UAC, you can check the listener to see the new meterpreter session being setup.
 
-You should be able to run `ps` on the new meterpreter session to view the services on the target system, you should be able to migrate to any of these services, particularly any services running `NT AUTHORITY\SYSTEM` which would then escalate your privileges. If you migrated to one of these services running NT AUTHORITY\SYSTEM, you should have the permission to  perform actions like dumping NTLM hashes using something like Kiwi. In Metasploit, `kiwi` is an extension of **Meterpreter** that provides credential extraction capabilities similar to Mimikatz. 
+You should be able to run `ps` on the new meterpreter session to view the services on the target system, you should be able to migrate to any of these services, particularly any services running `NT AUTHORITY\SYSTEM` which would then escalate your privileges. If you migrated to one of these services running NT AUTHORITY\SYSTEM, you should have the permission to  perform actions like dumping NTLM hashes using something like Kiwi.
+
+**(OPTIONAL) Post Exploitation Credential dumping** 
+
+In Metasploit, `kiwi` is an extension of **Meterpreter** that provides credential extraction capabilities similar to Mimikatz. 
 
 - **Load the Kiwi extension**
 ```
@@ -1130,7 +1134,7 @@ In modern versions of Windows, the database is encrypted with a syskey.
 LM (LanMan) was the default hashing algorithm used in Windows operating systems prior to NT4.0 but is considered weak today. It splits passwords into two seven-character chunks, converts them to uppercase, and hashes each with DES. LM hashing lacks salts, making it vulnerable to brute-force and rainbow table attacks, which can easily crack the passwords. LM Hashing is disabled from Windows Vista and onwards.
 
 ```
-Password123 -> PASSWO + RD123 -> DES -> LM_HASH1+LM_HASH2
+Password123 -> PASSWO and RD123 -> DES1 and DES2 = LM_HASH1+LM_HASH2
 ```
 
 **NTLM Hashing**
