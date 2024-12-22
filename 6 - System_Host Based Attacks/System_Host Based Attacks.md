@@ -817,14 +817,13 @@ A kernel is a program that's the core of an operating system, responsible for co
 
 #### Windows Kernel Exploitation
 
-Kernel exploits on Windows usually target vulnerabilities in the Windows kernel to execute arbitrary code, allowing attackers to run privileged system commands or gain access to a system shell. The approach varies depending on the Windows version and the specific kernel exploit used. Kernel exploit is not recommended in most environments since it can lead to crashing the system. The typical process for privilege escalation on Windows involves:
+Windows kernel exploits target vulnerabilities in the Windows kernel, allowing attackers to execute arbitrary code at the system level. This can bypass standard user permissions to run privileged system-level commands or gain access to a system shell. The approach varies depending on the Windows version and the specific kernel exploit used. Kernel exploit is not recommended in most environments since it can lead to crashing the system. The typical process for privilege escalation on Windows involves:
 
 1. Identifying kernel vulnerabilities.
 2. Downloading, compiling, and transferring kernel exploits to the target system.
 
-
 **Windows-Kernel-Exploits** - Collection of Windows Kernel exploits sorted by CVE.  
-+ GitHub: https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-
++ GitHub: https://github.com/SecWiki/windows-kernel-exploits
 
 ---
 
