@@ -1139,7 +1139,7 @@ Password123 -> PASSWO and RD123 -> DES1 and DES2 = LM_HASH1+LM_HASH2
 
 **NTLM Hashing**
 
-NTLM (NT LAN Manager) is an authentication protocol introduced in Windows NT and continued in subsequent versions, including Windows Vista and onwards, replacing the less secure LM (LanMan) hashing. When a user account is created, NTLM hashes the password using the MD4 hashing algorithm, discarding the original clear-text password. The resulting MD4 hash is referred to as  "NTLM hash," which is the label for the MD4 hash within the context of NTLM authentication. NTLM offers improvements over LM, such as case sensitivity, not splitting the hash, and supporting symbols and Unicode characters, making it harder to crack.
+NTLM (NT LAN Manager) is an authentication protocol introduced in Windows NT and continued in subsequent versions, including Windows Vista and onwards, replacing the less secure LM (LanMan) hashing. When a user account is created, NTLM hashes the password using the MD4 hashing algorithm, discarding the original clear-text password. The resulting MD4 hash is referred to as  "NTLM hash," for the hash's context in NTLM authentication. NTLM offers improvements over LM, such as case sensitivity, not splitting the hash, and supporting symbols and Unicode characters, making it harder to crack.
 
 ```
 !PassW0RD321@ -> MD4 == "NTLM hash"
