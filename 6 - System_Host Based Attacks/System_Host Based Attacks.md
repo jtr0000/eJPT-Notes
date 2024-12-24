@@ -316,7 +316,7 @@ The SMB protocol uses two levels of authentication:
 - **Share Authentication**: Users provide a password to access specific, restricted shares.
 
 Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to securely authenticate without sending the password over the network:
-1. Client Sends Username**: The client sends its username to the server.
+1. **Client Sends Username**: The client sends its username to the server.
 	- *Client sends `"user1"` to the server.*
 2. **Server Sends a Challenge**: The server responds with a unique, random challenge back to the client.
 	- *Server sends `XYZ789` to the client.*
@@ -331,9 +331,9 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 ##### PsExec 
 
-PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to be a telnet replacement. PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. 
+PsExec is a command-line utility from Microsoft's Sysinternals suite which allows the execution of commands/processes on remote Windows systems. It was developed to be a telnet replacement. PsExec requires an administrative account on the target machine which is used for the connection. PxExec operates over SMB for authentication, using the provided credentials to run the remote processes. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. 
 
-PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
+PsExec doesn't need to be installed you can just download PSTools from Microsoft and rule the executable. PsExec operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system. The installation of the service on the remote system to facilitate command execution is why the administrative account is necessary.
 
 - Link to PsTools Package Download: https://download.sysinternals.com/files/PSTools.zip
 
