@@ -331,9 +331,11 @@ Both methods rely on the NTLM (NT LAN Manager) challenge-response protocol to se
 
 ##### PsExec 
 
-PsExec is a command-line utility from Microsoft's Sysinternals suite which allows the execution of commands/processes on remote Windows systems. It was developed to be a telnet replacement. PsExec requires an administrative account on the target machine which is used for the connection. PxExec operates over SMB for authentication, using the provided credentials to run the remote processes. PsExec provides on command-line interactions unlike Remote Desktop Protocol (RDP), which provides a GUI to a target system. 
+PsExec is a command-line utility from Microsoft's Sysinternals suite that enables the execution of commands and processes on remote Windows systems. Designed as a lightweight alternative to Telnet, it facilitates command-line interactions with remote targets without the need for manual installation of client software. To use PsExec, download the PsTools suite from Microsoft and run the executable; no installation is required.
 
-PsExec doesn't need to be installed you can just download PSTools from Microsoft and rule the executable. PsExec operates by copying its executable (`psexesvc.exe`) to the target machine's administrative share ( `ADMIN$`), where it installs and runs a service to execute the specified commands. After execution, PsExec removes the service and the executable from the target system. The installation of the service on the remote system to facilitate command execution is why the administrative account is necessary.
+PsExec operates by copying its executable, `psexesvc.exe`, to the target machine's administrative share (`ADMIN$`), typically located at `C:\Windows\System32\psexesvc.exe`. It then installs and starts a service to execute the specified commands. After execution, PsExec stops the service and removes both the service and the executable from the target system.
+
+Administrative privileges are necessary because PsExec requires access to the `ADMIN$` share to install its service on the remote system. Would need File and Printer Sharing is enabled on both the local and remote computers, and that TCP port 445 is open on the remote machine to facilitate the connection.
 
 - Link to PsTools Package Download: https://download.sysinternals.com/files/PSTools.zip
 
