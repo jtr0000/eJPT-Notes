@@ -1634,8 +1634,7 @@ exploit
 
 FTP (File Transfer Protocol) operates on TCP port 21 and is commonly used for file sharing between servers and clients. Frequently used to transfer files to and from web server directories. Authentication typically requires a username and password, making FTP servers susceptible to brute-force attacks to uncover valid credentials. However, some FTP servers may permit anonymous access, allowing anyone to connect without authentication.
 
-Inherent vulnerabilities in FTP is primarily dependent on the version of FTP software being used.
-
+Inherent vulnerabilities in FTP is primarily dependent on the version of FTP software being used. The nmap service version (`-sV`) scan should be enough to gather the ftp server's version
 
 ```
 nmap -sV target
