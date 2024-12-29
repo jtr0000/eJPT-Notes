@@ -1484,12 +1484,11 @@ exploit
 
 **Psexec Exploit Module Troubleshooting:** 
 
-If you're having problems with getting a meterpreter session on the target through the exploit, you might need to tweak the target for the exploit. This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system so we might need to specify it here. In the Metasploit `exploit/windows/smb/psexec` module, the `target` setting determines the method used to deliver and execute the payload on the target system. The available options here include:
-- **Automatic**: The default setting that selects the most appropriate method based on the target system's capabilities. It first checks for PowerShell availability and uses it if present.
-- **PowerShell (Automatic)**: This method uses PowerShell commands to execute the payload directly in memory. PowerShell to be installed on the target system.
+If you're having problems with getting a meterpreter session on the target through the exploit, you might need to tweak the target for the exploit. This exploit uses SMB to gain remote code execution, there's different methods for delivering and executing the payload on the target system so we might need to tweak this. In the Metasploit `exploit/windows/smb/psexec` module, the `target` setting determines the method used to deliver and execute the payload on the target system. The available options here include:
+- **Automatic**: Adapts to the target system by checking for PowerShell availability and choosing the most appropriate method (PowerShell or Native Upload) accordingly.
+- **PowerShell**:  Uses Powershell commands to execute the payload directly in memory. This doesn't check without verifying Powershell being available on the target.
 - **Native Upload**: This method uploads the payload as an executable file to a writable directory on the target system (by default, the `SYSTEM32` directory) and then executes it.
-
-So if the default target (Automatic) doesn't work, we can set the target as Native upload  to have the  meterpreter payload uploaded to the target and try running the exploit again Now we can run the exploit.
+So if the default target (Automatic) doesn't work, we can try set the target as Native upload  to have the  meterpreter payload uploaded to the target. Try running the exploit again after the changes.
 ```
 set target Native\ upload
 ```
