@@ -1642,7 +1642,7 @@ nmap -sV target
 
 #### Checking for Anonymous Access
 
-- **Option 1:  Connect directly to the FTP server**: You can use the ftp utility in Kali would you could see if it prompts you to enter credentials. If it does, then anonymous access isn't allowed
+- **Option 1:  Connect directly to the FTP server**: You can use the ftp utility in Kali would you could see if it prompts you to enter credentials. If it does, then anonymous access isn't allowed.
 
 ```
 ftp <target>
@@ -1681,17 +1681,6 @@ SSH (Secure Shell) is a protocol designed for secure remote administration and a
 Authentication in SSH can be configured in two primary ways: standard username/password authentication or key-based authentication. Key-based authentication involves the use of a public and private key pair, where the public key is stored on the server and the private key is provided to the user. This method eliminates the need for a username and password, requiring users to authenticate using their private key. This authentication method isn't feasible to attack unless you were able to get the private key.
 
 On the other hand, with username and password authentication, it is possible to conduct brute-force attacks against the SSH server. Such attacks attempt to systematically guess credentials to gain unauthorized access to the target system.
-
-
-### Performing SSH Brute Force
-
-Hydra can be used to perform the brute force on the SSH / server using username/password word lists. :
-- **Usernames** = `/usr/share/metasploit-framework/data/wordlists/common_users.txt`
-- **Passwords** =   `/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt`
-
-```
-hydra -L <username_wordlist> -P <password_wordlist> target -t 4 ssh
-```
 
 ### Performing SSH Brute Force
 
