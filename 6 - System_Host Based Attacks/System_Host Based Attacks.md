@@ -1914,7 +1914,7 @@ Cron jobs can be configured in several locations depending on the user and purpo
 1. **User-Specific Cron Jobs**: Each user has their own crontab file, which can be listed with: `crontab -u <username> -l`.These jobs are also stored in `/var/spool/cron/` with files named after each user (e.g., `/var/spool/cron/root` for root's Cron jobs).`
 2. **System-Wide Cron Jobs**: The system-wide `crontab` file, located at `/etc/crontab`, allows scheduling for any user. It specifies both the timing of jobs and the user who will execute them.
 3. **Periodic Cron Directories**: Scripts or symbolic links to scripts in `/etc/cron.*` (`/etc/cron.hourly`, `/etc/cron.daily`, `/etc/cron.weekly`, `/etc/cron.monthly`) execute at specified intervals (hourly, daily, weekly, or monthly).
-4. **Searching for Cron Job References**: If you’re unsure where a specific Cron job is defined, search for references to `cron` or related commands with: `grep -R "cron" /etc/`.
+4. **Searching for Cron Job References**: If you’re unsure where a specific Cron job is defined, search for references to `cron` or related commands with something like: `grep -R "cron" /etc/`.
 
 #### Exploitation of Root-Configured Cron Jobs
 
