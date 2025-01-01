@@ -1823,7 +1823,7 @@ From here, you can execute the exploit binary on the target.\[]
 
 ### Linux File Permissions
 
-Linux file permissions dictate who can read, write, or execute a file or directory. These permissions are represented by a **10-character string**, which includes information about the file type and the access rights granted to the owner, group, and others. For example, a string like `-rwxr-xr--` .
+Linux file permissions determines who can read, write, or execute a file or directory. These permissions are represented by a 10-character string ( eg `-rwxr-xr--` ), which includes information about the file type and the access rights granted to the owner, group, and others.
 
 **First Character (File Type)**: The first character of the string tells the type of file:
 - `-` means a regular file.
@@ -1859,7 +1859,6 @@ If a permission is not granted, it's replaced by `-`.
 ##### Changing Permissions
 
 Permissions can be modified using the `chmod` command. You can use **symbolic** or **numeric** modes:
-
 1. **Symbolic Mode**: In symbolic mode, you modify file permissions by specifying the 
 	- **user group**  (`u` = owner, `g`=group, `o`=others, `a` = All)
 	- the **action** (`+`/ `-`/ `=`)
@@ -1870,9 +1869,9 @@ chmod g-w file.txt    # Remove write for the group
 chmod o+r file.txt    # Add read for others
 ```
 
-2. **Numeric Mode**: In numeric mode, permissions are set using a three-digit number, where each digit represents a specific group: **Owner**, **Group**, and **Others**. Each permission (read, write, execute) is assigned a numerical value:
-	- `r` (read) = **4**
-	- `w` (write) = **2**
+2. **Numeric Mode**: In numeric mode, permissions are set using a three-digit number, where each digit represents the permissions for a specific group: **Owner** (first digit), **Group** (second digit), and **Others** (third digit). Each permission (read, write, execute) is assigned a numerical value:
+	- `r` (read) = **4** 
+	- `w` (write) = **2** 
 	- `x` (execute) = **1**
 
 	The permissions for each group are calculated by adding these values together:
@@ -1881,12 +1880,6 @@ chmod o+r file.txt    # Add read for others
 	- `r--` = **4 = 4** (Read only)
 	- `---` = **0** (No permissions)
 
-	Each of the three digits in the number corresponds to the permissions for:
-	1. **Owner** (first digit).
-	2. **Group** (second digit).
-	3. **Others** (third digit).
-
-Chmod Example: 
 ```
 chmod 754 file.txt
 ```
@@ -1901,7 +1894,6 @@ You can view the permissions of files and directories in Linux using the `ls` co
 ```
 ls -al
 ```
-
 - `-a` (all): Lists all files, **including hidden files** (those starting with a `.`), which are not displayed by default.
 - `-l` (long): Provides a detailed listing of files and directories, including permissions, ownership, size, and modification dates.
 
