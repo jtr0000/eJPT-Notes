@@ -1821,7 +1821,7 @@ gcc <parameters>
 
 From here, you can execute the exploit binary on the target.\[]
 
-### Linux File Permissions
+### Linux File Permissions Basics
 
 Linux file permissions determines who can read, write, or execute a file or directory. These permissions are represented by a 10-character string ( eg `-rwxr-xr--` ), which includes information about the file type and the access rights granted to the owner, group, and others.
 
