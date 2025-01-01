@@ -1910,8 +1910,6 @@ drwxr-xr-x  5 user group 4096 Dec 20 10:00 ..
 
 Linux uses a utility called **Cron** for task scheduling, allowing applications, scripts, or commands to run automatically at specified intervals. These scheduled tasks, known as **Cron jobs**, are often used for automating functions like backups or system updates. The **crontab** file is a configuration file used by Cron to store and track Cron jobs.
 
-Cron jobs can be executed by any system user,  but try to target cron jobs that have been configured to run as the root user since a root-configured Cron job will run whatever script/command as the root user. To elevate our privileges, we will need to find and identify cron jobs scheduled by the root user or the files being processed by the cron job.
-
 Cron jobs can be configured in several locations depending on the user and purpose:
 1. **User-Specific Cron Jobs**: Each user has their own crontab file, which can be listed with: `crontab -u <username> -l`.These jobs are also stored in `/var/spool/cron/` with files named after each user (e.g., `/var/spool/cron/root` for root's Cron jobs).`
 2. **System-Wide Cron Jobs**: The system-wide `crontab` file, located at `/etc/crontab`, allows scheduling for any user. It specifies both the timing of jobs and the user who will execute them.
@@ -1919,6 +1917,8 @@ Cron jobs can be configured in several locations depending on the user and purpo
 4. **Searching for Cron Job References**: If you’re unsure where a specific Cron job is defined, search for references to `cron` or related commands with: `grep -R "cron" /etc/`.
 
 #### Exploitation of Root-Configured Cron Jobs
+
+Cron jobs can be executed by any system user, but jobs configured to run as `root` provide an opportunity for privilege escalation. If a root-configured cron job executes a script or binary that is writable by an attacker, we can modify it to run malicious commands with root privileges. The process involves identifying scripts that is being used by cron jobs that we can write to and injecting commands to gain elevated privileges. 
 
 1. **Identify Interesting Scripts/Check Permissions**:  Use `ls -al` to examine the permissions of files that might be referenced by root-configured Cron jobs. If a script has permissions like `-rwxrwxrwx`, it can be edited by any user on the system.  This is a good target for privilege escalation since we can include commands into this script. 
 ```
