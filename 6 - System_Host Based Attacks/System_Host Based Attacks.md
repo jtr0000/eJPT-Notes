@@ -1772,7 +1772,7 @@ The **Linux Exploit Suggester** helps identify potential security flaws in a Lin
 
 + GitHub: https://github.com/mzet-/linux-exploit-suggester
 
-1. **Download the Linux Exploit Suggester from Github**: Use `wget` to download the Linux Exploit Suggester script. If you have a Meterpreter or reverse shell session, download the script to your local machine first and upload it to the target.
+1. **Download the Linux Exploit Suggester from Github**: Use `wget` to download the Linux Exploit Suggester script. If you have a Meterpreter or reverse shell session, you can download the script to your local machine first and upload it to the target.
 ```
 wget https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh -O les.sh
 ```
@@ -1819,133 +1819,27 @@ Refer to the exploit script's notes for compilation instructions. Successful com
 gcc <parameters>
 ```
 
-From here, you can execute the exploit binary on the target.
+From here, you can execute the exploit binary on the target.\[]
 
-### Exploiting Misconfigured Cron Jobs
+### Linux File Permissions
 
-Linux uses a utility called **Cron** for task scheduling, allowing applications, scripts, or commands to run automatically at specified intervals. These scheduled tasks, known as **Cron jobs**, are often used for automating functions like backups or system updates. The **crontab** file is a configuration file used by Cron to store and track Cron jobs.
+Linux file permissions dictate who can read, write, or execute a file or directory. These permissions are represented by a **10-character string**, which includes information about the file type and the access rights granted to the owner, group, and others. For example, a string like `-rwxr-xr--` .
 
-Cron jobs can be executed by any system user,  but try to target cron jobs that have been configured to run as the root user since a root-configured Cron job will run whatever script/command  as the root user and will consequently provide us with root access without having to provide a password. In order to elevate our privileges, we will need to find and identify cron jobs scheduled by the root user or the files being processed by the cron job.
-
-There's various misconfigurations but one 
-If a script has improper permissions, ie the script can be edited by any user on the system that means we can include commands into a file 
-
-
-
-We can search for files that only allows the root account access search the system to see if the location of the file is mentioned in any shell script
-
-
-You can view files with `ls` and the permissions etc with the `-al` options included.
-```
-ls -al
-```
-
-
-If you have a file in mind, you can use grep with a recursive search using `-rnw` to check for any lines containing the exact string to the file path.
-```
-grep -rnw /usr -e "/home/person/file1"
-```
-
-If the file path was found in a shell script, it would return the script it was found it, the line of the script the string was found in, and then the exact line matching the path. 
-
-```
-file_path:line_number:matching_line_in_script
-```
-
-Since you've identified the script, you can check the permissions using `ls -al` again to see script's permission. If you see something like `-rwxrwxrwx` which is allowing any user the permission to execute this.
-
-
-
-We can add to the script to modify the `/etc/sudoers` file to allow an account to execute any command as any user (including root) without being prompted for a password. The `/etc/sudoers` file is a configuration file that controls and defines the sudo/elevated permissions for users and groups on a Linux system. Each entry of the file specifies a user or group, the commands they can execute, and whether a password is required. Adding an entry like  'user ALL=NOPASSWD:ALL' would grant a user password-less sudo privileges for all commands.
-
-
-
-```
-printf '#!/bin/bash\n "student ALL=NOPASSWD:ALL" >> /etc/sudoers' > /usr/local/share/copy.sh
-```
-
-- - `#!/bin/bash`: This shebang line specifies that the script should be executed using the Bash shell.
-    - `"student ALL=NOPASSWD:ALL"`: This is the line being appended to `/etc/sudoers`. It grants the user `student` password-less sudo privileges for all commands.
-    - `>> /etc/sudoers`: The double greater-than symbol appends the text to the `/etc/sudoers` file.
-- `> /usr/local/share/copy.sh`: Redirects the output of `printf` into the file `/usr/local/share/copy.sh`, creating the file if it does not already exist.
-
-After that, you might need to wait for the cron job to run but you can list sudo privileges with `sudo -l` to make sure the cron job modifies the sudoers file.
-
-When that's done, you should be able to switch to the root user 
-
-```
-sudo su
-```
-
-
-
-
-Can run `sudo -l` to list sudo permissions
-
-```
-sudo -l
-```
-
-Should be able to switch to the root user
-
-```
-sudo su
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-If a character is missing, it’s replaced by `-`, which means that type of permission isn't allowed. For example:
-- `rw-` means read and write are allowed, but not execute.
-- `r--` means only read is allowed.
-
-```
--rw-r--r--
-```
-
-- Owner: `rw-` (can read and write).
-- Group: `r--` (can only read).
-- Others: `r--` (can only read).
-
-
-
-
-
-
-**Permission String**
-
-Every file or directory in Linux has a **10-character string** that describes its type and permissions. 
-
-```
--rwxr-xr--
-```
-
-The first character of the string tells the type of file:
+**First Character (File Type)**: The first character of the string tells the type of file:
 - `-` means a regular file.
 - `d` means a directory.
 - `l` means a symbolic link.
 
-**The Next Nine Characters**: Represent the permissions of the file  divided into three groups of three representing the owner, group, and others (everyone else).
-
-```
-_ _ _ | _ _ _  | _ _ _ 
-
-owner | group  | others
-```
+**The Next Nine Characters (Permissions)**: The next nine characters are split into three groups of three representing the permissions of the owner, group, and everyone else?
 - The **first group** is for the file's owner.
 - The **second group** is for the group assigned to the file.
 - The **third group** is for others (all users not in the group or the owner).
+
+```
+  _  | _ _ _ | _ _ _  | _ _ _ 
+
+type | owner | group  | others
+```
 
 **Permission Types**:  
 
@@ -1955,10 +1849,128 @@ There's three permission types designated by a character:
 - `x` (execute): Allows running the file as a program. For directories, it allows accessing the directory.
 
 If a permission is not granted, it's replaced by `-`.
-`-rw-r--r--` means:
-
+```
+-rw-r--r--
+```
 - **Owner**: `rw-` → Can read and write.
 - **Group**: `r--` → Can only read.
 - **Others**: `r--` → Can only read.
+
+##### Changing Permissions
+
+Permissions can be modified using the `chmod` command. You can use **symbolic** or **numeric** modes:
+
+1. **Symbolic Mode**: In symbolic mode, you modify file permissions by specifying the 
+	- **user group**  (`u` = owner, `g`=group, `o`=others, `a` = All)
+	- the **action** (`+`/ `-`/ `=`)
+	- and the **permissions** to add or remove (`r/w/x`)
+```
+chmod u+rwx file.txt  # Add read, write, and execute for the owner
+chmod g-w file.txt    # Remove write for the group
+chmod o+r file.txt    # Add read for others
+```
+
+2. **Numeric Mode**: In numeric mode, permissions are set using a three-digit number, where each digit represents a specific group: **Owner**, **Group**, and **Others**. Each permission (read, write, execute) is assigned a numerical value:
+	- `r` (read) = **4**
+	- `w` (write) = **2**
+	- `x` (execute) = **1**
+
+	The permissions for each group are calculated by adding these values together:
+	- `rwx` = **4 + 2 + 1 = 7** (Full permissions)
+	- `rw-` = **4 + 2 = 6** (Read and write only)
+	- `r--` = **4 = 4** (Read only)
+	- `---` = **0** (No permissions)
+
+	Each of the three digits in the number corresponds to the permissions for:
+	1. **Owner** (first digit).
+	2. **Group** (second digit).
+	3. **Others** (third digit).
+
+Chmod Example: 
+```
+chmod 754 file.txt
+```
+- **7** (Owner): `rwx` → 4 + 2 + 1
+- **5** (Group): `r-x` → 4 + 0 + 1
+- **4** (Others): `r--` → 4 + 0 + 0
+
+##### Viewing File and Directory Permissions
+
+You can view the permissions of files and directories in Linux using the `ls` command with specific options to display detailed information. Use `ls -al` to view permissions for all files and directories, including hidden ones.
+
+```
+ls -al
+```
+
+- `-a` (all): Lists all files, **including hidden files** (those starting with a `.`), which are not displayed by default.
+- `-l` (long): Provides a detailed listing of files and directories, including permissions, ownership, size, and modification dates.
+
+Example Output:
+```
+drwxr-xr-x  3 user group 4096 Dec 21 12:00 .
+drwxr-xr-x  5 user group 4096 Dec 20 10:00 ..
+-rw-r--r--  1 user group 1024 Dec 21 12:00 file.txt
+-rw-------  1 user group 2048 Dec 21 11:50 .hidden_file
+```
+
+
+### Exploiting Misconfigured Cron Jobs
+
+Linux uses a utility called **Cron** for task scheduling, allowing applications, scripts, or commands to run automatically at specified intervals. These scheduled tasks, known as **Cron jobs**, are often used for automating functions like backups or system updates. The **crontab** file is a configuration file used by Cron to store and track Cron jobs.
+
+Cron jobs can be executed by any system user,  but try to target cron jobs that have been configured to run as the root user since a root-configured Cron job will run whatever script/command as the root user. To elevate our privileges, we will need to find and identify cron jobs scheduled by the root user or the files being processed by the cron job.
+
+Cron jobs can be configured in several locations depending on the user and purpose:
+1. **User-Specific Cron Jobs**: Each user has their own crontab file, which can be listed with: `crontab -u <username> -l`.These jobs are also stored in `/var/spool/cron/` with files named after each user (e.g., `/var/spool/cron/root` for root's Cron jobs).`
+2. **System-Wide Cron Jobs**: The system-wide `crontab` file, located at `/etc/crontab`, allows scheduling for any user. It specifies both the timing of jobs and the user who will execute them.
+3. **Periodic Cron Directories**: Scripts or symbolic links to scripts in `/etc/cron.*` (`/etc/cron.hourly`, `/etc/cron.daily`, `/etc/cron.weekly`, `/etc/cron.monthly`) execute at specified intervals (hourly, daily, weekly, or monthly).
+4. **Searching for Cron Job References**: If you’re unsure where a specific Cron job is defined, search for references to `cron` or related commands with: `grep -R "cron" /etc/`.
+
+#### Exploitation of Root-Configured Cron Jobs
+
+1. **Identify Interesting Scripts/Check Permissions**:  Use `ls -al` to examine the permissions of files that might be referenced by root-configured Cron jobs. If a script has permissions like `-rwxrwxrwx`, it can be edited by any user on the system.  This is a good target for privilege escalation since we can include commands into this script. 
+```
+ls -al
+```
+
+2. **Search for references of the script**: If you think the script is involved in a Cron job, use `grep` to identify where the file is being referenced. The example search /usr but you can search the whole system using `/`, this might take a while.
+
+```
+example 1:   grep -rnw /usr -e "/home/person/file1.sh"
+
+example 2:   grep -rnw / -e "/home/person/file1.sh" 2>/dev/null
+```
+
+The output will show the script's location, the line number, and the matching line in the script:
+
+```
+file_path:line_number:matching_line_in_script
+```
+
+3. **Modify the Vulnerable Script**: We can append to the script to modify the `/etc/sudoers` file to allowing an account to execute any command as any user without being prompted for a password. The `/etc/sudoers` file is a configuration file that controls and defines the sudo/elevated permissions for users and groups on a Linux system. Each entry of the file specifies a user or group, the commands they can execute, and whether a password is required. Adding an entry like  '`<user> ALL=NOPASSWD:ALL`' would grant a user password-less sudo privileges for all commands. We can run the printf command in the terminal to create a new Bash script (`/usr/local/share/copy.sh`) that would append the line `student ALL=NOPASSWD:ALL` to the `/etc/sudoers` file, granting the student user password-less sudo privileges for all commands.
+
+```
+printf '#!/bin/bash\n "student ALL=NOPASSWD:ALL" >> /etc/sudoers' > /usr/local/share/copy.sh
+```
+
+You also can add the following line directly into the script if you can write to it.
+```
+echo "student ALL=NOPASSWD:ALL" >> /etc/sudoers
+```
+
+4. **Wait for the Cron Job to Execute**:  Once the Cron job runs, it will execute the modified script, appending the malicious entry to the `/etc/sudoers` file. You can list sudo privileges with `sudo -l` to make sure the cron job modifies the sudoers file. When that's done, you should be able to switch to the root user.
+
+```
+sudo su
+```
+
+
+
+
+
+
+
+----
+
 
 # Linux-Credential-Dumping
