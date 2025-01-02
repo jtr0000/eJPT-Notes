@@ -94,7 +94,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +103,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for System_Host Based Attacks"
+              "title": "Backlinks"
             }
           },
           {
@@ -113,12 +112,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from System_Host Based Attacks"
+              "title": "Outgoing links"
             }
           },
           {
@@ -139,11 +137,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "6 - System_Host Based Attacks/System_Host Based Attacks.md"
-              },
+              "state": {},
               "icon": "lucide-list",
-              "title": "Outline of System_Host Based Attacks"
+              "title": "Outline"
             }
           }
         ]

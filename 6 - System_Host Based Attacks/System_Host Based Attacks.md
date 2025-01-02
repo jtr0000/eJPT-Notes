@@ -1910,7 +1910,7 @@ drwxr-xr-x  5 user group 4096 Dec 20 10:00 ..
 
 Linux uses a utility called **Cron** for task scheduling, allowing applications, scripts, or commands to run automatically at specified intervals. These scheduled tasks, known as **Cron jobs**, are often used for automating functions like backups or system updates. The **crontab** file is a configuration file used by Cron to store and track Cron jobs.
 
-Cron jobs can be configured in several locations depending on the user and purpose:
+Cron jobs can be configured in several locations depending on the user/purpose:
 1. **User-Specific Cron Jobs**: Each user has their own crontab file, which can be listed with: `crontab -u <username> -l`.These jobs are also stored in `/var/spool/cron/` with files named after each user (e.g., `/var/spool/cron/root` for root's Cron jobs).`
 2. **System-Wide Cron Jobs**: The system-wide `crontab` file, located at `/etc/crontab`, allows scheduling for any user. It specifies both the timing of jobs and the user who will execute them.
 3. **Periodic Cron Directories**: Scripts or symbolic links to scripts in `/etc/cron.*` (`/etc/cron.hourly`, `/etc/cron.daily`, `/etc/cron.weekly`, `/etc/cron.monthly`) execute at specified intervals (hourly, daily, weekly, or monthly).
@@ -1957,10 +1957,44 @@ sudo su
 ```
 
 
+### Exploiting SUID Binaries
 
+In addition to the three main file access permissions (read, write, and execute), Linux provides users with specialized permissions that can be utilized in specific scenarios. One such permission is the SUID (Set Owner User ID) permission.
 
+When applied, SUID allows a script or binary to be executed with the permissions of the file owner, rather than the user running the script or binary. This permission is commonly used to enable unprivileged users to execute specific scripts or binaries with "root" permissions.
 
+For example, the `sudo` binary enables any user in the `sudo` group to execute commands with root privileges after providing a password. The `sudo` binary is owned by the root user, which makes it a SUID binary.
 
+Exploiting SUID binaries to elevate privileges depends on the following factors:
+
+- The owner of the SUID binary
+- Our access permissions to the SUID binary
+
+To escalate privileges, we'll search for SUID binaries owned by root (or another privileged user) that we can execute with our current permissions. Then, we'll attempt to exploit any misconfigurations or vulnerabilities within the SUID binary or script to execute commands and obtain an elevated session.
+
+To identify SUID (Set User ID) binaries, use the `ls -al` command to view their permissions. An 's' in the owner's execute field indicates an SUID binary, as shown here: `-rwsr-xr-x`.
+
+The `file` command provides detailed information about a binary, including any shared objects it loads. This is useful because if a binary references missing shared objects, you can create your own with the same name. When the binary runs, it will load your shared object, allowing you to execute arbitrary commands.
+
+```
+file <suid_binary>
+file random_file
+```
+
+Another useful tool is the `strings` command, which extracts and displays printable character sequences from binary files. This helps in identifying embedded text, such as file paths or command-line invocations, within the binary.
+
+```
+strings <suid_binary>
+```
+
+By examining the output, you can look for references to external binaries or scripts that the SUID binary calls. If you find such references, you can replace the external binary with your own version that, for example, launches a root shell. Since the SUID binary runs with elevated privileges, executing your modified external binary can grant you a root shell, effectively elevating your privileges.
+
+```
+rm <external_binary>
+cp /bin/bash <external_binary>
+```
+
+In this scenario, when the SUID binary executes the external binary, it will run your version of the binary with root privileges, providing you with a root shell.
 
 ----
 
