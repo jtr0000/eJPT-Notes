@@ -1972,22 +1972,21 @@ Exploiting SUID binaries to elevate privileges depends on the following factors:
 
 To escalate privileges, we'll search for SUID binaries owned by root (or another privileged user) that we can execute with our current permissions. Then, we'll attempt to exploit any misconfigurations or vulnerabilities within the SUID binary or script to execute commands and obtain an elevated session.
 
-To identify SUID (Set User ID) binaries, use the `ls -al` command to view their permissions. An 's' in the owner's execute field indicates an SUID binary, as shown here: `-rwsr-xr-x`.
+1. **Identify SUID Binaries**: To identify SUID (Set User ID) binaries, use the `ls -al` command to view their permissions. An 's' in the owner's execute field indicates an SUID binary, as shown here: `-rwsr-xr-x`.
 
-The `file` command provides detailed information about a binary, including any shared objects it loads. This is useful because if a binary references missing shared objects, you can create your own with the same name. When the binary runs, it will load your shared object, allowing you to execute arbitrary commands.
+2. **Analyze the Binary**: The `file` command provides detailed information about a binary, including any shared objects it loads. This is useful because if a binary references missing shared objects, you can create your own with the same name. When the binary runs, it will load your shared object, allowing you to execute arbitrary commands.
 
 ```
-file <suid_binary>
-file random_file
+file suid_binary_file
 ```
 
-Another useful tool is the `strings` command, which extracts and displays printable character sequences from binary files. This helps in identifying embedded text, such as file paths or command-line invocations, within the binary.
+Another useful tool is the `strings` command, which extracts and displays printable character sequences from binary files. This helps in identifying embedded text, such as file paths or command-line invocations, within the binary. By examining the output, you can look for references to external binaries or scripts that the SUID binary calls. 
 
 ```
 strings <suid_binary>
 ```
 
-By examining the output, you can look for references to external binaries or scripts that the SUID binary calls. If you find such references, you can replace the external binary with your own version that, for example, launches a root shell. Since the SUID binary runs with elevated privileges, executing your modified external binary can grant you a root shell, effectively elevating your privileges.
+3. **Manipulate External Dependencies**: If you find such references, you can replace the external binary with your own version that, for example, launches a root shell. Since the SUID binary runs with elevated privileges, executing your modified external binary can grant you a root shell, effectively elevating your privileges.
 
 ```
 rm <external_binary>
