@@ -1957,7 +1957,7 @@ sudo su
 ```
 
 
-### Exploiting SUID Binaries
+#### SUID Binaries
 
 In addition to the three main file access permissions (read, write, and execute), Linux provides users with specialized permissions that can be utilized in specific scenarios. One such permission is the SUID (Set Owner User ID) permission.
 
@@ -1965,10 +1965,7 @@ When applied, SUID allows a script or binary to be executed with the permissions
 
 For example, the `sudo` binary enables any user in the `sudo` group to execute commands with root privileges after providing a password. The `sudo` binary is owned by the root user, which makes it a SUID binary.
 
-Exploiting SUID binaries to elevate privileges depends on the following factors:
-
-- The owner of the SUID binary
-- Our access permissions to the SUID binary
+#### Exploiting SUID Binaries
 
 To escalate privileges, we'll search for SUID binaries owned by root (or another privileged user) that we can execute with our current permissions. Then, we'll attempt to exploit any misconfigurations or vulnerabilities within the SUID binary or script to execute commands and obtain an elevated session.
 
