@@ -77,8 +77,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "294afe77c702e9e9",
@@ -161,14 +160,14 @@
   },
   "active": "0c045ab89893d816",
   "lastOpenFiles": [
-    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
+    "1 - Information Gathering/b. Passive Information Gathering.md",
+    "1 - Information Gathering/c. Active Information Gathering.md",
     "6 - System_Host Based Attacks/System_Host Based Attacks.md",
+    "4 - Vulnerability Assessment/Vulnerability Assessment.md",
     "3 - Enumeration/Enumeration.md",
     "Untitled 1.md",
     "2 - Footprinting_Scanning/Footprinting and Scanning.md",
-    "1 - Information Gathering/c. Active Information Gathering.md",
     "Untitled.md",
-    "1 - Information Gathering/b. Passive Information Gathering.md",
     "1 - Information Gathering/a. Introduction.md",
     "1 - Information Gathering/eJPT - Active Information Gathering.apkg",
     "eJPT - Active Information Gathering.apkg",

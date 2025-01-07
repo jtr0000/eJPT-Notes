@@ -1,18 +1,13 @@
 ##### Table Of Contents
 1. [Windows Vulnerabilities](System_Host%20Based%20Attacks.md#windows-vulnerabilities)
 2. [Exploiting Windows Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-windows-vulnerabilities)
-	- IIS and WebDav
-	- SMB Exploitation with PsExec
-	- EternalBlue
-	- RDP
-	- BlueKeep
-1. [Windows Privilege Escalation](System_Host%20Based%20Attacks.md#windows-privilege-escalation)
-2. [Windows File System Vulnerabilities](System_Host%20Based%20Attacks.md#windows-file-system-vulnerabilities)
-3. [Windows Credential Dumping](System_Host%20Based%20Attacks.md#windows-credential-dumping)
-4. [Linux Vulnerabilities](System_Host%20Based%20Attacks.md#linux-vulnerabilities)
-5. [Exploiting Linux Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-linux-vulnerabilities)
-6. [Linux Privilege Escalation](System_Host%20Based%20Attacks.md#linux-privilege-escalation)
-7. [Linux Credential Dumping](System_Host%20Based%20Attacks.md#linux-credential-dumping)
+3. [Windows Privilege Escalation](System_Host%20Based%20Attacks.md#windows-privilege-escalation)
+4. [Windows File System Vulnerabilities](System_Host%20Based%20Attacks.md#windows-file-system-vulnerabilities)
+5. [Windows Credential Dumping](System_Host%20Based%20Attacks.md#windows-credential-dumping)
+6. [Linux Vulnerabilities](System_Host%20Based%20Attacks.md#linux-vulnerabilities)
+7. [Exploiting Linux Vulnerabilities](System_Host%20Based%20Attacks.md#exploiting-linux-vulnerabilities)
+8. [Linux Privilege Escalation](System_Host%20Based%20Attacks.md#linux-privilege-escalation)
+9. [Linux Credential Dumping](System_Host%20Based%20Attacks.md#linux-credential-dumping)
 
 
 ---
@@ -1993,6 +1988,96 @@ cp /bin/bash <external_binary>
 In this scenario, when the SUID binary executes the external binary, it will run your version of the binary with root privileges, providing you with a root shell.
 
 ----
-
-
 # Linux-Credential-Dumping
+
+Linux's multi-user support allows multiple users to access the system simultaneously. This enables resource sharing and collaboration among users but also provides multiple access vectors for attackers. 
+
+All user account information on Linux is stored in '/etc/passwd'. This is a file readable by any user on the system which includes the user IDs, home directories, and the shell configured for each user account. However, passwords themselves are not visible in the passwd file as they are encrypted.
+
+Encrypted passwords for users are stored separately in the '/etc/shadow' file. Access to the shadow file is restricted to the root account to prevent other users on the system from accessing password hashes.
+
+While password hashes on Linux are primarily secured through strong hashing algorithms, the main avenue for attacking these hashes remains password cracking.
+
+The passwd file also provides information about the hashing algorithm used to secure passwords. This can be determined by examining the number after the username, which is enclosed in dollar symbols ($). For example, "$6$" indicates the use of SHA-512 for hashing. Modern Linux systems typically use SHA-256 or SHA-512, which are robust and complex to crack. In contrast, older algorithms such as MD5 and Blowfish are relatively easier to crack.
+
+| Value | Hashing Algorithm |
+| ----- | ----------------- |
+| $1    | MD5               |
+| $2    | Blowfish          |
+| $5    | SHA-256           |
+| $6    | SHA-512           |
+
+#### Step 1 - Gain initial access
+
+Will use an example of vulnerable ProFTPD server
+
+1. **Identify Vulnerabilities with Nmap**: Use Nmap to scan for open ports and services. Look for outdated or vulnerable software versions.
+```
+nmap -sV 10.11.24.1
+```
+
+2. **Search for Exploits**: Use Searchsploit to find known exploits for the identified software `searchsploit <software>`:
+ 
+```
+searchsploit <software>
+```
+
+3. **Leverage Metasploit for Exploitation**: 
+
+```
+service postgresql start && msfconsole
+use <exploit>
+set RHOSTS <target>
+exploit
+```
+
+If payload options don't display, its set to a default payload. Try running the exploit and if you see a message like '...A payload has not been selected'. Try setting a payload manually.
+
+```
+show payloads
+set payload <payload>
+exploit
+```
+
+When the exploit is complete with a meterpreter session. You can start a bash session with `/bin/bash -i`. You can background the session with Ctrl+Z. View available sessions with `sessions` command. You can try to upgrade whatever session you have to a meterpreter session using running sessions with the `-u` option. `sessions -u <session_id>`.
+
+#### Step 2 - Dump Hashes
+
+**Option 1: Manually Access `/etc/shadow` Directly**: Directly read the shadow file through the meterpreter session:
+```
+cat /etc/shadow
+```
+
+Note: The hashes would start with something like this
+
+```
+root:$6$sgewtGbw$ihho...
+```
+
+Since this starts with $6, it would be for the SHA-512 hashing algorithm.
+
+**Option 2: Use the `hashdump` Post-Exploitation Module**: 
+
+The post exploitation module `post/linux/gather/hashdump` is designed for collecting hashed credentials from a compromised Linux system by reading the target's `/etc/shadow` file. The module the hashed credentials for further analysis or cracking. We just need to specify the Meterpreter SESSION of the compromised machine:
+
+```
+use post/linux/gather/hashdump
+set SESSIONS 2
+run
+```
+
+This will paste the hash in the terminal and the unshadowed file is saved as a txt file in Metasploit’s loot directory for cracking (eg `~/.msf4/loot/`). Unshadowing is the process of combining the contents of the `/etc/passwd` and `/etc/shadow` files on a Linux system to create a single file mapping usernames to their corresponding password hashes. Unshadowing the file is essentially preparing the file for it to be cracked by other tools like John the Ripper or Hashcat.
+
+#### Step 2 - Crack Hashes
+
+The unshadowed file should be in a format for cracking and since it should have been already added to the `loot` you can run an auxiliary module like crack_linux. The `auxiliary/analyze/crack_linux` module is designed to crack password hashes from Unix/Linux systems using tools like John the Ripper/Hashcat to identify weak passwords from unshadowed passwd files. By default, it targets MD5, BSDi, and DES hashes, but it can also handle Blowfish and SHA (256/512) hashes, at a slower pace. 
+
+If we know hashing algorithm from the pulled hash (eg `$6..`)  then we know which option to  enable. For example, if we see  `$6..` then we know SHA-512 then we can have the SHA512 option set to `true`.
+
+```
+##optional: search crack_linux
+
+use /auxiliary/analyze/crack_linux 
+set SHA512 true
+run
+```
